@@ -68,40 +68,39 @@ void update(){
             camera_position.z -= 0.1;
         }
     }
-    // cube_rotation.y = fmodf(cube_rotation.y + 0.01f, 2.0f * M_PI);
-    // cube_rotation.x = fmodf(cube_rotation.x + 0.02f, 2.0f * M_PI);
-    projected_point_count = 0;
-    for(int i = 0; i < N_POINTS; i++){
-        vec3_t point = cube_points[i];
-        point = vec3_rotate_y(point, cube_rotation.y);
-        point = vec3_rotate_x(point, cube_rotation.x);
-        point.x -= camera_position.x;
-        point.y -= camera_position.y;
-        point.z -= camera_position.z;
-        if (point.z <= 0.1f) continue;
-        projected_point_count++;
-        vec2_t projected;
-        project(&point, &projected);
-        projected_points[i] = projected;
-    }
+
+    // projected_point_count = 0;
+    // for(int i = 0; i < N_POINTS; i++){
+    //     vec3_t point = cube_points[i];
+    //     vec3_rotate_y(&point, cube_rotation.y, &point);
+    //     vec3_rotate_x(&point, cube_rotation.x, &point);
+    //     point.x -= camera_position.x;
+    //     point.y -= camera_position.y;
+    //     point.z -= camera_position.z;
+    //     if (point.z <= 0.1f) continue;
+    //     projected_point_count++;
+    //     vec2_t projected;
+    //     project(&point, &projected);
+    //     projected_points[i] = projected;
+    // }
 }
 
 
 void render(){
     vid_clear(25, 25, 25);  // Clear i
     minifont_draw_str(vram_s + get_offset(20,10), 640, "Hello World, from Jamies Renderer!");
-    for(int i = 0; i < projected_point_count; i ++){
-        vec2_t v = projected_points[i];
-        vec3_t point = cube_points[i];
-        uint8_t r = (uint8_t)(((point.x + 1.0f) / 2.0f) * 255.0f);
-        uint8_t g = (uint8_t)(((point.y + 1.0f) / 2.0f) * 255.0f);
-        uint8_t b = (uint8_t)(((point.z + 1.0f) / 2.0f) * 255.0f);
+    // for(int i = 0; i < projected_point_count; i ++){
+    //     vec2_t v = projected_points[i];
+    //     vec3_t point = cube_points[i];
+    //     uint8_t r = (uint8_t)(((point.x + 1.0f) / 2.0f) * 255.0f);
+    //     uint8_t g = (uint8_t)(((point.y + 1.0f) / 2.0f) * 255.0f);
+    //     uint8_t b = (uint8_t)(((point.z + 1.0f) / 2.0f) * 255.0f);
 
-        // Convert to 0xRRGGBB
-        uint32_t color = (r << 16) | (g << 8) | b;
+    //     // Convert to 0xRRGGBB
+    //     uint32_t color = (r << 16) | (g << 8) | b;
 
-        draw_rect(v.x + 320, v.y + 240, 5, 5, color);
-    }
+    //     draw_rect(v.x + 320, v.y + 240, 4, 4, color);
+    // }
 }
 
 

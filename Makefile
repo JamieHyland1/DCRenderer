@@ -1,6 +1,6 @@
 
 TARGET = renderer.elf
-OBJS = renderer.o vector.o display.o
+OBJS = renderer.o vector.o display.o mesh.o triangle.o
 
 all: rm-elf $(TARGET)
 
@@ -15,8 +15,8 @@ rm-elf:
 $(TARGET): $(OBJS)
 	kos-cc -o $(TARGET) $(OBJS)
 
-run: $(TARGET)
-	$(KOS_LOADER) $(TARGET)
+run:
+	flycast.exe $(TARGET)
 
 dist: $(TARGET)
 	-rm -f $(OBJS)
