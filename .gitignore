@@ -4,6 +4,9 @@
 # Ignore log files
 *.log
 
+# Ignore elf files
+*.elf
+
 # Ignore build outputs
 *.o
 *.a

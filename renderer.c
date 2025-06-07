@@ -35,13 +35,48 @@ void project(vec3_t* point, vec2_t* result) {
 }
 
 void update(){
-    cube_rotation.y = fmodf(cube_rotation.y + 0.01f, 2.0f * M_PI);
-    cube_rotation.x = fmodf(cube_rotation.x + 0.02f, 2.0f * M_PI);
+    maple_device_t *cont = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
+
+    if(cont) {
+        cont_state_t *state = (cont_state_t *)maple_dev_status(cont);
+
+        if(!state)
+            return;
+
+        if(state->a){
+            cube_rotation.x = fmodf(cube_rotation.x - 0.01f, 2.0f * M_PI);
+        }
+        if(state->y){
+            cube_rotation.x = fmodf(cube_rotation.x + 0.01f, 2.0f * M_PI);
+        }
+        if(state->b){
+           cube_rotation.y = fmodf(cube_rotation.y + 0.01f, 2.0f * M_PI);
+        }
+        if(state->x){
+           cube_rotation.y = fmodf(cube_rotation.y - 0.01f, 2.0f * M_PI);
+        }
+        if(state->buttons & CONT_DPAD_LEFT){
+            camera_position.x -= 0.1;
+        }
+         if(state->buttons & CONT_DPAD_RIGHT){
+            camera_position.x += 0.1;
+        }
+         if(state->buttons & CONT_DPAD_UP){
+            camera_position.z += 0.1;
+        }
+         if(state->buttons & CONT_DPAD_DOWN){
+            camera_position.z -= 0.1;
+        }
+    }
+    // cube_rotation.y = fmodf(cube_rotation.y + 0.01f, 2.0f * M_PI);
+    // cube_rotation.x = fmodf(cube_rotation.x + 0.02f, 2.0f * M_PI);
     projected_point_count = 0;
     for(int i = 0; i < N_POINTS; i++){
         vec3_t point = cube_points[i];
         point = vec3_rotate_y(point, cube_rotation.y);
         point = vec3_rotate_x(point, cube_rotation.x);
+        point.x -= camera_position.x;
+        point.y -= camera_position.y;
         point.z -= camera_position.z;
         if (point.z <= 0.1f) continue;
         projected_point_count++;
