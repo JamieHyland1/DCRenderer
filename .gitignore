@@ -1,0 +1,34 @@
+# Ignore large binary files
+*.cdi
+
+# Ignore log files
+*.log
+
+# Ignore build outputs
+*.o
+*.a
+*.exe
+*.out
+*.obj
+*.bin
+
+# Ignore temporary files
+*.tmp
+*.bak
+*.swp
+
+# Ignore build directories
+build/
+dist/
+bin/
+obj/
+
+# Ignore dependency directories (if applicable)
+node_modules/
+vendor/
+
+# Ignore IDE-specific files (if you use an IDE)
+.vscode/
+.idea/
+*.suo
+*.user
