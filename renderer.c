@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include "vector.h"
 #include "display.h"
+#include "mesh.h"
 
 int frame_count = 0;
 #define N_POINTS (9 * 9 * 9)

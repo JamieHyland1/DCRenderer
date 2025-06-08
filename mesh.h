@@ -7,6 +7,8 @@
 
 #define N_CUBE_VERTICES 8
 #define N_CUBE_FACES (6*2)
+extern vec3_t mesh_vertices[N_CUBE_VERTICES];
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 // Define a struct for dynamic size meshes
