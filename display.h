@@ -28,5 +28,6 @@ void draw_rect(int x, int y, int w, int h, uint32_t color);
 void draw_grid(int xPlot, int rowSize);
 void draw_boxed_grid(void);
 void draw_line(int x1, int y1, int x2, int y2, uint32_t color);
+void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
 //void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color);
 #endif

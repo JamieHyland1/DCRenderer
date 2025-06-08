@@ -14,13 +14,13 @@ typedef struct {
     // tex2_t c_uv;
 } face_t;
 
-// typedef struct {
-//     vec4_t points[3];
-//     tex2_t texcoords[3];
-//     float avg_depth;
-//     uint32_t color;
-//     upng_t* texture;
-// }triangle_t;
+typedef struct {
+    vec2_t points[3];
+    // tex2_t texcoords[3];
+    // float avg_depth;
+    // uint32_t color;
+    // upng_t* texture;
+}triangle_t;
 
 // void draw_filled_triangle( 
 //     int x0, int y0, float z0, float w0,

@@ -112,28 +112,28 @@ void draw_hline(int x1, int x2, int y, uint32_t color) {
     }
 }
 
-// void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
-//     // Sort points by y-coordinate ascending (y0 <= y1 <= y2)
-//     if (y0 > y1) { swap_int(&y0, &y1); swap_int(&x0, &x1); }
-//     if (y0 > y2) { swap_int(&y0, &y2); swap_int(&x0, &x2); }
-//     if (y1 > y2) { swap_int(&y1, &y2); swap_int(&x1, &x2); }
+void draw_filled_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint32_t color) {
+    // Sort points by y-coordinate ascending (y0 <= y1 <= y2)
+    if (y0 > y1) { swap_int(&y0, &y1); swap_int(&x0, &x1); }
+    if (y0 > y2) { swap_int(&y0, &y2); swap_int(&x0, &x2); }
+    if (y1 > y2) { swap_int(&y1, &y2); swap_int(&x1, &x2); }
 
-//     int total_height = y2 - y0;
-//     for (int i = 0; i < total_height; i++) {
-//         bool second_half = i > (y1 - y0) || y1 == y0;
-//         int segment_height = second_half ? (y2 - y1) : (y1 - y0);
-//         float alpha = (float)i / total_height;
-//         float beta  = (float)(i - (second_half ? y1 - y0 : 0)) / segment_height;
+    int total_height = y2 - y0;
+    for (int i = 0; i < total_height; i++) {
+        bool second_half = i > (y1 - y0) || y1 == y0;
+        int segment_height = second_half ? (y2 - y1) : (y1 - y0);
+        float alpha = (float)i / total_height;
+        float beta  = (float)(i - (second_half ? y1 - y0 : 0)) / segment_height;
 
-//         int ax = x0 + (int)((x2 - x0) * alpha);
-//         int bx = second_half
-//                ? x1 + (int)((x2 - x1) * beta)
-//                : x0 + (int)((x1 - x0) * beta);
+        int ax = x0 + (int)((x2 - x0) * alpha);
+        int bx = second_half
+               ? x1 + (int)((x2 - x1) * beta)
+               : x0 + (int)((x1 - x0) * beta);
 
-//         int y = y0 + i;
-//         draw_hline(ax, bx, y, color);
-//     }
-// }
+        int y = y0 + i;
+        draw_hline(ax, bx, y, color);
+    }
+}
 
 void destroy_window(void){
   
