@@ -4,18 +4,26 @@
 #include "display.h"
 #include "mesh.h"
 #include "triangle.h"
+#include <png/png.h>
+#include <stdio.h>
+#include <malloc.h>
+#include <kos/img.h>
+#define PX_PER_LINE 640 // Dreamcast native resolution width
 int frame_count = 0;
 #define N_POINTS (9 * 9 * 9)
 vec3_t cube_points[N_POINTS];
 vec2_t projected_points[N_POINTS];
-triangle_t triangles_to_render[N_CUBE_FACES];
+triangle_t triangles_to_render[100];
+int triangle_count = 0;
 uint64_t start_time = 0, end_time = 0;
 float fps = 0.0f;
 float fov_factor = 640.0f;
 vec3_t camera_position = {.x = 0, .y = 0, .z = 0};
 vec3_t cube_rotation = {.x = 0, .y = 0, .z = 0};
 int projected_point_count = 0;
-
+kos_img_t img;
+  uint16_t* pixels;
+bool is_running = true;
 uint32_t cube_vertex_colors[N_CUBE_VERTICES] = {
     0xFF0000, // Red
     0x00FF00, // Green
@@ -27,7 +35,7 @@ uint32_t cube_vertex_colors[N_CUBE_VERTICES] = {
     0x000000 // Black
 };
 
-void setup(){
+bool setup(){
     vid_set_mode(DM_640x480  | DM_MULTIBUFFER, PM_RGB565);
     vid_mode->fb_count = 2;
     int point_count = 0;
@@ -40,6 +48,17 @@ void setup(){
             }
         }
     }
+
+
+    png_to_img("rd/Anya.png", 0, &img);
+    if (!img.data) {
+        printf("Failed to load image\n");
+        return false;
+    }
+
+    pixels = (uint16_t*)malloc(512 * 512 * sizeof(uint16_t));
+ 
+    return true;
 }
 
 void project(vec3_t* point, vec2_t* result) {
@@ -53,6 +72,7 @@ void project(vec3_t* point, vec2_t* result) {
 }
 
 void update(){
+    triangle_count = 0; // Reset triangle count for each frame
     maple_device_t *cont = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
     if(cont) {
         cont_state_t *state = (cont_state_t *)maple_dev_status(cont);
@@ -99,7 +119,7 @@ void update(){
         // Backface culling: use camera ray
         vec3_t camera_ray;
         vec3_sub(&(vec3_t){0,0,0}, &a, &camera_ray);
-        if (vec3_dot(&normal, &camera_ray) < 0) {
+        if (vec3_dot(&normal, &camera_ray) <= 0) {
             continue;
         }
 
@@ -113,41 +133,66 @@ void update(){
             }
             triangle.points[j] = projected;
         }
-
-        triangles_to_render[i] = triangle;
+        if (triangle_count < 100) {
+            triangles_to_render[triangle_count++] = triangle;
+        }
     }
 }
+
+
+
+void draw_image(int dst_x, int dst_y, int width, int height, const uint16_t *pixels) {
+    for (int y = 0; y < height; y++) {
+        int screen_y = dst_y + y;
+        if (screen_y < 0 || screen_y >= 480) continue;
+
+        for (int x = 0; x < width; x++) {
+            int screen_x = dst_x + x;
+            if (screen_x < 0 || screen_x >= PX_PER_LINE) continue;
+
+            uint16_t color = pixels[y * width + x];
+            draw_pixel(screen_x, screen_y, color);
+        }
+    }
+}
+
 
 
 void render(){
     vid_clear(25, 25, 25);  // Clear i
-    minifont_draw_str(vram_s + get_offset(20,10), 640, "Hello World, from Jamies Renderer!");
-    for(int i = 0; i < N_CUBE_FACES; i++) {
-        triangle_t triangle = triangles_to_render[i];
+
+    draw_image(0, 0, 512, 512, pixels);
+    // minifont_draw_str(vram_s + get_offset(20,10), 640, "Hello World, from Jamies Renderer!");
+
+    // char status_str[64];
+    // snprintf(status_str, sizeof(status_str), "is_running: %s", is_running ? "true" : "false");
+    // minifont_draw_str(vram_s + get_offset(20, 30), 640, status_str);
+    // for(int i = 0; i < triangle_count; i++) {
+    //     triangle_t triangle = triangles_to_render[i];
 
 
 
-        // Draw the triangle
-        draw_filled_triangle(
-            (int)triangle.points[0].x + 320, (int)triangle.points[0].y + 240, 0.0f, 1.0f,
-            (int)triangle.points[1].x + 320, (int)triangle.points[1].y + 240, 0.0f, 1.0f,
-            (int)triangle.points[2].x + 320, (int)triangle.points[2].y + 240, 0.0f, 1.0f,
-            cube_vertex_colors[i % N_CUBE_VERTICES]);
+    //     // Draw the triangle
+    //     // draw_filled_triangle(
+    //     //     (int)triangle.points[0].x + 320, (int)triangle.points[0].y + 240, 0.0f, 1.0f,
+    //     //     (int)triangle.points[1].x + 320, (int)triangle.points[1].y + 240, 0.0f, 1.0f,
+    //     //     (int)triangle.points[2].x + 320, (int)triangle.points[2].y + 240, 0.0f, 1.0f,
+    //     //     cube_vertex_colors[i % N_CUBE_VERTICES]);
 
 
 
-        // draw_triangle(
-        //     (int)triangle.points[0].x, (int)triangle.points[0].y,
-        //     (int)triangle.points[1].x, (int)triangle.points[1].y,
-        //     (int)triangle.points[2].x, (int)triangle.points[2].y,
-        //     0xFFFFFF // White color for the outline
-        // 
-    }
+    //     draw_triangle(
+    //         (int)triangle.points[0].x + 320, (int)triangle.points[0].y + 240,
+    //         (int)triangle.points[1].x + 320, (int)triangle.points[1].y + 240,
+    //         (int)triangle.points[2].x + 320, (int)triangle.points[2].y + 240,
+    //         0xFFFFFF); // White color for the outline
+        
+    // }
 }
 
 
 int main(int argc, char **argv) {
-    setup();
+    is_running = setup();
     while(1) {
         vid_waitvbl();
         update();

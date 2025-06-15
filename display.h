@@ -13,6 +13,7 @@
 #include <utime.h>  // for timer_us_gettime64
 #include <kos/thread.h>
 #include <dc/minifont.h>
+#include <stdbool.h>
 
 int  get_window_width(void);
 int  get_window_height(void);
