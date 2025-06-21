@@ -29,7 +29,7 @@ obj/
 # Ignore dependency directories (if applicable)
 node_modules/
 vendor/
-
+romdisk
 # Ignore IDE-specific files (if you use an IDE)
 .vscode/
 .idea/
