@@ -10,6 +10,7 @@ static float* z_buffer = NULL;
 static int window_width = 640;
 static int window_height = 480;
 
+
 int get_window_width(){
     return window_width;
 }
@@ -23,56 +24,8 @@ int get_offset(int x, int y){
 }
 
 bool initialize_window(void){
-    
-    // if(SDL_Init(SDL_INIT_EVERYTHING) != 0){
-    //     fprintf(stderr, "Error initializing SDL window");
-    //     return false;
-    // }
 
-    // SDL_DisplayMode displayMode;
-
-    // SDL_GetCurrentDisplayMode(0, &displayMode);
-
-    //TODO create SDL window
-    // window = SDL_CreateWindow(
-    //     "The window into jamie's madness",
-    //     SDL_WINDOWPOS_CENTERED,
-    //     SDL_WINDOWPOS_CENTERED,
-    //     full_screen_width,
-    //     full_screen_height,
-    //     SDL_WINDOW_FOREIGN
-    // );
-
-
-    //TODO create SDL Renderer
-    // renderer = SDL_CreateRenderer(window,-1, 0);
-
-    // if(!renderer){
-    //     fprintf(stderr, "Error creating SDL renderer");
-    //     return false;
-    // }
-
-    // SDL_SetWindowBordered(window,SDL_WINDOWPOS_CENTERED);
-
-
-    // Allocating memory for color buffer and Z buffer
-    // color_buffer = (uint16_t*) malloc(sizeof(uint16_t) * window_width * window_height);
     z_buffer = (float*)malloc(sizeof(float) * window_width * window_height);
-    
-    // color_buffer_texture = SDL_CreateTexture(
-    //     renderer,
-    //     SDL_PIXELFORMAT_RGBA32,
-    //     SDL_TEXTUREACCESS_STREAMING,
-    //     window_width,
-    //     window_height
-    // );
-
-
-    //  if(!color_buffer){
-    //     fprintf(stderr, "couldnt allocate memory for color buffer");
-    //     return false;
-        
-    // }
 
     return true;
 }
@@ -132,13 +85,6 @@ void draw_line(int x0, int y0, int x1, int y1, uint16_t color) {
         current_y += y_inc;
     }
 }
-
-void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint16_t color) {
-    draw_line(x0, y0, x1, y1, color);
-    draw_line(x1, y1, x2, y2, color);
-    draw_line(x2, y2, x0, y0, color);
-}
-
 
 void destroy_window(void){
     free(z_buffer);

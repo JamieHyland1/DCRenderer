@@ -13,28 +13,33 @@
 #include <dc/perf_monitor.h>
 #include <dc/minifont.h>
 #include <kos.h>
-#include "../include/debug.h"
+#include <dc/perfctr.h>
+#include <dc/video.h>
+
+#define MAX_TRIANGLES_PER_MESH 10000
+
 int frame_count = 0;
-bool isRunning = false;
+int previous_frame_time = 0;
+int num_triangles_to_render = 0;
 float delta_time;
+float global_y_rotation = 0.0f; // Global rotation angle
+bool isRunning = false;
 mat4_t world_matrix;
 mat4_t projection_matrix;
 mat4_t view_matrix;
-int previous_frame_time = 0;
-float mouseSpeed = 0.51;
-#define MAX_TRIANGLES_PER_MESH 10000
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
-int num_triangles_to_render = 0;
+uint64_t cycles = 0;
+
 enum cull_method
 {
     CULL_NONE,
     CULL_BACKFACE
+
 } cull_method;
 
 enum render_method
 {
     RENDER_WIRE,
-    RENDER_WIRE_VERTEX,
     RENDER_FILL_TRIANGLE,
     RENDER_FILL_TRIANGLE_WIRE,
     RENDER_TEXTURED,
@@ -44,15 +49,14 @@ enum render_method
 enum render_method render_mode;
 enum cull_method cull_mode;
 
-float global_y_rotation = 0.0f; // Global rotation angle
+
 
 bool setup(void){
-   vid_mode->fb_count = 4;
-vid_set_mode(DM_640x480 | DM_MULTIBUFFER, PM_RGB565);
-vid_mode->fb_count = 4;
-printf("Framebuffer count after vid_set_mode: %d\n", vid_mode->fb_count);
-    // Set Initial Render Modes
-    cull_mode = CULL_BACKFACE;
+    vid_set_mode(DM_640x480 | DM_MULTIBUFFER, PM_RGB565);
+    vid_mode->fb_count = 4;
+    printf("Framebuffer count after vid_set_mode: %d\n", vid_mode->fb_count);
+    printf("Vid get start width: %ld\n", vid_get_start(-1));
+
     render_mode = RENDER_TEXTURED;
     cull_mode = CULL_BACKFACE;
     // Initialize Light Direction
@@ -70,9 +74,8 @@ printf("Framebuffer count after vid_set_mode: %d\n", vid_mode->fb_count);
     projection_matrix = mat4_make_perspective(fov_y, aspect_y, znear, zfar);
 
     init_frustum_planes(fov_x, fov_y, znear, zfar);
-    render_mode = RENDER_TEXTURED;
     load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1, 1, 1), vec3_new(-3, 0, 8), vec3_new(0, 0, 0));
-   // load_mesh("rd/skull.obj", "rd/SamHead.png", vec3_new(3,3,3), vec3_new(-3,0,0), vec3_new(0,0,0));
+    // load_mesh("rd/skull.obj", "rd/SamHead.png", vec3_new(3,3,3), vec3_new(-3,0,0), vec3_new(0,0,0));
 
     return true;
 }
@@ -211,7 +214,6 @@ void process_graphics_pipeline(mesh_t *mesh){
                     {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w},
                 },
                 .texcoords = {{triangle_after_clipping.texcoords[0].u, triangle_after_clipping.texcoords[0].v}, {triangle_after_clipping.texcoords[1].u, triangle_after_clipping.texcoords[1].v}, {triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v}},
-                .color = 0xFFFF,
                 .texture = mesh->img
             };
             if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH)
@@ -226,13 +228,11 @@ void process_graphics_pipeline(mesh_t *mesh){
 
 void update(void)
 {
-    // reset number of triangles to render each frame
     num_triangles_to_render = 0;
-    global_y_rotation += 0.01f; // Increment rotation angle each frame
+   // global_y_rotation += 0.01f; // Increment rotation angle each frame
     for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++){
         mesh_t* mesh = get_mesh(mesh_index);
     //    mesh->rotation.y = global_y_rotation; // Set mesh rotation
-    
         process_graphics_pipeline(mesh);
       
     }
@@ -240,7 +240,11 @@ void update(void)
 
 void process_input(void)
 {
-   
+    
+    #ifdef DEBUG_ENABLED 
+        perf_cntr_clear(PRFC0);
+        perf_cntr_start(PRFC0, PMCR_INSTRUCTION_CACHE_MISS_MODE, PMCR_COUNT_CPU_CYCLES);
+    #endif
     maple_device_t *cont = maple_enum_type(0, MAPLE_FUNC_CONTROLLER);
     if (cont)
     {
@@ -251,19 +255,19 @@ void process_input(void)
 
         if (state->buttons & CONT_A)
         {
-            // printf("A button pressed\n");
         }
         if (state->buttons & CONT_B)
         {
-            // printf("B button pressed\n");
+            render_mode++;
         }
         if (state->buttons & CONT_X)
         {
-            // printf("X button pressed\n");
+            render_mode--;
         }
         if (state->buttons & CONT_Y)
         {
-            // printf("Y button pressed\n");
+            printf("Y button pressed\n");
+            isRunning = false; // Exit the application
         }
         if (state->buttons & CONT_DPAD_UP)
         {
@@ -311,91 +315,144 @@ void process_input(void)
         }
     }
 
+    #ifdef DEBUG_ENABLED 
+        perf_cntr_stop(PRFC0);
+        cycles = perf_cntr_count(PRFC0);
+        printf("Input handling: %llu cycles\n", cycles);
+    #endif
+
    
 }
 
 void render(void)
 {
+
     vid_clear(25, 25, 25); // Clear i
     minifont_draw_str(vram_s + get_offset(20, 10), 640, "Hello World, from Jamies Renderer!");
     clear_z_buffer();
     
-    //printf("Number of triangles to render: %d\n", num_triangles_to_render);
+    // printf("Number of triangles to render: %d\n", num_triangles_to_render);
     for(int i = 0; i < num_triangles_to_render; i ++){
-        debug_profiler_start();
+        // DEBUG_ENABLED _profiler_start();
         triangle_t tri = triangles_to_render[i];
         //Draw based on the render mode
             switch(render_mode)
             {
                 case RENDER_WIRE:
+                    #ifdef DEBUG_ENABLED 
+                        perf_cntr_clear(PRFC0);
+                        perf_cntr_start(PRFC0, PMCR_INSTRUCTION_CACHE_MISS_MODE, PMCR_COUNT_CPU_CYCLES);
+                    #endif
                     draw_triangle(
                         tri.points[0].x, tri.points[0].y, // vertex A
                         tri.points[1].x, tri.points[1].y, // vertex B
                         tri.points[2].x, tri.points[2].y, // vertex C
                         0xFFFF // color (16-bit white)
                     );
-                    break;
-                case RENDER_WIRE_VERTEX:
-                    draw_triangle(
-                        tri.points[0].x, tri.points[0].y, // vertex A
-                        tri.points[1].x, tri.points[1].y, // vertex B
-                        tri.points[2].x, tri.points[2].y, // vertex C
-                        0xFFFF // color (16-bit white)
-                    );
-                    // draw_vertex(tri.points[0], 0xFF0000);
-                    // draw_vertex(tri.points[1], 0x00FF00);
-                    // draw_vertex(tri.points[2], 0x0000FF);
+                    #ifdef DEBUG_ENABLED 
+                        perf_cntr_stop(PRFC0);
+                        cycles = perf_cntr_count(PRFC0);
+                        printf("Draw Wire Triangle: %llu cycles\n", cycles);
+                    #endif
                     break;
                 case RENDER_FILL_TRIANGLE:
+                    #ifdef DEBUG_ENABLED 
+                        perf_cntr_clear(PRFC0);
+                        perf_cntr_start(PRFC0, PMCR_INSTRUCTION_CACHE_MISS_MODE, PMCR_COUNT_CPU_CYCLES);
+                    #endif
                     draw_filled_triangle(
-                        tri.points[0].x, tri.points[0].y, tri.points[0].z, tri.points[0].w,
-                        tri.points[1].x, tri.points[1].y, tri.points[1].z, tri.points[1].w,
-                        tri.points[2].x, tri.points[2].y, tri.points[2].z, tri.points[2].w,
-                        0xF800 // 16-bit red
+                        &(vec2i_t){(int)tri.points[0].x, (int)tri.points[0].y},
+                        &(vec2i_t){(int)tri.points[1].x, (int)tri.points[1].y},
+                        &(vec2i_t){(int)tri.points[2].x, (int)tri.points[2].y},
+                        0xF800 // Red color
                     );
+                    #ifdef DEBUG_ENABLED 
+                        perf_cntr_stop(PRFC0);
+                        cycles = perf_cntr_count(PRFC0);
+                        printf("Draw Fill Triangle: %llu cycles\n", cycles);
+                    #endif
                     break;
                 case RENDER_FILL_TRIANGLE_WIRE:
-                    draw_filled_triangle(
-                        tri.points[0].x, tri.points[0].y, tri.points[0].z, tri.points[0].w,
-                        tri.points[1].x, tri.points[1].y, tri.points[1].z, tri.points[1].w,
-                        tri.points[2].x, tri.points[2].y, tri.points[2].z, tri.points[2].w,
-                        0xF800 // 16-bit red
+                    #ifdef DEBUG_ENABLED 
+                        perf_cntr_clear(PRFC0);
+                        perf_cntr_start(PRFC0, PMCR_INSTRUCTION_CACHE_MISS_MODE, PMCR_COUNT_CPU_CYCLES);
+                    #endif
+                    draw_filled_triangle_wire(
+                        &(vec2i_t){(int)tri.points[0].x, (int)tri.points[0].y},
+                        &(vec2i_t){(int)tri.points[1].x, (int)tri.points[1].y},
+                        &(vec2i_t){(int)tri.points[2].x, (int)tri.points[2].y},
+                        0xF800 // Red color
                     );
-                    draw_triangle(
-                        tri.points[0].x, tri.points[0].y,
-                        tri.points[1].x, tri.points[1].y,
-                        tri.points[2].x, tri.points[2].y,
-                        0xFFFF // wireframe color
-                    );
+                    #ifdef DEBUG_ENABLED 
+                        perf_cntr_stop(PRFC0);
+                        cycles = perf_cntr_count(PRFC0);
+                        printf("Draw filled Tirangle Wire: %llu cycles\n", cycles);
+                    #endif
                     break;
                 case RENDER_TEXTURED:
+                    #ifdef DEBUG_ENABLED 
+                        perf_cntr_clear(PRFC0);
+                        perf_cntr_start(PRFC0, PMCR_INSTRUCTION_CACHE_MISS_MODE, PMCR_COUNT_CPU_CYCLES);
+                    #endif
                     draw_textured_triangle(
-                        tri.points[0].x, tri.points[0].y, tri.points[0].z ,tri.points[0].w, tri.texcoords[0].u, tri.texcoords[0].v, // vertex A
-                        tri.points[1].x, tri.points[1].y, tri.points[1].z ,tri.points[1].w, tri.texcoords[1].u, tri.texcoords[1].v, // vertex B
-                        tri.points[2].x, tri.points[2].y, tri.points[2].z ,tri.points[2].w, tri.texcoords[2].u, tri.texcoords[2].v,  // vertex C
+                        &(vec2i_t){(int)tri.points[0].x, (int)tri.points[0].y},
+                        &(vec2i_t){(int)tri.points[1].x, (int)tri.points[1].y},
+                        &(vec2i_t){(int)tri.points[2].x, (int)tri.points[2].y},
+                        &(vec2_t){   tri.texcoords[0].u,   tri.texcoords[0].v},
+                        &(vec2_t){   tri.texcoords[1].u,   tri.texcoords[1].v},
+                        &(vec2_t){   tri.texcoords[2].u,   tri.texcoords[2].v},
                         tri.texture
                     );
+                    #ifdef DEBUG_ENABLED 
+                        perf_cntr_stop(PRFC0);
+                        cycles = perf_cntr_count(PRFC0);
+                        printf("Draw Textured Tirangle: %llu cycles\n", cycles);
+                    #endif
                     break;
                 case RENDER_TEXTURED_WIRE:
-                    draw_textured_triangle(
-                        tri.points[0].x, tri.points[0].y, tri.points[0].z ,tri.points[0].w, tri.texcoords[0].u, tri.texcoords[0].v, // vertex A
-                        tri.points[1].x, tri.points[1].y, tri.points[1].z ,tri.points[1].w, tri.texcoords[1].u, tri.texcoords[1].v, // vertex B
-                        tri.points[2].x, tri.points[2].y, tri.points[2].z ,tri.points[2].w, tri.texcoords[2].u, tri.texcoords[2].v,  // vertex C
-                        tri.texture
-                    );
-                    draw_triangle(
-                        tri.points[0].x, tri.points[0].y,
-                        tri.points[1].x, tri.points[1].y,
-                        tri.points[2].x, tri.points[2].y,
-                        0xFFFF // wireframe color
-                    );
+                    #ifdef DEBUG_ENABLED 
+                        perf_cntr_clear(PRFC0);
+                        perf_cntr_start(PRFC0, PMCR_INSTRUCTION_CACHE_MISS_MODE, PMCR_COUNT_CPU_CYCLES);
+                    #endif
+                    // TODO draw_textured_triangle_wire
+                    #ifdef DEBUG_ENABLED 
+                        perf_cntr_stop(PRFC0);
+                        cycles = perf_cntr_count(PRFC0);
+                        printf("Draw Textured Tirangle Wire: %llu cycles\n", cycles);
+                    #endif
                     break;
             }
-            debug_profiler_print(stdout);
-            debug_profiler_stop();
+            // DEBUG_ENABLED _profiler_print(stdout);
+            // DEBUG_ENABLED _profiler_stop();
     }
     //draw_z_buffer_to_screen();
-    
+
+    //minifont_draw_str(vram_s + get_offset(90, 80), 640, "Filled Triangle");
+    // draw_filled_triangle(
+    //     100, 100, 0, 1,
+    //     200, 100, 0, 1,
+    //     150, 200, 0, 1,
+    //     0xF800 // Red color
+    // );
+
+
+
+    // minifont_draw_str(vram_s + get_offset(290, 80), 640, "Optimized Filled Triangle");
+   
+
+    // draw_filled_triangle_optimized(
+    //     &(vec2i_t){300, 100},
+    //     &(vec2i_t){400, 100},
+    //     &(vec2i_t){350, 200},
+    //     0xF800
+    // );
+
+   
+
+   // draw_random_filled_triangle();
+    #ifdef DEBUG_ENABLED 
+        if(frame_count == 1)isRunning = false; // Stop after 2 frames for testing
+    #endif
 }
 
 int main(int argc, char *args[])
@@ -403,6 +460,7 @@ int main(int argc, char *args[])
     isRunning = initialize_window();
 
     setup();
+   
     while (isRunning) // Limit to 1000 frames for testing
     {
         vid_waitvbl();

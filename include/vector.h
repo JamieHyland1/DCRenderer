@@ -11,7 +11,14 @@ typedef struct{
     float y;
 }vec2_t;
 
+typedef struct{
+    int x;
+    int y;
+}vec2i_t;
 
+typedef struct {
+    int v[4];
+} Vec4i;
 
 
 vec3f_t vec3_rotate_x(vec3f_t v, float angle);

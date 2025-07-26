@@ -2,7 +2,7 @@
 #include "../include/matrix.h"
 #include "math.h"
 static camera_t camera = {
-    .position = {0,0,-6},
+    .position = {0,0,-3},
     .direction = {0,0,1},
     .forward_velocity = {0,0,0},
     .right = {1,0,0},

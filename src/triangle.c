@@ -1,259 +1,196 @@
+#include <stdlib.h>
+#include <time.h>
 #include "../include/triangle.h"
 #include "../include/display.h"
 #include <math.h>
 #include "../include/swap.h"
 #include <dc/perf_monitor.h>
 #include "../include/utils.h"
-void draw_filled_triangle( 
-    int x0, int y0, float z0, float w0,
-    int x1, int y1, float z1, float w1,
-    int x2, int y2, float z2, float w2, uint16_t color){
-   
 
-     if(y0 > y1){
-        int_swap(&y0,&y1);
-        int_swap(&x0,&x1);
+#define CLAMP(val, min, max) ((val) < (min) ? (min) : ((val) > (max) ? (max) : (val)))
 
-        float_swap(&z0,&z1);
-        float_swap(&w0,&w1);
-
-
-       
-    }
-    if(y1 > y2){
-        int_swap(&y1,&y2);
-        int_swap(&x1,&x2);
-
-        float_swap(&z1,&z2);
-        float_swap(&w1,&w2);
-
-    }
-    if ( y0 > y1){
-        int_swap(&y0,&y1);
-        int_swap(&x0,&x1);
-
-        float_swap(&z0,&z1);
-        float_swap(&w0,&w1);
-
-      
-    }
-
-  
-    //Create vector points after sorting vertices of triangle
-    vector_t point_a = {x0,y0,z0,w0};
-    vector_t point_b = {x1,y1,z1,w1};
-    vector_t point_c = {x2,y2,z2,w2};
-
-
-    float inv_slope_1 = 0;
-    float inv_slope_2 = 0;
-
-    //inv_slope_1 = dx/dy => (x1-x0)/(y1-y0)
-    //inv_slope_2 = dx/dy => (x2-x0)/(y2-y0)
-
-    if(y1 - y0 != 0)inv_slope_1 = (float)(x1-x0)/fabs(y1-y0);
-    if(y2 - y0 != 0)inv_slope_2 = (float)(x2-x0)/fabs(y2-y0);
-
-    
-    ////////////////////////////
-    // Draw flat bottom triangle
-    ///////////////////////////
-
-
-    if(y1-y0 != 0){
-        for(int y = y0; y <= y1; y ++){
-            
-            int x_start = x1 + (y-y1) * inv_slope_1;
-            int x_end = x0 + (y-y0) * inv_slope_2;
-
-            if(x_end < x_start){
-                int_swap(&x_start,&x_end); // if a triangle is rotated a certain way x_start could be greater than x_end
-            }
-
-            for(int x = x_start; x < x_end; x++){
-                
-               draw_filled_pixel(x, y, point_a,  point_b, point_c, color);
-            }
-        }
-    }
-
-
-    ////////////////////////////
-    // Draw flat top triangle
-    ///////////////////////////
-
-
-    inv_slope_1 = 0;
-    inv_slope_2 = 0;
-
-    //inv_slope_1 = dx/dy => (x2-x1)/(y1-y0)
-    //inv_slope_2 = dx/dy => (x2-x0)/(y2-y0)
-
-    if(y2 - y1 != 0)inv_slope_1 = (float)(x2-x1)/fabs(y2-y1);
-    if(y2 - y0 != 0)inv_slope_2 = (float)(x2-x0)/fabs(y2-y0);
-
-    if(y2-y1 != 0){
-        for(int y = y1; y <= y2; y ++){
-            
-            int x_start = x1 + (y-y1) * inv_slope_1;
-            int x_end   = x0 + (y-y0) * inv_slope_2;
-
-            if(x_end < x_start){
-                int_swap(&x_start,&x_end); // if a triangle is rotated a certain way x_start could be greater than x_end
-            }
-
-            for(int x = x_start; x < x_end; x++){
-                
-               draw_filled_pixel(x, y, point_a,  point_b, point_c, color);
-            }
-        }
-    }
-
+#define SWAP(v1, v2, type) { \
+type temp = v2; \
+v2 = v1; \
+v1 = temp; \
 }
 
-
-
-
-void draw_textured_triangle(
-    int x0, int y0, float z0, float w0, float u0, float v0,
-    int x1, int y1, float z1, float w1, float u1, float v1,
-    int x2, int y2, float z2, float w2, float u2, float v2,
-    kos_img_t texture
-){
-
-
-   if(y0 > y1){
-        int_swap(&y0,&y1);
-        int_swap(&x0,&x1);
-
-        float_swap(&z0,&z1);
-        float_swap(&w0,&w1);
-
-        float_swap(&u0,&u1);
-        float_swap(&v0,&v1);
-    }
-    if(y1 > y2){
-        int_swap(&y1,&y2);
-        int_swap(&x1,&x2);
-
-        float_swap(&z1,&z2);
-        float_swap(&w1,&w2);
-
-        float_swap(&u1,&u2);
-        float_swap(&v1,&v2);
-    }
-    if ( y0 > y1){
-        int_swap(&y0,&y1);
-        int_swap(&x0,&x1);
-
-        float_swap(&z0,&z1);
-        float_swap(&w0,&w1);
-
-        float_swap(&u0,&u1);
-        float_swap(&v0,&v1);
-    }
-
-    //Flip the V component for inverted V coordinates
-    v0 = 1.0-v0;
-    v1 = 1.0-v1;
-    v2 = 1.0-v2;
-
-    //Create vector points after sorting vertices of triangle
-    vector_t point_a = {x0,y0,z0,w0};
-    vector_t point_b = {x1,y1,z1,w1};
-    vector_t point_c = {x2,y2,z2,w2};
-
-
-    float inv_slope_1 = 0;
-    float inv_slope_2 = 0;
-
-    //inv_slope_1 = dx/dy => (x1-x0)/(y1-y0)
-    //inv_slope_2 = dx/dy => (x2-x0)/(y2-y0)
-
-    if(y1 - y0 != 0)inv_slope_1 = (float)(x1-x0)/fabs(y1-y0);
-    if(y2 - y0 != 0)inv_slope_2 = (float)(x2-x0)/fabs(y2-y0);
-
-    
-    ////////////////////////////
-    // Draw flat bottom triangle
-    ///////////////////////////
-
-
-    if(y1-y0 != 0){
-        for(int y = y0; y <= y1; y ++){
-            
-            int x_start = x1 + (y-y1) * inv_slope_1;
-            int x_end = x0 + (y-y0) * inv_slope_2;
-
-            if(x_end < x_start){
-                int_swap(&x_start,&x_end); // if a triangle is rotated a certain way x_start could be greater than x_end
-            }
-
-            for(int x = x_start; x < x_end; x++){
-                
-                draw_textured_texel(x, y, point_a,  point_b, point_c, u0, u1, v0, v1, u2, v2, texture);
-            }
-        }
-    }
-
-
-    ////////////////////////////
-    // Draw flat top triangle
-    ///////////////////////////
-
-
-    inv_slope_1 = 0;
-    inv_slope_2 = 0;
-
-    //inv_slope_1 = dx/dy => (x2-x1)/(y1-y0)
-    //inv_slope_2 = dx/dy => (x2-x0)/(y2-y0)
-
-    if(y2 - y1 != 0)inv_slope_1 = (float)(x2-x1)/fabs(y2-y1);
-    if(y2 - y0 != 0)inv_slope_2 = (float)(x2-x0)/fabs(y2-y0);
-
-    if(y2-y1 != 0){
-        for(int y = y1; y <= y2; y ++){
-            
-            int x_start = x1 + (y-y1) * inv_slope_1;
-            int x_end   = x0 + (y-y0) * inv_slope_2;
-
-            if(x_end < x_start){
-                int_swap(&x_start,&x_end); // if a triangle is rotated a certain way x_start could be greater than x_end
-            }
-
-            for(int x = x_start; x < x_end; x++){
-                
-                draw_textured_texel(x, y, point_a,  point_b, point_c, u0, u1, v0, v1, u2, v2, texture);
-            }
-        }
-    }
+int orient2d(vec2i_t* a, vec2i_t* b, vec2i_t* c)
+{
+    return ((b->x-a->x)*(c->y-a->y) - (b->y-a->y)*(c->x-a->x));
 }
 
-void draw_filled_pixel(int x, int y, vector_t point_a, vector_t point_b, vector_t point_c, uint16_t color){
-    vec2_t p = {x,y};
+void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint16_t color) {
+    draw_line(x0, y0, x1, y1, color);
+    draw_line(x1, y1, x2, y2, color);
+    draw_line(x2, y2, x0, y0, color);
+}
 
-    vec2_t a = vec2_from_vec4(point_a);
-    vec2_t b = vec2_from_vec4(point_b);
-    vec2_t c = vec2_from_vec4(point_c);
+void draw_filled_triangle(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, uint16_t color){
+    #ifdef DEBUG_ENABLED
+        perf_monitor();
+    #endif
+    int minx = v0->x < v1->x ? (v0->x < v2->x ? v0->x : v2->x) : (v1->x < v2->x ? v1->x : v2->x);
+    int miny = v0->y < v1->y ? (v0->y < v2->y ? v0->y : v2->y) : (v1->y < v2->y ? v1->y : v2->y);
+    int maxx = v0->x > v1->x ? (v0->x > v2->x ? v0->x : v2->x) : (v1->x > v2->x ? v1->x : v2->x);
+    int maxy = v0->y > v1->y ? (v0->y > v2->y ? v0->y : v2->y) : (v1->y > v2->y ? v1->y : v2->y);
 
-    vec3f_t weights = barycentric_weights(a,b,c,p);
-    
-    float alpha = weights.x;
-    float beta  = weights.y;
-    float gamma = weights.z;
+    int A01 = v0->y - v1->y, B01 = v1->x - v0->x;
+    int A12 = v1->y - v2->y, B12 = v2->x - v1->x;
+    int A20 = v2->y - v0->y, B20 = v0->x - v2->x;
 
-    // interpolated reciprocal of W
-    float interpolated_reciprocal_w = (1 / point_a.w) * alpha + (1 / point_b.w) * beta + (1 / point_c.w) * gamma;
+    vec2i_t p = {minx, miny};
+
+    int w0_row = orient2d(v1, v2, &p);
+    int w1_row = orient2d(v2, v0, &p);
+    int w2_row = orient2d(v0, v1, &p);
 
 
-    //Only draw pixel if depth of pixel is greater than previous pixel
-    // 1 <- right in front of camera 0 -> farthest point to the camera
+    for(p.y = miny; p.y <= maxy; ++p.y) {
 
-    if(interpolated_reciprocal_w > get_z_buffer_at(x, y)){
-        draw_pixel(x,y,color);
-        //update z buffer of current pixel
-        update_zbuffer(x, y, interpolated_reciprocal_w);
+        int w0 = w0_row;
+        int w1 = w1_row;
+        int w2 = w2_row;
+        for(p.x = minx; p.x <= maxx; ++p.x) {
+
+            if ((w0 | w1 | w2) >= 0){
+                draw_pixel(p.x,     p.y, color);
+            }
+
+            w0 += (A12);
+            w1 += (A20);
+            w2 += (A01);
+        }
+
+        w0_row += (B12);
+        w1_row += (B20);
+        w2_row += (B01);
     }
+    #ifdef DEBUG_ENABLED
+        perf_monitor_print(stdout);
+        perf_monitor_exit();
+    #endif 
+}
+
+void draw_filled_triangle_wire(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, uint16_t color){
+    #ifdef DEBUG_ENABLED
+        perf_monitor();
+    #endif
+    int minx = v0->x < v1->x ? (v0->x < v2->x ? v0->x : v2->x) : (v1->x < v2->x ? v1->x : v2->x);
+    int miny = v0->y < v1->y ? (v0->y < v2->y ? v0->y : v2->y) : (v1->y < v2->y ? v1->y : v2->y);
+    int maxx = v0->x > v1->x ? (v0->x > v2->x ? v0->x : v2->x) : (v1->x > v2->x ? v1->x : v2->x);
+    int maxy = v0->y > v1->y ? (v0->y > v2->y ? v0->y : v2->y) : (v1->y > v2->y ? v1->y : v2->y);
+
+    int A01 = v0->y - v1->y, B01 = v1->x - v0->x;
+    int A12 = v1->y - v2->y, B12 = v2->x - v1->x;
+    int A20 = v2->y - v0->y, B20 = v0->x - v2->x;
+
+    vec2i_t p = {minx, miny};
+
+    int w0_row = orient2d(v1, v2, &p);
+    int w1_row = orient2d(v2, v0, &p);
+    int w2_row = orient2d(v0, v1, &p);
+
+
+    for(p.y = miny; p.y <= maxy; ++p.y) {
+
+        int w0 = w0_row;
+        int w1 = w1_row;
+        int w2 = w2_row;
+        for(p.x = minx; p.x <= maxx; ++p.x) {
+            int inside = (w0 | w1 | w2) >= 0;
+            int edge_thresh = 75; 
+
+            int on_edge =
+                (w0 >= -edge_thresh && w0 <= edge_thresh) ||
+                (w1 >= -edge_thresh && w1 <= edge_thresh) ||
+                (w2 >= -edge_thresh && w2 <= edge_thresh);
+
+            if (inside && on_edge){
+                draw_pixel(p.x, p.y, 0XFFFF); // Draw wireframe pixel
+            }
+            else if(inside){
+                draw_pixel(p.x, p.y, color); // Draw filled pixel
+            }
+
+            w0 += (A12);
+            w1 += (A20);
+            w2 += (A01);
+        }
+
+        w0_row += (B12);
+        w1_row += (B20);
+        w2_row += (B01);
+    }
+    #ifdef DEBUG_ENABLED
+        perf_monitor_print(stdout);
+        perf_monitor_exit();
+    #endif 
+}
+
+void draw_textured_triangle(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, vec2_t* uv0, vec2_t* uv1, vec2_t* uv2, kos_img_t texture){
+    #ifdef DEBUG_ENABLED
+        perf_monitor();
+    #endif
+    uint16_t* tex_data = (uint16_t*)texture.data;
+    int tex_width = texture.w;
+    int tex_height = texture.h;
+
+    int minx = v0->x < v1->x ? (v0->x < v2->x ? v0->x : v2->x) : (v1->x < v2->x ? v1->x : v2->x);
+    int miny = v0->y < v1->y ? (v0->y < v2->y ? v0->y : v2->y) : (v1->y < v2->y ? v1->y : v2->y);
+    int maxx = v0->x > v1->x ? (v0->x > v2->x ? v0->x : v2->x) : (v1->x > v2->x ? v1->x : v2->x);
+    int maxy = v0->y > v1->y ? (v0->y > v2->y ? v0->y : v2->y) : (v1->y > v2->y ? v1->y : v2->y);
+
+    int A01 = v0->y - v1->y, B01 = v1->x - v0->x;
+    int A12 = v1->y - v2->y, B12 = v2->x - v1->x;
+    int A20 = v2->y - v0->y, B20 = v0->x - v2->x;
+
+    vec2i_t p = {minx, miny};
+
+    int w0_row = orient2d(v1, v2, &p);
+    int w1_row = orient2d(v2, v0, &p);
+    int w2_row = orient2d(v0, v1, &p);
+    int area   = orient2d(v0, v1, v2);
+
+    for(p.y = miny; p.y <= maxy; ++p.y) {
+
+        int w0 = w0_row;
+        int w1 = w1_row;
+        int w2 = w2_row;
+        for(p.x = minx; p.x <= maxx; ++p.x) {
+
+            if ((w0 | w1 | w2) >= 0){
+                float b0 = (float)w0 / (float)area;
+                float b1 = (float)w1 / (float)area;
+                float b2 = (float)w2 / (float)area;
+
+                float u = b0 * uv0->x + b1 * uv1->x + b2 * uv2->x;
+                float v = b0 * uv0->y + b1 * uv1->y + b2 * uv2->y;
+
+                u = u < 0.0f ? 0.0f : (u > 1.0f ? 1.0f : u);
+                v = v < 0.0f ? 0.0f : (v > 1.0f ? 1.0f : v);
+
+
+                int tex_x = (int)(u * (tex_width - 1));
+                int tex_y = (int)((1.0f - v) * (tex_height - 1));
+
+                uint16_t color = tex_data[tex_y * tex_width + tex_x];
+                draw_pixel(p.x, p.y, color);
+            }
+
+            w0 += (A12);
+            w1 += (A20);
+            w2 += (A01);
+        }
+
+        w0_row += (B12);
+        w1_row += (B20);
+        w2_row += (B01);
+    }
+    #ifdef DEBUG_ENABLED
+        perf_monitor_print(stdout);
+        perf_monitor_exit();
+    #endif 
 }
 
 vec3f_t get_triangle_face_normal(vector_t vertices[3]){
@@ -262,79 +199,4 @@ vec3f_t get_triangle_face_normal(vector_t vertices[3]){
     vec3f_t tri_normal = vec3_cross(v1,v2);
 
     return tri_normal;
-}
-
-void draw_textured_texel(int x, int y, vector_t point_a, vector_t point_b, vector_t point_c, float u0, float u1, float v0, float v1, float u2, float v2, kos_img_t texture){
-
-    vec2_t p = {x,y};
-
-    vec2_t a = vec2_from_vec4(point_a);
-    vec2_t b = vec2_from_vec4(point_b);
-    vec2_t c = vec2_from_vec4(point_c);
-
-    vec3f_t weights = barycentric_weights(a,b,c,p);
-    
-    float alpha = weights.x;
-    float beta  = weights.y;
-    float gamma = weights.z;
-
-    // interpolated values of U and V and the reciprocal of W
-    float interpolated_u;
-    float interpolated_v;
-    float interpolated_reciprocal_w;
-
-    interpolated_u = (u0 / point_a.w) * alpha + (u1 / point_b.w) * beta + (u2 / point_c.w) * gamma;
-    interpolated_v = (v0 / point_a.w) * alpha + (v1 / point_b.w) * beta + (v2 / point_c.w) * gamma;
-
-
-    // Also interpolate the value of 1/w for the current pixel
-    interpolated_reciprocal_w = ( 1 / point_a.w ) * alpha + ( 1 / point_b.w ) * beta + ( 1 / point_c.w ) * gamma;
-
-    // Now we divide back both values by 1/W
-    interpolated_u /= interpolated_reciprocal_w;
-    interpolated_v /= interpolated_reciprocal_w;
-
-    interpolated_u = fminf(fmaxf(interpolated_u, 0.0f), 1.0f);
-    interpolated_v = fminf(fmaxf(interpolated_v, 0.0f), 1.0f);
-
-    // Get texture width and height dimensions
-    int texture_width = (texture.w);
-    int texture_height = (texture.h);
-
-    int tex_x = (int)(interpolated_u * (texture_width - 1));
-    int tex_y = (int)(interpolated_v * (texture_height - 1));
-    
-    //Only draw pixel if depth of pixel is greater than previous pixel
-    // 1 <- right in front of camera 0 -> farthest point to the camera
-    
-    if(interpolated_reciprocal_w > get_z_buffer_at(x, y) ){
-        uint16_t* tex_data = (uint16_t*)texture.data;
-        uint16_t color = tex_data[tex_x + (tex_y * texture_width)];
-        draw_pixel(x,y,color);
-        
-        //update z buffer of current pixel
-        update_zbuffer(x, y, interpolated_reciprocal_w);
-       // printf("updating z buffer tex_x: %d, tex_y: %d, color: %d\n", tex_x, tex_y, color);
-    }
-}
-
-vec3f_t barycentric_weights(vec2_t a, vec2_t b, vec2_t c, vec2_t p){
-    vec2_t ac = vec2_sub(c, a);
-    vec2_t ab = vec2_sub(b, a);
-    vec2_t ap = vec2_sub(p, a);
-    vec2_t pc = vec2_sub(c, p);
-    vec2_t pb = vec2_sub(b, p);
-
-    float area_of_abc = (ac.x * ab.y - ac.y * ab.x); //  || AC X AB  ||
-
-    float alpha = (pc.x * pb.y - pc.y * pb.x) / area_of_abc;
-
-    float beta = (ac.x * ap.y - ac.y * ap.x) / area_of_abc;
-
-    float gamma = 1.0 - alpha - beta;
-
-    vec3f_t weights = {alpha, beta, gamma};
-
-    return weights;
-    
 }

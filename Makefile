@@ -19,7 +19,7 @@ include /opt/toolchains/dc/kos/Makefile.rules
 
 # Clean up object files and output binaries
 clean: rm-elf
-	-rm -f $(OBJS) *.img
+	-rm -f $(OBJS) *.img src/*.s asm/*.s
 
 rm-elf:
 	-rm -f $(TARGET)
@@ -37,6 +37,21 @@ dist: $(TARGET)
 	-rm -f $(OBJS)
 	$(KOS_STRIP) $(TARGET)
 
+dreamcast:
+	/opt/dreamsdk/tools/dcload-serial/host-src/dc-tool-serial -t COM3 -x renderer.elf
+
+asm:
+	$(foreach src, $(SRCS), \
+		kos-cc -S -o $(basename $(src)).s $(src) &&) true
+
+vasm:
+	@mkdir -p asm
+	$(foreach src, $(SRCS), \
+		kos-cc -S -fverbose-asm -O2 -I$(INCDIR) $(src) -o asm/$(notdir $(basename $(src))).s &&) true
+
+
+# Fix debug target to define DEBUG_ENABLED
+
 debug: CFLAGS += -DDEBUG_ENABLED
 debug: LDFLAGS += 
-debug: clean all run
+debug: clean all

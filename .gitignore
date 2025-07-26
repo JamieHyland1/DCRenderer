@@ -30,6 +30,7 @@ obj/
 node_modules/
 vendor/
 romdisk
+assets/
 # Ignore IDE-specific files (if you use an IDE)
 .vscode/
 .idea/
