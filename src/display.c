@@ -1,6 +1,8 @@
 #include "../include/display.h"
 #include <math.h>
 #include <stdlib.h>
+#include "../include/camera.h"
+#include <dc/minifont.h>
 // This file will contain the functions necessary to display our renderer to the screen
 // It will contain various SDL functions and functions related to drawing various primitive shapes
 
@@ -9,6 +11,7 @@ static float* z_buffer = NULL;
 
 static int window_width = 640;
 static int window_height = 480;
+
 
 
 int get_window_width(){
@@ -119,4 +122,24 @@ void update_zbuffer(int x, int y, float value){
     }
     
     z_buffer[(window_width * y) + x] = value;
+}
+
+void draw_info(int render_mode, int num_triangles_to_render) {
+    minifont_draw_str(vram_s + get_offset(20, 10), 640, "Hello World, from Jamies Renderer!");
+      // Log camera position, render mode, and triangle count on screen
+    vec3f_t cam_pos = get_camera_pos();
+    char cam_buf[64];
+    snprintf(cam_buf, sizeof(cam_buf), "Camera: %.2f %.2f %.2f", cam_pos.x, cam_pos.y, cam_pos.z);
+    minifont_draw_str(vram_s + get_offset(20, 40), 640, cam_buf);
+
+    char mode_buf[32];
+    const char *mode_names[] = {
+        "WIRE", "FILL_TRI", "FILL_TRI_WIRE", "TEXTURED", "TEXTURED_WIRE"
+    };
+    snprintf(mode_buf, sizeof(mode_buf), "Mode: %s", mode_names[render_mode]);
+    minifont_draw_str(vram_s + get_offset(20, 70), 640, mode_buf);
+
+    char tri_buf[32];
+    snprintf(tri_buf, sizeof(tri_buf), "Triangles: %d", num_triangles_to_render);
+    minifont_draw_str(vram_s + get_offset(20, 100), 640, tri_buf);
 }

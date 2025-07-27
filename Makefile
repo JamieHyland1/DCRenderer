@@ -51,7 +51,10 @@ vasm:
 
 
 # Fix debug target to define DEBUG_ENABLED
+debug-time: CFLAGS += -DDEBUG_TIME
+debug-time: LDFLAGS += 
+debug-time: clean all
 
-debug: CFLAGS += -DDEBUG_ENABLED
-debug: LDFLAGS += 
-debug: clean all
+debug-cycles: CFLAGS += -DDEBUG_CYCLES
+debug-cycles: LDFLAGS += 
+debug-cycles: clean all

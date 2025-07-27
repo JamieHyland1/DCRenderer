@@ -13,6 +13,7 @@ int  get_window_height(void);
 
 bool initialize_window(void);
 
+void draw_info(int render_mode, int num_triangles_to_render);
 void destroy_window(void);
 void clear_z_buffer();
 void render_color_buffer(void);

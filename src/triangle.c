@@ -15,7 +15,7 @@ v2 = v1; \
 v1 = temp; \
 }
 
-int orient2d(vec2i_t* a, vec2i_t* b, vec2i_t* c)
+inline int orient2d(vec2i_t* a, vec2i_t* b, vec2i_t* c)
 {
     return ((b->x-a->x)*(c->y-a->y) - (b->y-a->y)*(c->x-a->x));
 }
@@ -27,7 +27,7 @@ void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint16_t colo
 }
 
 void draw_filled_triangle(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, uint16_t color){
-    #ifdef DEBUG_ENABLED
+    #ifdef DEBUG_TIME
         perf_monitor();
     #endif
     int minx = v0->x < v1->x ? (v0->x < v2->x ? v0->x : v2->x) : (v1->x < v2->x ? v1->x : v2->x);
@@ -66,14 +66,14 @@ void draw_filled_triangle(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, uint16_t color)
         w1_row += (B20);
         w2_row += (B01);
     }
-    #ifdef DEBUG_ENABLED
+    #ifdef DEBUG_TIME
         perf_monitor_print(stdout);
         perf_monitor_exit();
     #endif 
 }
 
 void draw_filled_triangle_wire(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, uint16_t color){
-    #ifdef DEBUG_ENABLED
+    #ifdef DEBUG_TIME
         perf_monitor();
     #endif
     int minx = v0->x < v1->x ? (v0->x < v2->x ? v0->x : v2->x) : (v1->x < v2->x ? v1->x : v2->x);
@@ -122,16 +122,16 @@ void draw_filled_triangle_wire(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, uint16_t c
         w1_row += (B20);
         w2_row += (B01);
     }
-    #ifdef DEBUG_ENABLED
+    #ifdef DEBUG_TIME
         perf_monitor_print(stdout);
         perf_monitor_exit();
     #endif 
 }
 
 void draw_textured_triangle(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, vec2_t* uv0, vec2_t* uv1, vec2_t* uv2, kos_img_t texture){
-    #ifdef DEBUG_ENABLED
-        perf_monitor();
-    #endif
+    // #ifdef DEBUG_TIME
+    //     perf_monitor();
+    // #endif
     uint16_t* tex_data = (uint16_t*)texture.data;
     int tex_width = texture.w;
     int tex_height = texture.h;
@@ -157,7 +157,7 @@ void draw_textured_triangle(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, vec2_t* uv0, 
         int w0 = w0_row;
         int w1 = w1_row;
         int w2 = w2_row;
-        for(p.x = minx; p.x <= maxx; ++p.x) {
+        for(p.x = minx; p.x <= maxx; p.x += 2) {
 
             if ((w0 | w1 | w2) >= 0){
                 float b0 = (float)w0 / (float)area;
@@ -177,20 +177,39 @@ void draw_textured_triangle(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, vec2_t* uv0, 
                 uint16_t color = tex_data[tex_y * tex_width + tex_x];
                 draw_pixel(p.x, p.y, color);
             }
+            int w0_next = w0 + A12, w1_next = w1 + A20, w2_next = w2 + A01;
 
-            w0 += (A12);
-            w1 += (A20);
-            w2 += (A01);
+            if ((w0_next | w1_next | w2_next) >= 0) {
+                float b0 = (float)w0_next / (float)area;
+                float b1 = (float)w1_next / (float)area;
+                float b2 = (float)w2_next / (float)area;
+
+                float u = b0 * uv0->x + b1 * uv1->x + b2 * uv2->x;
+                float v = b0 * uv0->y + b1 * uv1->y + b2 * uv2->y;
+
+                u = u < 0.0f ? 0.0f : (u > 1.0f ? 1.0f : u);
+                v = v < 0.0f ? 0.0f : (v > 1.0f ? 1.0f : v);
+
+
+                int tex_x = (int)(u * (tex_width - 1));
+                int tex_y = (int)((1.0f - v) * (tex_height - 1));
+
+                uint16_t color = tex_data[tex_y * tex_width + tex_x];
+                draw_pixel(p.x+1, p.y, color);
+            }
+            w0 = w0_next + A12;
+            w1 = w1_next + A20;
+            w2 = w2_next + A01;
         }
 
         w0_row += (B12);
         w1_row += (B20);
         w2_row += (B01);
     }
-    #ifdef DEBUG_ENABLED
-        perf_monitor_print(stdout);
-        perf_monitor_exit();
-    #endif 
+    // #ifdef DEBUG_TIME
+    //     perf_monitor_print(stdout);
+    //     perf_monitor_exit();
+    // #endif 
 }
 
 vec3f_t get_triangle_face_normal(vector_t vertices[3]){
