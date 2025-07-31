@@ -2,9 +2,9 @@
 #define triangle_h
 #include "vector.h"
 #include "texture.h"
+#include "upng.h"
 #include <stdint.h>
 #include <stdio.h>
-#include "upng.h"
 #include <png/png.h>
 #include <dc/vector.h>
 typedef struct {

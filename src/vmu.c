@@ -2,6 +2,12 @@
 #include <string.h>
 #include <stdio.h>
 
+//////////////////////////////////////////////////////////////////////////////
+// VMU LCD Icon Drawing Functions
+// I basically vibe coded these bored one night, I havent even tried them yet
+// Will come back and fix them later
+///////////////////////////////////////////////////////////////////////////////
+
 maple_device_t* vmu_find_lcd(void) {
     for (int port = 0; port < 4; port++) {
         for (int unit = 0; unit < 6; unit++) {

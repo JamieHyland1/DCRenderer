@@ -1,6 +1,11 @@
 #include "../include/matrix.h"
 #include <math.h>
 #include "../include/vector.h"
+
+/////////////////////////////////////////////
+// TODO convert to use KOS's Matrix library
+// This will improve performance 
+/////////////////////////////////////////////
 mat4_t mat4_identity(){
     mat4_t I = {{
         {1,0,0,0},

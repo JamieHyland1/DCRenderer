@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdint.h>
 #include "../include/light.h"
-
-
+/////////////////////////////////////////////////////////
+// Light structure and functions
+// This is a simple light structure that holds the direction and intensity of the light
+// Currently not supporting
+//  lighting right now but will try get back to it later
+/////////////////////////////////////////////////////////
 static light_t main_light;
 
 void init_light(vec3f_t direction){

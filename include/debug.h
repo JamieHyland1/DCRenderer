@@ -4,6 +4,7 @@
 #include <kos.h>
 #include <stdio.h>
 
+extern uint64_t cycles;
 #ifdef DEBUG_ENABLED
     void debug_profiler_start();
     void debug_profiler_stop();

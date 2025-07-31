@@ -1,10 +1,10 @@
 #include <stdlib.h>
 #include <time.h>
+#include <math.h>
+#include <dc/perf_monitor.h>
 #include "../include/triangle.h"
 #include "../include/display.h"
-#include <math.h>
 #include "../include/swap.h"
-#include <dc/perf_monitor.h>
 #include "../include/utils.h"
 
 #define CLAMP(val, min, max) ((val) < (min) ? (min) : ((val) > (max) ? (max) : (val)))
@@ -27,9 +27,6 @@ void draw_triangle(int x0, int y0, int x1, int y1, int x2, int y2, uint16_t colo
 }
 
 void draw_filled_triangle(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, uint16_t color){
-    #ifdef DEBUG_TIME
-        perf_monitor();
-    #endif
     int minx = v0->x < v1->x ? (v0->x < v2->x ? v0->x : v2->x) : (v1->x < v2->x ? v1->x : v2->x);
     int miny = v0->y < v1->y ? (v0->y < v2->y ? v0->y : v2->y) : (v1->y < v2->y ? v1->y : v2->y);
     int maxx = v0->x > v1->x ? (v0->x > v2->x ? v0->x : v2->x) : (v1->x > v2->x ? v1->x : v2->x);
@@ -65,17 +62,10 @@ void draw_filled_triangle(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, uint16_t color)
         w0_row += (B12);
         w1_row += (B20);
         w2_row += (B01);
-    }
-    #ifdef DEBUG_TIME
-        perf_monitor_print(stdout);
-        perf_monitor_exit();
-    #endif 
+    } 
 }
 
 void draw_filled_triangle_wire(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, uint16_t color){
-    #ifdef DEBUG_TIME
-        perf_monitor();
-    #endif
     int minx = v0->x < v1->x ? (v0->x < v2->x ? v0->x : v2->x) : (v1->x < v2->x ? v1->x : v2->x);
     int miny = v0->y < v1->y ? (v0->y < v2->y ? v0->y : v2->y) : (v1->y < v2->y ? v1->y : v2->y);
     int maxx = v0->x > v1->x ? (v0->x > v2->x ? v0->x : v2->x) : (v1->x > v2->x ? v1->x : v2->x);
@@ -122,16 +112,9 @@ void draw_filled_triangle_wire(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, uint16_t c
         w1_row += (B20);
         w2_row += (B01);
     }
-    #ifdef DEBUG_TIME
-        perf_monitor_print(stdout);
-        perf_monitor_exit();
-    #endif 
 }
 
 void draw_textured_triangle(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, vec2_t* uv0, vec2_t* uv1, vec2_t* uv2, kos_img_t texture){
-    // #ifdef DEBUG_TIME
-    //     perf_monitor();
-    // #endif
     uint16_t* tex_data = (uint16_t*)texture.data;
     int tex_width = texture.w;
     int tex_height = texture.h;
@@ -206,10 +189,6 @@ void draw_textured_triangle(vec2i_t* v0, vec2i_t* v1, vec2i_t* v2, vec2_t* uv0, 
         w1_row += (B20);
         w2_row += (B01);
     }
-    // #ifdef DEBUG_TIME
-    //     perf_monitor_print(stdout);
-    //     perf_monitor_exit();
-    // #endif 
 }
 
 vec3f_t get_triangle_face_normal(vector_t vertices[3]){

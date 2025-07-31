@@ -2,34 +2,41 @@
 #include <math.h>
 #include "../include/texture.h"
 #include <kos.h>
+#include <dc/perf_monitor.h>
 #define NUM_PLANES 6
+
+///////////////////////////////////////////////////////////////
+// Frustum clipping planes
+// These are used to clip polygons against the viewing frustum
+// Needs to be optimized later
+/////////////////////////////////////////////////////////////
 
 plane_t frustum_planes[NUM_PLANES];
 
 
 void init_frustum_planes(float fov_x, float fov_y, float znear, float zfar){
-    float cos_half_fov_x = cos(fov_x/2);
-    float sin_half_fov_x = sin(fov_x/2);
+    float cosf_half_fov_x = cosf(fov_x/2);
+    float sinf_half_fov_x = sinf(fov_x/2);
 
-    float cos_half_fov_y = cos(fov_y/2);
-    float sin_half_fov_y = sin(fov_y/2);
+    float cosf_half_fov_y = cosf(fov_y/2);
+    float sinf_half_fov_y = sinf(fov_y/2);
 
 
     vec3f_t origin = {0,0,0};
     
     frustum_planes[LEFT_FRUSTUM_PLANE].point  = origin;
-    frustum_planes[LEFT_FRUSTUM_PLANE].normal = (vec3f_t){cos_half_fov_x,0,sin_half_fov_x};
+    frustum_planes[LEFT_FRUSTUM_PLANE].normal = (vec3f_t){cosf_half_fov_x,0,sinf_half_fov_x};
 
     
     
     frustum_planes[RIGHT_FRUSTUM_PLANE].point  = origin;
-    frustum_planes[RIGHT_FRUSTUM_PLANE].normal = (vec3f_t){-cos_half_fov_x,0,sin_half_fov_x};
+    frustum_planes[RIGHT_FRUSTUM_PLANE].normal = (vec3f_t){-cosf_half_fov_x,0,sinf_half_fov_x};
 
     frustum_planes[TOP_FRUSTUM_PLANE].point  = origin;
-    frustum_planes[TOP_FRUSTUM_PLANE].normal = (vec3f_t){0,-cos_half_fov_y,sin_half_fov_y};
+    frustum_planes[TOP_FRUSTUM_PLANE].normal = (vec3f_t){0,-cosf_half_fov_y,sinf_half_fov_y};
 
     frustum_planes[BOTTOM_FRUSTUM_PLANE].point  = origin;
-    frustum_planes[BOTTOM_FRUSTUM_PLANE].normal = (vec3f_t){0,cos_half_fov_y,sin_half_fov_y};
+    frustum_planes[BOTTOM_FRUSTUM_PLANE].normal = (vec3f_t){0,cosf_half_fov_y,sinf_half_fov_y};
 
     frustum_planes[BOTTOM_FRUSTUM_PLANE].normal.y += 0.05;
     frustum_planes[TOP_FRUSTUM_PLANE].normal.y -= 0.05;
@@ -123,9 +130,6 @@ void clip_polygon_against_plane(polygon_t* polygon, int frustum_plane){
             inside_texcoords[num_inside_vertices] = new_tex2(current_texcoord->u,current_texcoord->v);
             num_inside_vertices++;
         }
-
-
-
 
         //move to the next vertex
         previous_dot = current_dot;

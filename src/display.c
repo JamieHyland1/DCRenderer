@@ -1,18 +1,22 @@
-#include "../include/display.h"
 #include <math.h>
 #include <stdlib.h>
-#include "../include/camera.h"
 #include <dc/minifont.h>
-// This file will contain the functions necessary to display our renderer to the screen
-// It will contain various SDL functions and functions related to drawing various primitive shapes
+#include "../include/display.h"
+#include "../include/camera.h"
+#include "../include/vector.h"
+#include "../include/matrix.h"
+#include "../include/triangle.h"
+#include "../include/pipeline.h"
 
-//declare an array to uint32 elements
-static float* z_buffer = NULL;
+//////////////////////////
+// Handles the display of the renderer
+// This includes drawing pixels, lines, rectangles, and images to the screen
+// It also handles the z-buffer for depth testing
+////////////////////////////////////////////////////////////////////////////
 
-static int window_width = 640;
-static int window_height = 480;
-
-
+float* z_buffer = NULL;
+int window_width = 640;
+int window_height = 480;
 
 int get_window_width(){
     return window_width;
@@ -52,7 +56,6 @@ void draw_z_buffer_to_screen(void) {
     }
 }
 
-
 void drawRect(int x, int y, int w, int h, uint16_t color){
     for(int j = y; j <= y+h; j++){
         for(int i = x; i <= x+w; i++){
@@ -60,7 +63,6 @@ void drawRect(int x, int y, int w, int h, uint16_t color){
         }
     }
 }
-
 
 #define PACK_PIXEL(r, g, b) ( ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3) )
 void draw_pixel(int x, int y, uint16_t color){
@@ -70,12 +72,11 @@ void draw_pixel(int x, int y, uint16_t color){
     vram_s[get_offset(x, y)] = color;
 }
 
-
 void draw_line(int x0, int y0, int x1, int y1, uint16_t color) {
     int delta_x = (x1 - x0);
     int delta_y = (y1 - y0);
 
-    int longest_side_length = (fabs(delta_x) >= fabs(delta_y)) ? fabs(delta_x) : fabs(delta_y);
+    int longest_side_length = (fabsf(delta_x) >= fabsf(delta_y)) ? fabsf(delta_x) : fabsf(delta_y);
 
     float x_inc = delta_x / (float)longest_side_length; 
     float y_inc = delta_y / (float)longest_side_length;
@@ -92,7 +93,6 @@ void draw_line(int x0, int y0, int x1, int y1, uint16_t color) {
 void destroy_window(void){
     free(z_buffer);
 }
-
 
 float get_z_buffer_at(int x, int y){
     if((x >= window_width  || x < 0) || (y >= window_height || y < 0)){
@@ -142,4 +142,58 @@ void draw_info(int render_mode, int num_triangles_to_render) {
     char tri_buf[32];
     snprintf(tri_buf, sizeof(tri_buf), "Triangles: %d", num_triangles_to_render);
     minifont_draw_str(vram_s + get_offset(20, 100), 640, tri_buf);
+}
+
+void render(void)
+{  
+    vid_clear(25, 25, 25);
+    clear_z_buffer();
+    
+    for(int i = 0; i < num_triangles_to_render; i ++){
+        triangle_t tri = triangles_to_render[i];
+        switch(render_mode)
+        {
+            case RENDER_WIRE:
+                draw_triangle(
+                    tri.points[0].x, tri.points[0].y, // vertex A
+                    tri.points[1].x, tri.points[1].y, // vertex B
+                    tri.points[2].x, tri.points[2].y, // vertex C
+                    0xFFFF // color (16-bit white)
+                );
+                break;
+            case RENDER_FILL_TRIANGLE:
+                draw_filled_triangle(
+                    &(vec2i_t){(int)tri.points[0].x, (int)tri.points[0].y},
+                    &(vec2i_t){(int)tri.points[1].x, (int)tri.points[1].y},
+                    &(vec2i_t){(int)tri.points[2].x, (int)tri.points[2].y},
+                    0xF800 // Red color
+                );
+                break;
+            case RENDER_FILL_TRIANGLE_WIRE:
+                draw_filled_triangle_wire(
+                    &(vec2i_t){(int)tri.points[0].x, (int)tri.points[0].y},
+                    &(vec2i_t){(int)tri.points[1].x, (int)tri.points[1].y},
+                    &(vec2i_t){(int)tri.points[2].x, (int)tri.points[2].y},
+                    0xF800 // Red color
+                );
+                break;
+            case RENDER_TEXTURED:
+                draw_textured_triangle(
+                    &(vec2i_t){(int)tri.points[0].x, (int)tri.points[0].y},
+                    &(vec2i_t){(int)tri.points[1].x, (int)tri.points[1].y},
+                    &(vec2i_t){(int)tri.points[2].x, (int)tri.points[2].y},
+                    &(vec2_t){   tri.texcoords[0].u,   tri.texcoords[0].v},
+                    &(vec2_t){   tri.texcoords[1].u,   tri.texcoords[1].v},
+                    &(vec2_t){   tri.texcoords[2].u,   tri.texcoords[2].v},
+                    tri.texture
+                );
+                break;
+            case RENDER_TEXTURED_WIRE:
+                // TODO reimplement this later
+                break;
+        }
+
+        draw_info(render_mode, num_triangles_to_render);
+
+    }
 }

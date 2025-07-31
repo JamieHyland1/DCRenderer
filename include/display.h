@@ -1,10 +1,12 @@
 #ifndef display_h
 #define display_h
-#include <stdio.h>
+
+#include <kos.h>
+#include <math.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <math.h>
-#include <kos.h>
+#include <stdio.h>
+
 #define FPS 60
 #define FRAME_TARGET_TIME  (1000 / FPS)
 

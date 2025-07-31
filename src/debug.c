@@ -1,7 +1,7 @@
 #include "../include/debug.h"
 #include <dc/perf_monitor.h>
 #ifdef DEBUG_ENABLED
-
+uint64_t cycles = 0;
 void debug_profiler_start() {
     perf_monitor();
 }

@@ -8,8 +8,8 @@ OBJS := $(SRCS:.c=.o) romdisk.o
 # ROM Disk setup (if used)
 KOS_ROMDISK_DIR = romdisk
 
-# Add any libraries you use here. Include `-lkosimg` if you're usinfg kos/img.h
-LIBS = -lpng -lkosutils -lz -lstb_image 
+# Add any libraries you use here. Include `-lkosimg` if you're usinffg kos/img.h
+LIBS = -lpng -lkosutils -lz -lstb_image -fbuiltin -ffast-math -ffp-contract=fast
 
 # Build target
 all: rm-elf $(TARGET)
@@ -38,7 +38,7 @@ dist: $(TARGET)
 	$(KOS_STRIP) $(TARGET)
 
 dreamcast:
-	/opt/dreamsdk/tools/dcload-serial/host-src/dc-tool-serial -t COM3 -x renderer.elf
+	/opt/dreamsdk/tools/dcload-serial/host-src/dc-tool-serial -t COM3 -x renderer.elf > output.txt
 
 asm:
 	$(foreach src, $(SRCS), \
@@ -58,3 +58,8 @@ debug-time: clean all
 debug-cycles: CFLAGS += -DDEBUG_CYCLES
 debug-cycles: LDFLAGS += 
 debug-cycles: clean all
+
+debug-clipping: CFLAGS += -DEBUG_CLIPPING
+debug-clipping: LDFLAGS += 
+debug-clipping: clean all
+

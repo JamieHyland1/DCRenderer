@@ -1,11 +1,10 @@
 #ifndef vector_h
 #define vector_h
-#include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
-#include <C:\SDL2\include\SDL.h>
 #include <dc/vector.h>
 #include <dc/vec3f.h>
+#include <stdio.h>
 typedef struct{
     float x;
     float y;

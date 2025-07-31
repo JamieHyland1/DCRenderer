@@ -5,6 +5,7 @@
 #include "vector.h"
 #include "upng.h"
 #include <png/png.h>
+
 #define N_CUBE_VERTICES 8
 #define N_CUBE_FACES (6*2)
 

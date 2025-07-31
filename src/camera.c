@@ -103,9 +103,9 @@ void update_camera_vectors(){
     // local_pitch *= (M_PI/180.0f);
     // local_yaw   *= (M_PI/180.0f);
 
-    camera.direction.x = cos(local_yaw) * cos(local_pitch);
+    camera.direction.x = cosf(local_yaw) * cosf(local_pitch);
     camera.direction.y = sin(local_pitch);
-    camera.direction.z = sin(local_yaw) * cos(local_pitch);
+    camera.direction.z = sin(local_yaw) * cosf(local_pitch);
     camera.direction = vec_normalize(camera.direction);
     // also re-calculate the Right and Up vector
     vec3f_t up = get_camera_up();

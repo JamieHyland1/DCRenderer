@@ -3,14 +3,18 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 // Implementations of Vector 2D functions
+// Originally these were hand written,
+// now they are wrapped around KallistiOS's vector library
+// for better performance
 ///////////////////////////////////////////////////////////////////////////////
+
 
 vec2_t vec2_new(float x, float y){
     return (vec2_t){x,y};
 }
 
 float vec2_length(vec2_t v) {
-    return sqrt(v.x * v.x + v.y * v.y);
+    return sqrtf(v.x * v.x + v.y * v.y);
 }
 
 vec2_t vec2_add(vec2_t a, vec2_t b) {
@@ -61,9 +65,6 @@ void vec2_normalize(vec2_t* v) {
 vec3f_t vec3_new(float x, float y, float z){
     return (vec3f_t){x,y,z};
 }
-
-
-
 
 vec3f_t vec3_add(vec3f_t a, vec3f_t b) {
     vec3f_t result = {

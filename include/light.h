@@ -1,11 +1,13 @@
 #ifndef light_h
 #define light_h
+
 #include "vector.h"
-typedef struct{
+
+typedef struct {
     vec3f_t direction;
     float intensity;
 
-}light_t;
+} light_t;
 
 void init_light(vec3f_t direction);
 vec3f_t get_light_direction(void);

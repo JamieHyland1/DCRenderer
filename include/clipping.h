@@ -1,7 +1,9 @@
 #ifndef clipping_h
 #define clipping_h
-#include "vector.h"
+
 #include "triangle.h"
+#include "vector.h"
+
 #define MAX_NUM_POLY_VERTS 10
 #define MAX_NUM_POLY_TRIS 10
 enum {

@@ -3,6 +3,7 @@
 #include "../include/mesh.h"
 #include <png/png.h>
 #include <string.h>
+
 mesh_t mesh = {
     .vertices =NULL,
     .faces = NULL,
@@ -23,24 +24,20 @@ void load_mesh_obj_data(mesh_t* mesh, char* filename) {
     char line[1024];
     tex2_t* texcoords = NULL;
     while (fgets(line, 1024, file)) {
-        // Vertex information
         if (strncmp(line, "v ", 2) == 0) {
             vec3f_t vertex;
             sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
-//            printf("Vertex: %f, %f, %f\n", vertex.x, vertex.y, vertex.z);
             array_push(mesh->vertices, vertex);
            
         }
-        // Texture Coordinate information
         if(strncmp(line,"vt ",3) == 0){
             tex2_t texcoord;
             sscanf(line,"vt %f %f", &texcoord.u, &texcoord.v);
-  //          printf("Texture Coordinate: %f, %f\n", texcoord.u, texcoord.v);
+ 
             array_push(texcoords,texcoord);
         }
-        // Face information
         if (strncmp(line, "f ", 2) == 0) {
-    //        printf("Face: %s", line);
+    
             int vertex_indices[3];
             int texture_indices[3];
             int normal_indices[3];
@@ -59,7 +56,6 @@ void load_mesh_obj_data(mesh_t* mesh, char* filename) {
                 .c_uv = texcoords[texture_indices[2] - 1]
                 
             };
-      //      printf("Face indices: %d, %d, %d\n", face.a, face.b, face.c);
             array_push(mesh->faces, face);
         }
     }
@@ -69,8 +65,6 @@ void load_mesh_obj_data(mesh_t* mesh, char* filename) {
 void load_mesh_png_data(mesh_t* mesh, char* filename){
     png_to_img(filename, 0, &mesh->img);
     if(mesh->img.w > 0){
-      //  printf("PNG file loaded successfully: %s\n", filename);
-      // printf("Image width: %d, height: %d img size %d\n", mesh->img.w, mesh->img.h, sizeof(mesh->img.data));
     }else{
          fprintf(stderr, "Error loading PNG file: %s\n", filename);
         return;
@@ -95,13 +89,4 @@ int get_num_meshes(){
 
 mesh_t* get_mesh(int index){
     return &meshes[index];
-}
-
-void free_meshes(){
-    // for(int i = 0; i < mesh_count; i ++){
-    //     array_free(meshes[i].faces);
-    //     array_free(meshes[i].face_normals);
-    //     array_free(meshes[i].vertices);
-    //     upng_free(meshes[i].texture);
-    // }
 }

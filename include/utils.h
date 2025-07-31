@@ -1,10 +1,12 @@
 #ifndef utils_h
 #define utils_h
-#include <png/png.h>
+
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include <png/png.h>
+
 #include <kos.h>
 #include <dc/video.h>
 #include <dc/fmath.h>
@@ -15,6 +17,7 @@
 #include <kos/thread.h>
 #include <dc/minifont.h>
 #include <dc/perf_monitor.h>
+
 extern uint16_t pixel_offsets[640 * 480];
 
 typedef struct {

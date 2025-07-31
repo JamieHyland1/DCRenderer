@@ -1,6 +1,8 @@
 #ifndef matrix_h
 #define matrix_h
+
 #include "vector.h"
+
 typedef struct{
     float m[4][4];
 }mat4_t;
