@@ -1,5 +1,9 @@
 #include "../include/camera.h"
 #include "../include/matrix.h"
+#include <kos.h>
+#include <dc/perfctr.h>
+#include <dc/video.h>
+#include <dc/vector.h>
 #include "math.h"
 static camera_t camera = {
     .position = {0,0,-3},
@@ -70,8 +74,8 @@ void  rotate_camera_roll(float angle){
     camera.roll_angle += angle;
 }
 
-vec3f_t get_camera_lookat_target(){
-    vec3f_t target = {0,0,1};
+vec3f_t get_camera_lookat_target_old(){
+    vec3f_t target = {0,0,-1};
    
     
     mat4_t camera_yaw_rotation = mat4_rotate_y(get_camera_yaw());
@@ -85,11 +89,41 @@ vec3f_t get_camera_lookat_target(){
     vector_t camera_direction;
     camera_direction = vec4_from_vec3(target);
     camera_direction = matrix_mult_vec4(camera_rotation, camera_direction);
-
+    camera_direction.z = -camera_direction.z;
     camera.direction = vec3_from_vec4(camera_direction);
 
 
     target = vec3_add(camera.position,camera.direction);
+
+    return target;
+
+}
+
+vec3f_t get_camera_lookat_target(){
+    vec3f_t target = {0,0,-1};
+
+    mat4_identity();
+    mat_rotate_y(get_camera_yaw());
+    mat_rotate_x(get_camera_pitch());
+
+    vector_t camera_direction = (vector_t){0,0,0,0};
+
+    float x = camera_direction.x;
+    float y = camera_direction.y;
+    float z = camera_direction.z;
+    float w = camera_direction.w;
+
+    mat_trans_single3_nodiv(x, y, z);
+
+    camera_direction.x = x;
+    camera_direction.y = y;
+    camera_direction.z = z;
+    camera_direction.w = w;
+
+
+    target.x = camera.position.x + camera.direction.x;
+    target.y = camera.position.y + camera.direction.y;
+    target.z = camera.position.z + camera.direction.z; 
 
     return target;
 
@@ -103,9 +137,9 @@ void update_camera_vectors(){
     // local_pitch *= (M_PI/180.0f);
     // local_yaw   *= (M_PI/180.0f);
 
-    camera.direction.x = cos(local_yaw) * cos(local_pitch);
-    camera.direction.y = sin(local_pitch);
-    camera.direction.z = sin(local_yaw) * cos(local_pitch);
+    camera.direction.x = cosf(local_yaw) * cosf(local_pitch);
+    camera.direction.y = sinf(local_pitch);
+    camera.direction.z = sinf(local_yaw) * cosf(local_pitch);
     camera.direction = vec_normalize(camera.direction);
     // also re-calculate the Right and Up vector
     vec3f_t up = get_camera_up();

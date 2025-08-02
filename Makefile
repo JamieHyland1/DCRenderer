@@ -9,7 +9,7 @@ OBJS := $(SRCS:.c=.o) romdisk.o
 KOS_ROMDISK_DIR = romdisk
 
 # Add any libraries you use here. Include `-lkosimg` if you're usinfg kos/img.h
-LIBS = -lpng -lkosutils -lz -lstb_image 
+LIBS = -lpng -lkosutils -lz -lstb_image -fbuiltin -ffast-math -ffp-contract=fast
 
 # Build target
 all: rm-elf $(TARGET)
@@ -51,10 +51,6 @@ vasm:
 
 
 # Fix debug target to define DEBUG_ENABLED
-debug-time: CFLAGS += -DDEBUG_TIME
-debug-time: LDFLAGS += 
-debug-time: clean all
-
-debug-cycles: CFLAGS += -DDEBUG_CYCLES
-debug-cycles: LDFLAGS += 
-debug-cycles: clean all
+debug: CFLAGS += -DEBUG_ENABLED
+debug: LDFLAGS += 
+debug: clean all

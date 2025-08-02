@@ -75,7 +75,7 @@ void draw_line(int x0, int y0, int x1, int y1, uint16_t color) {
     int delta_x = (x1 - x0);
     int delta_y = (y1 - y0);
 
-    int longest_side_length = (fabs(delta_x) >= fabs(delta_y)) ? fabs(delta_x) : fabs(delta_y);
+    int longest_side_length = (fabsf(delta_x) >= fabsf(delta_y)) ? fabsf(delta_x) : fabsf(delta_y);
 
     float x_inc = delta_x / (float)longest_side_length; 
     float y_inc = delta_y / (float)longest_side_length;

@@ -10,7 +10,7 @@ vec2_t vec2_new(float x, float y){
 }
 
 float vec2_length(vec2_t v) {
-    return sqrt(v.x * v.x + v.y * v.y);
+    return fsrra(v.x * v.x + v.y * v.y);
 }
 
 vec2_t vec2_add(vec2_t a, vec2_t b) {
@@ -50,7 +50,7 @@ float vec2_dot(vec2_t a, vec2_t b) {
 }
 
 void vec2_normalize(vec2_t* v) {
-    float length = sqrt(v->x * v->x + v->y * v->y);
+    float length = fsrra(v->x * v->x + v->y * v->y);
     v->x /= length;
     v->y /= length;
 }

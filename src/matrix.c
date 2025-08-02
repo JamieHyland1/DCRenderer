@@ -54,8 +54,8 @@ vector_t matrix_mult_vec4(mat4_t m, vector_t v){
 }
 // Rotate around Z axis
 // | 1    0       0     0 |   | x |
-// | 0  cos(a) -sin(a)  0 |   | y |
-// | 0  sin(a)  cos(a)  0 | * | z |
+// | 0  cosf(a) -sinf(a)  0 |   | y |
+// | 0  sinf(a)  cosf(a)  0 | * | z |
 // | 0    0       0     1 |   | 1 |
 
 mat4_t mat4_look_at(vec3f_t eye, vec3f_t target, vec3f_t up){
@@ -80,10 +80,10 @@ mat4_t mat4_look_at(vec3f_t eye, vec3f_t target, vec3f_t up){
 mat4_t mat4_rotate_z(float angle){
     mat4_t m = mat4_identity();
 
-    m.m[0][0] = cos(angle);
-    m.m[0][1] = -sin(angle);
-    m.m[1][0] = sin(angle);
-    m.m[1][1] = cos(angle);
+    m.m[0][0] = cosf(angle);
+    m.m[0][1] = -sinf(angle);
+    m.m[1][0] = sinf(angle);
+    m.m[1][1] = cosf(angle);
 
     return m;
 
@@ -92,35 +92,35 @@ mat4_t mat4_rotate_z(float angle){
 
 // Rotation around X axis
 // | 1    0       0     0 |   | x |
-// | 0  cos(a) -sin(a)  0 |   | y | 
-// | 0  sin(a)  cos(a)  0 | * | z |
+// | 0  cosf(a) -sinf(a)  0 |   | y | 
+// | 0  sinf(a)  cosf(a)  0 | * | z |
 // | 0    0       0     1 |   | 1 |
 
 mat4_t mat4_rotate_x(float angle){
     mat4_t m = mat4_identity();
 
-    m.m[1][1] =  cos(angle);
-    m.m[1][2] = -sin(angle);
-    m.m[2][1] =  sin(angle);
-    m.m[2][2] =  cos(angle);
+    m.m[1][1] =  cosf(angle);
+    m.m[1][2] = -sinf(angle);
+    m.m[2][1] =  sinf(angle);
+    m.m[2][2] =  cosf(angle);
 
     return m;
 
 }
 
 // Rotation around Y axis
-// |  cos(a)  0  sin(a)  0 |   | x |
+// |  cosf(a)  0  sinf(a)  0 |   | x |
 // |    0     1    0     0 |   | y |
-// | -sin(a)  0  cos(a)  0 | * | z |
+// | -sinf(a)  0  cosf(a)  0 | * | z |
 // |    0     0    0     1 |   | 1 |
  
 mat4_t mat4_rotate_y(float angle){
     mat4_t m = mat4_identity();
 
-    m.m[0][0] =  cos(angle);
-    m.m[0][2] =  sin(angle);
-    m.m[2][0] = -sin(angle);
-    m.m[2][2] =  cos(angle);
+    m.m[0][0] =  cosf(angle);
+    m.m[0][2] =  sinf(angle);
+    m.m[2][0] = -sinf(angle);
+    m.m[2][2] =  cosf(angle);
 
     return m;
 

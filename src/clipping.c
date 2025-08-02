@@ -8,11 +8,11 @@ plane_t frustum_planes[NUM_PLANES];
 
 
 void init_frustum_planes(float fov_x, float fov_y, float znear, float zfar){
-    float cos_half_fov_x = cos(fov_x/2);
-    float sin_half_fov_x = sin(fov_x/2);
+    float cos_half_fov_x = cosf(fov_x/2);
+    float sin_half_fov_x = sinf(fov_x/2);
 
-    float cos_half_fov_y = cos(fov_y/2);
-    float sin_half_fov_y = sin(fov_y/2);
+    float cos_half_fov_y = cosf(fov_y/2);
+    float sin_half_fov_y = sinf(fov_y/2);
 
 
     vec3f_t origin = {0,0,0};
