@@ -10,7 +10,12 @@
 
 int  get_window_width(void);
 int  get_window_height(void);
-
+extern uint16_t* buffer;
+extern size_t buffer_size;
+extern int minWindowX;
+extern int minWindowY;
+extern int maxWindowX;
+extern int maxWindowY;
 bool initialize_window(void);
 
 void draw_info(int render_mode, int num_triangles_to_render);
@@ -24,4 +29,6 @@ void draw_image(int dst_x, int dst_y, int width, int height, const uint16_t *pix
 float get_z_buffer_at(int x, int y);
 void draw_z_buffer_to_screen(void);
 void update_zbuffer(int x, int y, float value);
+void copy_back_buffer(uint16_t* buffer);
+void copy_back_buffer_old(uint16_t* buffer);
 #endif

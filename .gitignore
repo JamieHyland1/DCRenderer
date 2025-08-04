@@ -25,6 +25,8 @@ build/
 dist/
 bin/
 obj/
+Assets/
+
 
 # Ignore dependency directories (if applicable)
 node_modules/
@@ -36,3 +38,6 @@ assets/
 .idea/
 *.suo
 *.user
+*.mtl
+*.txt
+*.img

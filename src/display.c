@@ -9,6 +9,13 @@
 //declare an array to uint32 elements
 static float* z_buffer = NULL;
 
+uint16_t* buffer = NULL;
+size_t buffer_size = 0;
+
+int minWindowX = 640;
+int minWindowY = 480;
+int maxWindowX = 0;
+int maxWindowY = 0;
 static int window_width = 640;
 static int window_height = 480;
 
@@ -47,7 +54,7 @@ void draw_z_buffer_to_screen(void) {
             uint8_t intensity = (uint8_t)(z * 255.0f);
             // RGB565 grayscale
             uint16_t color = ((intensity >> 3) << 11) | ((intensity >> 2) << 5) | (intensity >> 3);
-            vram_s[get_offset(x, y)] = color;
+            buffer[get_offset(x, y)] = color;
         }
     }
 }
@@ -64,10 +71,16 @@ void drawRect(int x, int y, int w, int h, uint16_t color){
 
 #define PACK_PIXEL(r, g, b) ( ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3) )
 void draw_pixel(int x, int y, uint16_t color){
+    
+    // if(x < minWindowX) minWindowX = x;
+    // else if(x > maxWindowX) maxWindowX = x;
+    // if(y < minWindowY) minWindowY = y;
+    // else if(y > maxWindowY) maxWindowY = y;
+
     if (x < 0 || x >= 640 || y < 0 || y >= 480) {
         return;
     }
-    vram_s[get_offset(x, y)] = color;
+    buffer[get_offset(x, y)] = color;
 }
 
 
@@ -125,21 +138,54 @@ void update_zbuffer(int x, int y, float value){
 }
 
 void draw_info(int render_mode, int num_triangles_to_render) {
-    minifont_draw_str(vram_s + get_offset(20, 10), 640, "Hello World, from Jamies Renderer!");
+    minifont_draw_str(buffer + get_offset(20, 10), 640, "Hello World, from Jamies Renderer!");
       // Log camera position, render mode, and triangle count on screen
     vec3f_t cam_pos = get_camera_pos();
     char cam_buf[64];
     snprintf(cam_buf, sizeof(cam_buf), "Camera: %.2f %.2f %.2f", cam_pos.x, cam_pos.y, cam_pos.z);
-    minifont_draw_str(vram_s + get_offset(20, 40), 640, cam_buf);
+    minifont_draw_str(buffer + get_offset(20, 40), 640, cam_buf);
 
     char mode_buf[32];
     const char *mode_names[] = {
         "WIRE", "FILL_TRI", "FILL_TRI_WIRE", "TEXTURED", "TEXTURED_WIRE"
     };
     snprintf(mode_buf, sizeof(mode_buf), "Mode: %s", mode_names[render_mode]);
-    minifont_draw_str(vram_s + get_offset(20, 70), 640, mode_buf);
+    minifont_draw_str(buffer + get_offset(20, 70), 640, mode_buf);
 
     char tri_buf[32];
     snprintf(tri_buf, sizeof(tri_buf), "Triangles: %d", num_triangles_to_render);
-    minifont_draw_str(vram_s + get_offset(20, 100), 640, tri_buf);
+    minifont_draw_str(buffer + get_offset(20, 100), 640, tri_buf);
+}
+//tried unrolling sq_cpy_fast, dont think it worked
+void copy_back_buffer(uint16_t* buffer){
+   size_t size = 32;
+   sq_lock((void*)((uint8_t*)vram_s));
+    for (size_t i = 0; i < buffer_size; i += size * 4) {
+        void* dest0 = ((uintptr_t)vram_s + i);
+        const void* src0 = (const void*)((uint8_t*)buffer + i);
+        void* dest1 = ((uintptr_t)vram_s + i + size);
+        const void* src1 = (const void*)((uint8_t*)buffer + i + size);
+        void* dest2 = ((uintptr_t)vram_s + i + size * 2);
+        const void* src2 = (const void*)((uint8_t*)buffer + i + size * 2);
+        void* dest3 = ((uintptr_t)vram_s + i + size * 3);
+        const void* src3 = (const void*)((uint8_t*)buffer + i + size * 3);
+
+        sq_fast_cpy(dest0, src0, 1);
+        sq_flush(dest0);
+        sq_wait();
+        
+        sq_fast_cpy(dest1, src1, 1);
+        sq_flush(dest1);
+        sq_wait();
+        
+        sq_fast_cpy(dest2, src2, 1);
+        sq_flush(dest2);
+        sq_wait();
+        
+        sq_fast_cpy(dest3, src3, 1);
+        sq_flush(dest3);
+        sq_wait();
+    }
+    
+    sq_unlock();
 }

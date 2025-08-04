@@ -65,8 +65,16 @@ static inline vector_t vec4_from_vec3f(vec3f_t v) {
 
 bool setup(void){
     vid_set_mode(DM_640x480 | DM_MULTIBUFFER, PM_RGB565);
-    vid_mode->fb_count = 4;
+    vid_mode->fb_count = 2;
     printf("Framebuffer count after vid_set_mode: %d\n", vid_mode->fb_count);
+    buffer_size = 640 * 480 * sizeof(uint16_t);
+    buffer = (uint16_t*)aligned_alloc(32,buffer_size);
+
+    if (((uintptr_t)vram_s & 31) != 0) {
+        printf("⚠️ vram_s is NOT 32-byte aligned!\n");
+    } else {
+        printf("✅ vram_s IS 32-byte aligned!\n");
+    }
 
     // check_mesh_size();
     render_mode = RENDER_TEXTURED;
@@ -86,22 +94,13 @@ bool setup(void){
     mat_perspective(aspect_ratio, 1.0f, cot_fovy_2, znear, zfar);
     mat_store(&p_mat);
 
-    printf("p_mat:\n");
-    for (int r = 0; r < 4; r++) {
-        printf("  [%f %f %f %f]\n", p_mat[r][0], p_mat[r][1], p_mat[r][2], p_mat[r][3]);
-    }
-
-
-    projection_matrix = mat4_make_perspective(fov_y, aspect_y, znear, zfar);
-    printf("projection_matrix:\n");
-    for (int r = 0; r < 4; r++) {
-        printf("  [%f %f %f %f]\n", projection_matrix.m[r][0], projection_matrix.m[r][1], projection_matrix.m[r][2], projection_matrix.m[r][3]);
-    }
+    projection_matrix = mat4_make_perspective(fov_y, aspect_y, znear, zfar); 
 
     init_frustum_planes(fov_x, fov_y, znear, zfar);
-    load_mesh("rd/skull.obj", "rd/SamTexture.png", vec3_new(1, 1, 1), vec3_new(0, 0, -5), vec3_new(0, 0, 0));
-   // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1,1,1), vec3_new(0,0,-18), vec3_new(0,0,0));
-
+    //load_mesh("rd/skull.obj", "rd/SamTexture.png", vec3_new(1, 1, 1), vec3_new(0, 0, -5), vec3_new(0, 0, 0));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1,1,1), vec3_new(0,0,-4), vec3_new(0,0,0));
+    set_camera_pos((vec3f_t){0,0,0});
+   
     return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -257,9 +256,9 @@ void process_graphics_pipeline(mesh_t *mesh){
     mat_identity();
     mat_scale(mesh->scale.x, mesh->scale.y, mesh->scale.z);
     mat_translate(mesh->translation.x, mesh->translation.y, mesh->translation.z);
-    mat_rotate_z(mesh->rotation.z);
+    mat_rotate_z(mesh->rotation.z -= 0.1);
     mat_rotate_y(mesh->rotation.y += 0.02f);
-    // mat_rotate_x(mesh->rotation.x += 0.02f);
+    mat_rotate_x(mesh->rotation.x += 0.02f);
     mat_store(&w_mat);
 
     // Final model-view matrix
@@ -329,7 +328,7 @@ void process_graphics_pipeline(mesh_t *mesh){
             current_face.c_uv);
 
         // Clip polygon with the view frustum
-      //  clip_polygon(&polygon);
+        clip_polygon(&polygon);
 
         // Break clipped polygon into triangles to be rendered
         triangle_t tris_after_clipping[MAX_NUM_POLY_TRIS];
@@ -397,6 +396,7 @@ void process_graphics_pipeline(mesh_t *mesh){
 
 void update(void)
 {
+   
     uint64_t start_ns, end_ns, elapsed_ns, cycles;
     num_triangles_to_render = 0;
     vec3f_t target = get_camera_lookat_target();
@@ -496,7 +496,6 @@ void process_input(void)
 
 }
 
-
 void render(void)
 {
 
@@ -505,6 +504,29 @@ void render(void)
 
     for(int i = 0; i < num_triangles_to_render; i ++){
         triangle_t tri = triangles_to_render[i];
+        int x1 = (int)tri.points[0].x;
+        int y1 = (int)tri.points[0].y;
+        int x2 = (int)tri.points[1].x;
+        int y2 = (int)tri.points[1].y;
+        int x3 = (int)tri.points[2].x;
+        int y3 = (int)tri.points[2].y;
+
+        if (x1 < minWindowX) minWindowX = x1;
+        if (x1 > maxWindowX) maxWindowX = x1;
+        if (y1 < minWindowY) minWindowY = y1;
+        if (y1 > maxWindowY) maxWindowY = y1;
+
+        if (x2 < minWindowX) minWindowX = x2;
+        if (x2 > maxWindowX) maxWindowX = x2;
+        if (y2 < minWindowY) minWindowY = y2;
+        if (y2 > maxWindowY) maxWindowY = y2;
+
+        if (x3 < minWindowX) minWindowX = x3;
+        if (x3 > maxWindowX) maxWindowX = x3;
+        if (y3 < minWindowY) minWindowY = y3;
+        if (y3 > maxWindowY) maxWindowY = y3;
+                
+        
         switch(render_mode)
         {
             case RENDER_WIRE:
@@ -548,12 +570,21 @@ void render(void)
 
             //     break;
         }
-
-        draw_info(render_mode, num_triangles_to_render);
-
     }
-}
 
+       // Top edge
+        draw_line(minWindowX, minWindowY, maxWindowX, minWindowY, 0xFFFF);
+
+        // Bottom edge
+        draw_line(minWindowX, maxWindowY, maxWindowX, maxWindowY, 0xFFFF);
+
+        // Left edge
+        draw_line(minWindowX, minWindowY, minWindowX, maxWindowY, 0xFFFF);
+
+        // Right edge
+        draw_line(maxWindowX, minWindowY, maxWindowX, maxWindowY, 0xFFFF);
+        draw_info(render_mode, num_triangles_to_render);
+}
 int main(int argc, char *args[])
 {
     isRunning = initialize_window();
@@ -562,16 +593,21 @@ int main(int argc, char *args[])
 
     while (isRunning)
     {
+        minWindowX = 640;
+        minWindowY = 480;   
+        maxWindowX = 0;
+        maxWindowY = 0;
         vid_waitvbl();
         process_input();
         update();
         render();
-        vid_flip(vid_mode->fb_count);
+        sq_cpy((void*)((uint8_t*)vram_s ), (const void*)((uint8_t*)buffer), buffer_size);
+        vid_flip(vid_mode->fb_count);      
+        memset(buffer, 0, buffer_size);
         frame_count++;
-
     }
-
-
+    
+    
     free_meshes();
     destroy_window();
 
