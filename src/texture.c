@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdint.h>
-#include "../include/texture.h"
-
+#include "../include/renderer.h"
 
 
 tex2_t new_tex2(float u, float v){

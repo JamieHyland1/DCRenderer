@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include "../include/array.h"
-#include "../include/mesh.h"
-#include <png/png.h>
+#include "../include/renderer.h"
 #include <string.h>
 mesh_t mesh = {
     .vertices =NULL,

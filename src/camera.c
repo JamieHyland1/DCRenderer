@@ -1,10 +1,4 @@
-#include "../include/camera.h"
-#include "../include/matrix.h"
-#include <kos.h>
-#include <dc/perfctr.h>
-#include <dc/video.h>
-#include <dc/vector.h>
-#include "math.h"
+#include "../include/renderer.h"
 static camera_t camera = {
     .position = {0,0,-3},
     .direction = {0,0,1},

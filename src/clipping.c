@@ -104,7 +104,6 @@ void clip_polygon_against_plane(polygon_t* polygon, int frustum_plane){
             vec3f_t p_v = vec3_new(previous_vertex->x,previous_vertex->y,previous_vertex->z);
             vec3f_t I   = vec3_add(c_v,vec3_mult(vec3_sub(p_v,c_v),t));
 
-            //Same as I above just written out at once
             tex2_t I_UV =   {
                                 .u = float_lerp(current_texcoord->u,previous_texcoords->u,t),
                                 .v = float_lerp(current_texcoord->v,previous_texcoords->v,t)
@@ -123,9 +122,6 @@ void clip_polygon_against_plane(polygon_t* polygon, int frustum_plane){
             inside_texcoords[num_inside_vertices] = new_tex2(current_texcoord->u,current_texcoord->v);
             num_inside_vertices++;
         }
-
-
-
 
         //move to the next vertex
         previous_dot = current_dot;

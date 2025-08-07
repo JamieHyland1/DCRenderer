@@ -10,6 +10,7 @@
 
 int  get_window_width(void);
 int  get_window_height(void);
+extern float* z_buffer;
 extern uint16_t* buffer;
 extern size_t buffer_size;
 extern int minWindowX;
@@ -31,4 +32,6 @@ void draw_z_buffer_to_screen(void);
 void update_zbuffer(int x, int y, float value);
 void copy_back_buffer(uint16_t* buffer);
 void copy_back_buffer_old(uint16_t* buffer);
+uint16_t get_background_color();
+void set_background_color(uint16_t color);
 #endif

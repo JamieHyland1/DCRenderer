@@ -1,5 +1,4 @@
-#include "../include/debug.h"
-#include <dc/perf_monitor.h>
+#include "../include/renderer.h"
 #ifdef DEBUG_ENABLED
 
 void debug_profiler_start() {

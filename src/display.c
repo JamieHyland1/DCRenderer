@@ -1,17 +1,14 @@
-#include "../include/display.h"
-#include <math.h>
-#include <stdlib.h>
-#include "../include/camera.h"
+#include "../include/renderer.h"
 #include <dc/minifont.h>
 // This file will contain the functions necessary to display our renderer to the screen
 // It will contain various SDL functions and functions related to drawing various primitive shapes
 
 //declare an array to uint32 elements
-static float* z_buffer = NULL;
+float* z_buffer = NULL;
 
 uint16_t* buffer = NULL;
 size_t buffer_size = 0;
-
+static uint16_t background_color = 0x6330;
 int minWindowX = 640;
 int minWindowY = 480;
 int maxWindowX = 0;
@@ -33,18 +30,7 @@ int get_offset(int x, int y){
      return y * 640 + x;
 }
 
-bool initialize_window(void){
 
-    z_buffer = (float*)malloc(sizeof(float) * window_width * window_height);
-
-    return true;
-}
-
-void clear_z_buffer(){
-    for(int i = 0; i < window_width * window_height; i++){
-        z_buffer[i] = 0.0;
-    }
-}
 
 void draw_z_buffer_to_screen(void) {
     for (int y = 0; y < window_height; y++) {
@@ -85,20 +71,30 @@ void draw_pixel(int x, int y, uint16_t color){
 
 
 void draw_line(int x0, int y0, int x1, int y1, uint16_t color) {
-    int delta_x = (x1 - x0);
-    int delta_y = (y1 - y0);
+    int dx = fabs(x1 - x0);
+    int dy = fabs(y1 - y0);
 
-    int longest_side_length = (fabsf(delta_x) >= fabsf(delta_y)) ? fabsf(delta_x) : fabsf(delta_y);
+    int sx = (x0 < x1) ? 1 : -1;
+    int sy = (y0 < y1) ? 1 : -1;
 
-    float x_inc = delta_x / (float)longest_side_length; 
-    float y_inc = delta_y / (float)longest_side_length;
+    int err = dx - dy;
 
-    float current_x = x0;
-    float current_y = y0;
-    for (int i = 0; i <= longest_side_length; i++) {
-       draw_pixel(round(current_x), round(current_y), color);
-        current_x += x_inc;
-        current_y += y_inc;
+    while (1) {
+        draw_pixel(x0, y0, color);
+
+        if (x0 == x1 && y0 == y1) break;
+
+        int e2 = 2 * err;
+
+        if (e2 > -dy) {
+            err -= dy;
+            x0 += sx;
+        }
+
+        if (e2 < dx) {
+            err += dx;
+            y0 += sy;
+        }
     }
 }
 
@@ -106,35 +102,35 @@ void destroy_window(void){
     free(z_buffer);
 }
 
+bool initialize_window(void){
+
+    z_buffer = (float*)malloc(sizeof(float) * window_width * window_height);
+
+    return true;
+}
+
+void clear_z_buffer(){
+    for(int i = 0; i < 640 * 480; i++){
+        z_buffer[i] = 0.0;
+    }
+}
 
 float get_z_buffer_at(int x, int y){
-    if((x >= window_width  || x < 0) || (y >= window_height || y < 0)){
+    if((x >= 640  || x < 0) || (y >= 480 || y < 0)){
         //printf("zbuffer coordinates: %d, %d\n",x,y);
         return 0.0;
     } 
-    return z_buffer[(window_width * y) + x];
+    return z_buffer[(640 * y) + x];
 }
 
-void draw_image(int dst_x, int dst_y, int width, int height, const uint16_t *pixels) {
-    for (int y = 0; y < height; y++) {
-        int screen_y = dst_y + y;
-        for (int x = 0; x < width; x++) {
-            int screen_x = dst_x + x;
-            uint16_t color = pixels[y * width + x];
-            if(color <= 0) { // Skip transparent pixels
-                continue;
-            }
-            draw_pixel(screen_x, screen_y, color);
-        }
-    }
-}
+
 
 void update_zbuffer(int x, int y, float value){
-    if(value < 0.0 || value > 1.0  || x < 0  || x >= window_width  || y < 0  || y >= window_height){
+    if(value < 0.0 || value > 1.0  || x < 0  || x >= 640  || y < 0  || y >= 480){
         return;
     }
     
-    z_buffer[(window_width * y) + x] = value;
+    z_buffer[(640 * y) + x] = value;
 }
 
 void draw_info(int render_mode, int num_triangles_to_render) {
@@ -156,7 +152,24 @@ void draw_info(int render_mode, int num_triangles_to_render) {
     snprintf(tri_buf, sizeof(tri_buf), "Triangles: %d", num_triangles_to_render);
     minifont_draw_str(buffer + get_offset(20, 100), 640, tri_buf);
 }
+
+void draw_image(int dst_x, int dst_y, int width, int height, const uint16_t *pixels) {
+    for (int y = 0; y < height; y++) {
+        int screen_y = dst_y + y;
+        for (int x = 0; x < width; x++) {
+            int screen_x = dst_x + x;
+            uint16_t color = pixels[y * width + x];
+            if(color <= 0) { // Skip transparent pixels
+                continue;
+            }
+            draw_pixel(screen_x, screen_y, color);
+        }
+    }
+}
+
+
 //tried unrolling sq_cpy_fast, dont think it worked
+
 void copy_back_buffer(uint16_t* buffer){
    size_t size = 32;
    sq_lock((void*)((uint8_t*)vram_s));
@@ -188,4 +201,12 @@ void copy_back_buffer(uint16_t* buffer){
     }
     
     sq_unlock();
+}
+
+void set_background_color(uint16_t color){
+    background_color = color;
+}
+
+uint16_t get_background_color(){
+    return background_color;
 }

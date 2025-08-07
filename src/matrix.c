@@ -1,6 +1,4 @@
-#include "../include/matrix.h"
-#include <math.h>
-#include "../include/vector.h"
+#include "../include/renderer.h"
 mat4_t mat4_identity(){
     mat4_t I = {{
         {1,0,0,0},
