@@ -12,10 +12,15 @@ typedef struct {
     kos_img_t negz; // back
 } skybox_t;
 
+typedef struct {
+    uint8_t face;   // cube face index (0..5)
+    uint16_t u_px;  // texture X coordinate in pixels
+    uint16_t v_px;  // texture Y coordinate in pixels
+} SkyboxSample;
+
 extern skybox_t skybox;
 
-void init_skybox();
-void compute_ray();
+void compute_skybox_uvs();
 void draw_skybox();
 
 #endif

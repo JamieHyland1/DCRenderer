@@ -11,4 +11,8 @@
 #include <dc/vector.h>
 #include "../include/utils.h"
 #include <math.h>
+#include <dc/fmath.h>
+#include "shz_vector.h"
+#include <assert.h>
+
 #endif

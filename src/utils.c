@@ -12,7 +12,7 @@ void debug_end(void) {
 
 
 // void process_graphics_pipeline_old(mesh_t *mesh){
-//     vec3f_t target = get_camera_lookat_target();
+//     shz_vec3 target = get_camera_lookat_target();
 
 //     view_matrix = mat4_look_at(get_camera_pos(), target, get_camera_up());
 
@@ -38,29 +38,29 @@ void debug_end(void) {
 
 //         face_t current_face = mesh->faces[i];
 
-//         vec3f_t face_vertices[3];
+//         shz_vec3 face_vertices[3];
 
 //         face_vertices[0] = mesh->vertices[current_face.a];
 //         face_vertices[1] = mesh->vertices[current_face.b];
 //         face_vertices[2] = mesh->vertices[current_face.c];
 
-//         vector_t transformed_vertices[3];
+//         shz_vec4 transformed_vertices[3];
 
 //         for (int j = 0; j < 3; j++)
 //         {
-//             vector_t current_vertex = vec4_from_vec3(face_vertices[j]);
+//             shz_vec4 current_vertex = vec4_from_vec3(face_vertices[j]);
 
 //             // Create a world matrix
 //             current_vertex = matrix_mult_vec4(world_matrix, current_vertex);
 //             current_vertex = matrix_mult_vec4(view_matrix, current_vertex);
 //             transformed_vertices[j] = current_vertex;
 //         }
-//         vec3f_t origin = {0, 0, 0};
+//         shz_vec3 origin = {0, 0, 0};
 //         /////////////////
 //         // Cull back faces
 //         /////////////////
-//         vec3f_t cameraRay = vec3_sub(origin, vec3_from_vec4(transformed_vertices[0]));
-//         vec3f_t tri_normal = get_triangle_face_normal(transformed_vertices);
+//         shz_vec3 cameraRay = vec3_sub(origin, vec3_from_vec4(transformed_vertices[0]));
+//         shz_vec3 tri_normal = get_triangle_face_normal(transformed_vertices);
 //         tri_normal = vec_normalize(tri_normal);
 
 //         float orientation_from_camera = vec_dot(tri_normal, cameraRay);
@@ -103,7 +103,7 @@ void debug_end(void) {
 
 //             triangle_t triangle_after_clipping = tris_after_clipping[t];
 
-//             vector_t projected_points[3];
+//             shz_vec4 projected_points[3];
 
 //             for (int j = 0; j < 3; j++)
 //             {

@@ -5,11 +5,19 @@ SRCDIR = src
 INCDIR = include
 SRCS := $(wildcard $(SRCDIR)/*.c)
 OBJS := $(SRCS:.c=.o) romdisk.o
+
 # ROM Disk setup (if used)
 KOS_ROMDISK_DIR = romdisk
 
-# Add any libraries you use here. Include `-lkosimg` if you're usinfg kos/img.h
-LIBS = -lpng -lkosutils -lz -lstb_image -fbuiltin -ffast-math -ffp-contract=fast
+# SH4ZAM paths
+SH4ZAM_INC = /opt/toolchains/dc/kos/sh4zam/include/sh4zam
+SH4ZAM_LIB = /opt/toolchains/dc/kos/sh4zam/build
+
+# Compiler include flags
+CFLAGS += -std=c2x -std=gnu2x -I$(INCDIR) -I$(SH4ZAM_INC)
+
+# Add any libraries you use here
+LIBS = -lpng -lkosutils -lz -lstb_image -lsh4zam -fbuiltin -ffast-math -ffp-contract=fast
 
 # Build target
 all: rm-elf $(TARGET)
@@ -26,7 +34,8 @@ rm-elf:
 
 # Final build link command
 $(TARGET): $(OBJS)
-	kos-cc -o $(TARGET) $(OBJS) $(LIBS) -L$(KOS_BASE)/lib/dreamcast  
+	kos-cc -o $(TARGET) $(OBJS) $(LIBS) -I$(SH4ZAM_INC) -L$(SH4ZAM_LIB) -L$(KOS_BASE)/lib/dreamcast
+ 
 
 # Run via Flycast emulator (optional)
 run:

@@ -1,7 +1,7 @@
 # Blender MTL File: 'skybox.blend'
-# Material Count: 6
+# Material Count: 1
 
-newmtl Material.002
+newmtl Material.008
 Ns 225.000000
 Ka 1.000000 1.000000 1.000000
 Kd 0.800000 0.800000 0.800000
@@ -10,59 +10,4 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd C:\\DreamSDK\\msys\\1.0\\opt\\toolchains\\dc\\Renderer\\romdisk\\front.png
-
-newmtl Material.003
-Ns 225.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd C:\\DreamSDK\\msys\\1.0\\opt\\toolchains\\dc\\Renderer\\romdisk\\bottom.png
-
-newmtl Material.004
-Ns 225.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd C:\\DreamSDK\\msys\\1.0\\opt\\toolchains\\dc\\Renderer\\romdisk\\top.png
-
-newmtl Material.005
-Ns 225.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd C:\\DreamSDK\\msys\\1.0\\opt\\toolchains\\dc\\Renderer\\romdisk\\left.png
-
-newmtl Material.006
-Ns 225.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd C:\\DreamSDK\\msys\\1.0\\opt\\toolchains\\dc\\Renderer\\romdisk\\right.png
-
-newmtl Material.007
-Ns 225.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.000000 0.000000 0.000000
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd C:\\DreamSDK\\msys\\1.0\\opt\\toolchains\\dc\\Renderer\\romdisk\\back.png
+map_Kd C:\\DreamSDK\\msys\\1.0\\opt\\toolchains\\dc\\Renderer\\romdisk\\skybox_yokohama.png

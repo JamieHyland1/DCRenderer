@@ -4,7 +4,6 @@
 
 #include "triangle.h"
 #include "clipping.h"
-#include "pipeline.h"
 #include "texture.h"
 #include "light.h"
 #include "mesh.h"

@@ -2,6 +2,7 @@
 #define clipping_h
 #include "vector.h"
 #include "triangle.h"
+#include "shz_vector.h"
 #define MAX_NUM_POLY_VERTS 10
 #define MAX_NUM_POLY_TRIS 10
 enum {
@@ -15,12 +16,12 @@ enum {
 
 typedef struct 
 {
-  vec3f_t point;
-  vec3f_t normal;
+  shz_vec3_t point;
+  shz_vec3_t normal;
 } plane_t;
 
 typedef struct{
-  vec3f_t vertices[MAX_NUM_POLY_VERTS];
+  shz_vec3_t vertices[MAX_NUM_POLY_VERTS];
   tex2_t texcoords[MAX_NUM_POLY_VERTS];
   int num_vertices;
 
@@ -28,7 +29,7 @@ typedef struct{
 }polygon_t;
 
 
-polygon_t create_polygon_from_triangle(vec3f_t v0, vec3f_t v1, vec3f_t v2, tex2_t t0, tex2_t t1, tex2_t t2);
+polygon_t create_polygon_from_triangle(shz_vec3_t v0, shz_vec3_t v1, shz_vec3_t v2, tex2_t t0, tex2_t t1, tex2_t t2);
 
 void triangles_from_polygon(polygon_t* polygon, triangle_t triangles_after_clipping[], int* num_triangles);  
 

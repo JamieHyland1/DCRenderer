@@ -1,19 +1,17 @@
 #ifndef DEBUG_H
 #define DEBUG_H
+#include "display.h"
+#include <stdint.h>
 
-#include <kos.h>
-#include <stdio.h>
+// Initialize the timer to average over N frames
+void init_timer(int frames);
 
-#ifdef DEBUG_ENABLED
-    void debug_profiler_start();
-    void debug_profiler_stop();
-    void debug_profiler_print(FILE *out);
-    void debug_profiler_reset();
-#else
-    #define debug_profiler_start()
-    #define debug_profiler_stop()
-    #define debug_profiler_print(out)
-    #define debug_profiler_reset()
-#endif
+// Mark the start of a timed section
+void start_timer();
+
+// Mark the end of a timed section and optionally print the average
+void end_timer();
+
+void print_debug_info(const char* message);
 
 #endif // DEBUG_H

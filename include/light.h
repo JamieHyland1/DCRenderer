@@ -1,14 +1,25 @@
 #ifndef light_h
 #define light_h
 #include "vector.h"
+
+#define NUM_POINT_LIGHTS 4
+
 typedef struct{
-    vec3f_t direction;
+    shz_vec3_t direction;
     float intensity;
 
 }light_t;
 
-void init_light(vec3f_t direction);
-vec3f_t get_light_direction(void);
-uint32_t light_apply_intensity(uint32_t color, float percentage_factor);
+typedef struct {
+    shz_vec3_t position;
+    uint16_t color; 
+} point_light_t;
+
+extern point_light_t point_lights[NUM_POINT_LIGHTS];
+
+
+void init_light(shz_vec3_t direction);
+shz_vec3_t get_light_direction(void);
+uint16_t light_apply_intensity(uint16_t color, float percentage_factor);
 
 #endif

@@ -41,8 +41,8 @@ mat4_t matrix_mult_mat4(mat4_t a, mat4_t b){
     return result;
 }
 
-vector_t matrix_mult_vec4(mat4_t m, vector_t v){
-    vector_t result;
+shz_vec4_t matrix_mult_vec4(mat4_t m, shz_vec4_t v){
+    shz_vec4_t result;
     result.x = m.m[0][0] * v.x + m.m[0][1] * v.y + m.m[0][2] * v.z + m.m[0][3] * v.w;
     result.y = m.m[1][0] * v.x + m.m[1][1] * v.y + m.m[1][2] * v.z + m.m[1][3] * v.w;
     result.z = m.m[2][0] * v.x + m.m[2][1] * v.y + m.m[2][2] * v.z + m.m[2][3] * v.w;
@@ -52,22 +52,22 @@ vector_t matrix_mult_vec4(mat4_t m, vector_t v){
 }
 // Rotate around Z axis
 // | 1    0       0     0 |   | x |
-// | 0  cosf(a) -sinf(a)  0 |   | y |
-// | 0  sinf(a)  cosf(a)  0 | * | z |
+// | 0  cos(a) -sin(a)  0 |   | y |
+// | 0  sin(a)  cos(a)  0 | * | z |
 // | 0    0       0     1 |   | 1 |
 
-mat4_t mat4_look_at(vec3f_t eye, vec3f_t target, vec3f_t up){
+mat4_t mat4_look_at(shz_vec3_t eye, shz_vec3_t target, shz_vec3_t up){
     //get the vector from the target to the camera
-    vec3f_t z = vec3_sub(target,eye); // forward vector
-    z = vec_normalize(z);
-    vec3f_t x = vec3_cross(up,z); // right vector
-    x = vec_normalize(x);
-    vec3f_t y = vec3_cross(z,x); // up vector (according to camera rotation)
+    shz_vec3_t z = shz_vec_sub(target,eye); // forward vector
+    z = shz_vec_normalize(z);
+    shz_vec3_t x = shz_vec_cross(up,z); // right vector
+    x = shz_vec_normalize(x);
+    shz_vec3_t y = shz_vec_cross(z,x); // up vector (according to camera rotation)
 
     mat4_t view_matrix = {{
-        {x.x,x.y,x.z, -vec_dot(x,eye)},
-        {y.x,y.y,y.z, -vec_dot(y,eye)},
-        {z.x,z.y,z.z, -vec_dot(z,eye)},
+        {x.x,x.y,x.z, -shz_vec_dot(x,eye)},
+        {y.x,y.y,y.z, -shz_vec_dot(y,eye)},
+        {z.x,z.y,z.z, -shz_vec_dot(z,eye)},
         {0,   0,  0,             1    },
     }};
 
@@ -78,10 +78,10 @@ mat4_t mat4_look_at(vec3f_t eye, vec3f_t target, vec3f_t up){
 mat4_t mat4_rotate_z(float angle){
     mat4_t m = mat4_identity();
 
-    m.m[0][0] = cosf(angle);
-    m.m[0][1] = -sinf(angle);
-    m.m[1][0] = sinf(angle);
-    m.m[1][1] = cosf(angle);
+    m.m[0][0] = cos(angle);
+    m.m[0][1] = -sin(angle);
+    m.m[1][0] = sin(angle);
+    m.m[1][1] = cos(angle);
 
     return m;
 
@@ -90,35 +90,35 @@ mat4_t mat4_rotate_z(float angle){
 
 // Rotation around X axis
 // | 1    0       0     0 |   | x |
-// | 0  cosf(a) -sinf(a)  0 |   | y | 
-// | 0  sinf(a)  cosf(a)  0 | * | z |
+// | 0  cos(a) -sin(a)  0 |   | y | 
+// | 0  sin(a)  cos(a)  0 | * | z |
 // | 0    0       0     1 |   | 1 |
 
 mat4_t mat4_rotate_x(float angle){
     mat4_t m = mat4_identity();
 
-    m.m[1][1] =  cosf(angle);
-    m.m[1][2] = -sinf(angle);
-    m.m[2][1] =  sinf(angle);
-    m.m[2][2] =  cosf(angle);
+    m.m[1][1] =  cos(angle);
+    m.m[1][2] = -sin(angle);
+    m.m[2][1] =  sin(angle);
+    m.m[2][2] =  cos(angle);
 
     return m;
 
 }
 
 // Rotation around Y axis
-// |  cosf(a)  0  sinf(a)  0 |   | x |
+// |  cos(a)  0  sin(a)  0 |   | x |
 // |    0     1    0     0 |   | y |
-// | -sinf(a)  0  cosf(a)  0 | * | z |
+// | -sin(a)  0  cos(a)  0 | * | z |
 // |    0     0    0     1 |   | 1 |
  
 mat4_t mat4_rotate_y(float angle){
     mat4_t m = mat4_identity();
 
-    m.m[0][0] =  cosf(angle);
-    m.m[0][2] =  sinf(angle);
-    m.m[2][0] = -sinf(angle);
-    m.m[2][2] =  cosf(angle);
+    m.m[0][0] =  cos(angle);
+    m.m[0][2] =  sin(angle);
+    m.m[2][0] = -sin(angle);
+    m.m[2][2] =  cos(angle);
 
     return m;
 
@@ -136,8 +136,8 @@ mat4_t mat4_make_perspective(float fov, float aspect, float znear, float zfar){
     return m;
 }
 
-vector_t mat4_mul_vec4_project(mat4_t proj, vector_t v){
-    vector_t result = matrix_mult_vec4(proj,v);
+shz_vec4_t mat4_mul_vec4_project(mat4_t proj, shz_vec4_t v){
+    shz_vec4_t result = matrix_mult_vec4(proj,v);
     if(result.w != 0.0){
         result.x /= result.w;
         result.y /= result.w;

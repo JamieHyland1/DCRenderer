@@ -1,12 +1,13 @@
 #ifndef CAMERA_H
 #define CAMERA_H
 #include "vector.h"
+#include "shz_vector.h"
 typedef struct{
-    vec3f_t position;
-    vec3f_t direction;
-    vec3f_t forward_velocity;
-    vec3f_t right;
-    vec3f_t up;
+    shz_vec3_t position;
+    shz_vec3_t direction;
+    shz_vec3_t forward_velocity;
+    shz_vec3_t right;
+    shz_vec3_t up;
     float yaw_angle;
     float pitch_angle;
     float roll_angle;
@@ -14,19 +15,19 @@ typedef struct{
 } camera_t;
 
 
-vec3f_t get_camera_lookat_target(void);
+shz_vec3_t get_camera_lookat_target(void);
 
-vec3f_t get_camera_pos(void);
-vec3f_t get_camera_dir(void);
-vec3f_t get_camera_vel(void);
-vec3f_t get_camera_right(void);
-vec3f_t get_camera_up(void);
+shz_vec3_t get_camera_pos(void);
+shz_vec3_t get_camera_dir(void);
+shz_vec3_t get_camera_vel(void);
+shz_vec3_t get_camera_right(void);
+shz_vec3_t get_camera_up(void);
 
-void set_camera_pos(vec3f_t pos);
-void set_camera_dir(vec3f_t dir);
-void set_camera_vel(vec3f_t vel);
-void set_camera_right(vec3f_t right);
-void set_camera_up(vec3f_t up);
+void set_camera_pos(shz_vec3_t pos);
+void set_camera_dir(shz_vec3_t dir);
+void set_camera_vel(shz_vec3_t vel);
+void set_camera_right(shz_vec3_t right);
+void set_camera_up(shz_vec3_t up);
 
 float  get_camera_yaw(void);
 float  get_camera_pitch(void);
