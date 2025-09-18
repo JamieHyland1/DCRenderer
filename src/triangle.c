@@ -494,14 +494,6 @@ void draw_textured_triangle_scanline(const triangle_t *tri){
     float slope_v_mid_to_bottom = (height_mid_to_bottom != 0.0f) ? (v_bottom - v_mid) / height_mid_to_bottom : 0.0f;
 
 
-    // printf("Triangle Y: top %.2f mid %.2f bottom %.2f\n", y_top, y_mid, y_bottom);
-    // printf("Slopes: top->mid %.2f top->bottom %.2f mid->bottom %.2f\n", slope_top_to_mid, slope_top_to_bottom, slope_u_mid_to_bottom);
-    // printf("Tex Slopes: u top->mid %.2f v top->mid %.2f\n", slope_u_top_to_mid, slope_v_top_to_mid);
-    // printf("Tex Slopes: u top->bottom %.2f v top->bottom %.2f\n", slope_u_top_to_bottom, slope_v_top_to_bottom);
-    // printf("Tex Slopes: u mid->bottom %.2f v mid->bottom %.2f\n", slope_u_mid_to_bottom, slope_v_mid_to_bottom);
-
-
-
     float x_left = x_top;
     float x_right = x_top;
     float u_left = u_top; 
@@ -509,11 +501,7 @@ void draw_textured_triangle_scanline(const triangle_t *tri){
     float u_right = u_top; 
     float v_right = v_top; 
 
-    // printf("u_left start %.2f u_right start %.2f\n", u_left, u_right);
-    // printf("v_left start %.2f v_right start %.2f\n", v_left, v_right);  
-
-
-     // --------------------------
+    // --------------------------
     // Upper part: from top -> mid
     // --------------------------
     for (int y = (int)ceilf(y_top); y <= (int)floorf(y_mid); y++) {
@@ -534,10 +522,6 @@ void draw_textured_triangle_scanline(const triangle_t *tri){
             int tx = (int)(u * (float)(tex_w - 1));
             int ty = (int)((1.0f - v) * (float)(tex_h - 1));
 
-            // Clamp texture coordinates
-            tx = tx < 0 ? 0 : (tx >= tex_w ? tex_w - 1 : tx);
-            ty = ty < 0 ? 0 : (ty >= tex_h ? tex_h - 1 : ty);
-
             // Sample texture
             uint16_t color = tex_data[ty * tex_w + tx];
             draw_pixel(x, y, color);
@@ -547,7 +531,7 @@ void draw_textured_triangle_scanline(const triangle_t *tri){
             v += dv_dx;
         }
 
-        // FIX: step left edge along top->mid, right edge along top->bottom
+        // step left edge along top->mid, right edge along top->bottom
         x_left  += slope_top_to_mid;
         x_right += slope_top_to_bottom;
         u_left  += slope_u_top_to_mid;
@@ -560,23 +544,63 @@ void draw_textured_triangle_scanline(const triangle_t *tri){
     // Lower part: from mid -> bottom
     // ----------------------------
     if (height_mid_to_bottom == 0.0f) return;
-    slope_top_to_mid = (x_bottom - x_mid) / height_mid_to_bottom;
-    x_left = x_mid;  // Reset left edge start for lower part
 
+    // Slopes for lower part
+    float slope_x_left  = (x_bottom - x_mid) / height_mid_to_bottom;
+    float slope_u_left  = (u_bottom - u_mid) / height_mid_to_bottom;
+    float slope_v_left  = (v_bottom - v_mid) / height_mid_to_bottom;
+
+    float slope_x_right = slope_top_to_bottom;   
+    float slope_u_right = slope_u_top_to_bottom;
+    float slope_v_right = slope_v_top_to_bottom;
+
+    // Reset left edge to start from the mid vertex
+    x_left = x_mid;
+    u_left = u_mid;
+    v_left = v_mid;
+
+    // Right edge continues from where it was at y_mid
     for (int y = (int)ceilf(y_mid); y <= (int)floorf(y_bottom); y++) {
         int x_start = (int)floorf(x_left);
         int x_end   = (int)ceilf(x_right);
-        if (x_start > x_end) { int t=x_start; x_start=x_end; x_end=t; }
 
-        for (int x = x_start; x <= x_end; x++){
-            uint16_t color = 0;
-            if(x % 2 == 0){
-                color = 0xFFFF;
-            }
+        if (x_start > x_end) { int t = x_start; x_start = x_end; x_end = t; }
+
+        float span_width = (x_right - x_left);
+        // if (fabsf(span_width) < 1e-6f) {
+        //     x_left  += slope_x_left;
+        //     x_right += slope_x_right;
+        //     u_left  += slope_u_left;
+        //     v_left  += slope_v_left;
+        //     u_right += slope_u_right;
+        //     v_right += slope_v_right;
+        //     continue; // skip degenerate span
+        // }
+
+        float u = u_left + ((x_start - x_left) / span_width) * (u_right - u_left);
+        float v = v_left + ((x_start - x_left) / span_width) * (v_right - v_left);
+
+        float du_dx = (u_right - u_left) / span_width;
+        float dv_dx = (v_right - v_left) / span_width;
+
+        for (int x = x_start; x <= x_end; x++) {
+            int tx = (int)(u * (float)(tex_w - 1));
+            int ty = (int)((1.0f - v) * (float)(tex_h - 1));
+
+          
+            uint16_t color = tex_data[ty * tex_w + tx];
             draw_pixel(x, y, color);
+
+            u += du_dx;
+            v += dv_dx;
         }
-        x_left  += slope_top_to_mid;
-        x_right += slope_top_to_bottom;
+
+        x_left  += slope_x_left;
+        x_right += slope_x_right;
+        u_left  += slope_u_left;
+        v_left  += slope_v_left;
+        u_right += slope_u_right;
+        v_right += slope_v_right;
     }
 }
 

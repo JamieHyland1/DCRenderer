@@ -24,6 +24,7 @@ matrix_t p_mat;
 matrix_t pv_mat;
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
 uint64_t triangle_time = 0;
+uint64_t total_cycles = 0;
 
 static uint32_t prev_buttons = 0;
 static uint8_t prev_ltrig = 0;
@@ -72,7 +73,7 @@ bool setup(void)
 
     init_light((shz_vec3_t){0.0f, 0.0f, -1.0f});
 
-    render_mode = RENDER_WIRE;
+    render_mode = RENDER_TEXTURED_SCANLINE;
     cull_mode = CULL_BACKFACE;
 
     // Initialize projection matrix
@@ -98,17 +99,17 @@ bool setup(void)
                                                     // scale          position         rotation
     // load_mesh("rd/floor.obj", "rd/floor.png", vec3_new(2.5, 2, 2.5), vec3_new(0, -5, -10), vec3_new(0.5 * (180.0f / M_PI), 0, 0));
     // 20 cubes with random scale, position (-10..10), and rotation
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1, 1, 1), vec3_new(  3, -2,  -2), vec3_new( 0.0f, 0.0f,  0.0f));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.9, 1.5, 1.1), vec3_new( -9,  8,  -6), vec3_new(-0.4,  0.7, -0.2));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(2.0, 1.2, 0.6), vec3_new( -1, -1, -10), vec3_new( 0.2, -0.5,  0.6));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.7, 1.8, 1.4), vec3_new( 10,  4,  -9), vec3_new(-0.7,  0.3,  0.1));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.6, 0.5, 1.2), vec3_new( -4,  2,   7), vec3_new( 0.1, -0.6,  0.8));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.0, 2.0, 1.3), vec3_new(  6, 0,  -3), vec3_new( 0.9,  0.2, -0.5));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.8, 1.4, 1.9), vec3_new( -7,  0,   5), vec3_new(-0.3,  0.4,  0.7));
-    //  load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.9, 1.1, 0.9), vec3_new(  1,  9, -10), vec3_new( 0.6, -0.8, -0.1));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.5, 1.7, 1.3), vec3_new(  8, 4,  -7), vec3_new( 0.4,  0.9,  0.2));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.4, 0.9, 1.8), vec3_new( -6,  7,  -1), vec3_new(-0.8, -0.3,  0.6));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(2.0, 1.0, 1.0), vec3_new(  2, -9,   6), vec3_new( 0.7,  0.1, -0.4));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1, 1, 1), vec3_new(3, -2,  -2), vec3_new( 0.0f, 0.0f,  0.0f));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.9, 1.5, 1.1), vec3_new( -9,  8,  -6), vec3_new(-0.4,  0.7, -0.2));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(2.0, 1.2, 0.6), vec3_new( -1, -1, -10), vec3_new( 0.2, -0.5,  0.6));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.7, 1.8, 1.4), vec3_new( 10,  4,  -9), vec3_new(-0.7,  0.3,  0.1));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.6, 0.5, 1.2), vec3_new( -4,  2,   7), vec3_new( 0.1, -0.6,  0.8));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.0, 2.0, 1.3), vec3_new(  6, 0,  -3), vec3_new( 0.9,  0.2, -0.5));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.8, 1.4, 1.9), vec3_new( -7,  0,   5), vec3_new(-0.3,  0.4,  0.7));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.9, 1.1, 0.9), vec3_new(  1,  9, -10), vec3_new( 0.6, -0.8, -0.1));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.5, 1.7, 1.3), vec3_new(  8, 4,  -7), vec3_new( 0.4,  0.9,  0.2));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.4, 0.9, 1.8), vec3_new( -6,  7,  -1), vec3_new(-0.8, -0.3,  0.6));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(2.0, 1.0, 1.0), vec3_new(  2, -9,   6), vec3_new( 0.7,  0.1, -0.4));
     // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.6, 1.6, 1.4), vec3_new(-10,  3,   4), vec3_new(-0.5,  0.8, -0.7));
     // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.8, 1.2, 0.7), vec3_new(  4, -6,  10), vec3_new( 0.3, -0.9,  0.5));
     // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.1, 0.7, 1.9), vec3_new( -2, 10,  -8), vec3_new(-0.6,  0.2, -0.3));
@@ -118,7 +119,7 @@ bool setup(void)
     // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.7, 1.9, 1.0), vec3_new(  9,  1,  -3), vec3_new(-0.1,  0.7,  0.5));
     // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.2, 0.8, 1.6), vec3_new( -3,  6,  10), vec3_new( 0.8, -0.2, -0.6));
 
-    set_camera_pos((shz_vec3_t){0, 14, 46.9f});
+    set_camera_pos((shz_vec3_t){3, -2.6, 47.9f});
     return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -145,7 +146,7 @@ void process_graphics_pipeline(mesh_t *mesh)
     shz_xmtrx_apply_scale(mesh->scale.x, mesh->scale.y, mesh->scale.z);
     shz_xmtrx_apply_translation(mesh->translation.x, mesh->translation.y, mesh->translation.z);
     shz_xmtrx_apply_rotation_z(mesh->rotation.z);
-    // shz_xmtrx_apply_rotation_y(mesh->rotation.y += 0.01f);
+    shz_xmtrx_apply_rotation_y(mesh->rotation.y += 0.01f);
     shz_xmtrx_apply_rotation_x(mesh->rotation.x );
     // its trying to replace these
     shz_xmtrx_store_4x4(&w_mat);
@@ -493,22 +494,34 @@ int main(int argc, char *args[])
        
         process_input();
         update();
-        render();
-        sq_cpy((void *)((uint8_t *)vram_s), (const void *)((uint8_t *)buffer), buffer_size);
+        // perf_cntr_clear(PRFC0);
+        // perf_cntr_start(PRFC0, PMCR_INSTRUCTION_ISSUED_MODE, PMCR_COUNT_CPU_CYCLES);
+
         // uint64_t start_time = perf_cntr_timer_ns();
+        render();
         // uint64_t end_time = perf_cntr_timer_ns();
         // uint64_t elapsed_time = end_time - start_time;
+
+        // uint64_t cycles = perf_cntr_count(PRFC0);
+        // perf_cntr_stop(PRFC0);
+
+        // avg += elapsed_time;
+        // total_cycles += cycles;
+        sq_cpy((void *)((uint8_t *)vram_s), (const void *)((uint8_t *)buffer), buffer_size);
+       
+      
         // printf("Background draw time: %llu ns\n", elapsed_time);
        
        
         memset(z_buffer, 0, (WINDOW_WIDTH * WINDOW_HEIGHT) * sizeof(float));
         frame_count++;
-      //  if(frame_count == 1) isRunning = false;
+        //if(frame_count == 1000) isRunning = false;
 
 
     }
-    //print_debug_info("Average frame time for clipping against frustum");
-    // printf("Average frame time for drawing WireFrame Triangles: %llu ns\n", avg / frame_count);
+    printf("Average frame time: %" PRIu64 " ns\n", avg / frame_count);
+    printf("Average cycles: %" PRIu64 "\n", total_cycles / frame_count);
+
 
     free_meshes();
     destroy_window();
