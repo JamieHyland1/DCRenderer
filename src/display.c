@@ -25,12 +25,36 @@ int get_offset(int x, int y){
 }
 
 void draw_z_buffer_to_screen(void) {
+    // Find min/max excluding sentinel cleared values
+    const float sentinel = -1e8f;
+    float zmin = 1e9f, zmax = -1e9f;
+    for (int i = 0; i < window_width * window_height; ++i) {
+        float z = z_buffer[i];
+        if (z <= sentinel) continue;
+        if (z < zmin) zmin = z;
+        if (z > zmax) zmax = z;
+    }
+
+    if (zmin == 1e9f && zmax == -1e9f) {
+        // nothing to draw, fill with background
+        for (int i = 0; i < window_width * window_height; ++i) buffer[i] = get_background_color();
+        return;
+    }
+
+    float range = zmax - zmin;
+    if (range < 1e-6f) range = 1.0f;
+
     for (int y = 0; y < window_height; y++) {
         for (int x = 0; x < window_width; x++) {
             float z = z_buffer[y * window_width + x];
-            // Map z (0.0 - 1.0) to grayscale (0x0000 - 0xFFFF)
-            uint8_t intensity = (uint8_t)(z * 255.0f);
-            // RGB565 grayscale
+            if (z <= sentinel) {
+                buffer[get_offset(x, y)] = get_background_color();
+                continue;
+            }
+            float norm_z = (z - zmin) / range; // normalize to 0..1
+            if (norm_z < 0.0f) norm_z = 0.0f;
+            if (norm_z > 1.0f) norm_z = 1.0f;
+            uint8_t intensity = (uint8_t)(norm_z * 255.0f);
             uint16_t color = ((intensity >> 3) << 11) | ((intensity >> 2) << 5) | (intensity >> 3);
             buffer[get_offset(x, y)] = color;
         }
@@ -89,13 +113,14 @@ void draw_linef(float x0, float y0, float x1, float y1, uint16_t color) {
 
     if (steps == 0) {
         // Single point case
-        draw_pixel((int)roundf(x0), (int)roundf(y0), color);
+        draw_pixel((int)shz_roundf(x0), (int)shz_roundf(y0), color);
         return;
     }
 
     // Calculate increments
-    float x_inc = dx / steps;
-    float y_inc = dy / steps;
+    float inv_steps = shz_invf_fsrra(steps);
+    float x_inc = dx * inv_steps;
+    float y_inc = dy * inv_steps;
 
     // Current position
     float x = x0;
@@ -103,7 +128,7 @@ void draw_linef(float x0, float y0, float x1, float y1, uint16_t color) {
 
     for (int i = 0; i <= (int)steps; i++) {
         // Draw the nearest pixel by rounding coordinates
-        draw_pixel((int)roundf(x), (int)roundf(y), color);
+        draw_pixel((int)shz_roundf(x), (int)shz_roundf(y), color);
 
         // Move to next position
         x += x_inc;

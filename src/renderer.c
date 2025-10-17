@@ -9,9 +9,8 @@
 int frame_count = 0;
 int previous_frame_time = 0;
 int num_triangles_to_render = 0;
-float delta_time;
-float global_y_rotation = 0.0f; // Global rotation angle
 
+bool render_z_buffer = false;
 
 mat4_t world_matrix;
 mat4_t projection_matrix;
@@ -29,6 +28,8 @@ static uint32_t prev_buttons = 0;
 static uint8_t prev_ltrig = 0;
 static uint8_t prev_rtrig = 0;
 uint64_t elapsed_time = 0;
+
+// TODO pull these enums to a header file
 enum cull_method
 {
     CULL_NONE,
@@ -36,18 +37,19 @@ enum cull_method
 
 } cull_method;
 
+
 enum render_method
 {
     RENDER_WIRE,
     RENDER_FILL_TRIANGLE,
     RENDER_FILL_TRIANGLE_WIRE,
     RENDER_TEXTURED,
-    // RENDER_TEXTURED_WIRED,
     RENDER_TEXTURED_SCANLINE
 } render_method;
 
 enum render_method render_mode;
 enum cull_method cull_mode;
+
 float znear = 0.1f;
 static inline shz_vec4_t vec4_from_vec3f(shz_vec3_t v)
 {
@@ -58,13 +60,16 @@ bool setup(void)
 {
     vid_set_mode(DM_640x480 | DM_MULTIBUFFER, PM_RGB565);
     vid_mode->fb_count = 2;
+
     printf("Framebuffer count after vid_set_mode: %d\n", vid_mode->fb_count);
     printf("Framebuffer size: %d bytes\n", vid_mode->fb_size);
     printf("Scanlines: %d pixels\n", vid_mode->scanlines);
+
     buffer_size = 640 * 480 * sizeof(uint16_t);
     buffer = (uint16_t *)aligned_alloc(32, buffer_size);
     background_texture = (uint16_t *)aligned_alloc(32, buffer_size);
     z_buffer = (float *)aligned_alloc(32, sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
+
     load_background_image("rd/background2.png");
 
     init_light((shz_vec3_t){0.0f, 0.0f, -1.0f});
@@ -82,6 +87,7 @@ bool setup(void)
     float cot_fovy_2 = 1.0f / tanf(fov_y / 2.0f);
     float znear = 0.1f;
     float zfar = 1000.0f;
+
     mat_identity();
     mat_perspective(aspect_ratio, 1.0f, cot_fovy_2, znear, zfar);
     mat_store(&p_mat);
@@ -89,34 +95,12 @@ bool setup(void)
     projection_matrix = mat4_make_perspective(fov_y, aspect_y, znear, zfar);
     init_frustum_planes(fov_x, fov_y, znear, zfar);
 
-
-    // too slow right now for skybox
-    // load_mesh("rd/skybox.obj", "rd/skybox_yokohama.png", vec3_new(1, 1, 1), vec3_new(0, 0, -14), vec3_new(0, 0, 0));
                                                     // scale          position         rotation
-    // load_mesh("rd/floor.obj", "rd/floor.png", vec3_new(2.5, 2, 2.5), vec3_new(0, -5, -10), vec3_new(0.5 * (180.0f / M_PI), 0, 0));
-    // 20 cubes with random scale, position (-10..10), and rotation
-    // load_mesh("rd/village.obj", "rd/vending_machine.png", vec3_new(1, 1, 1), vec3_new(3, -2,  -2), vec3_new( 0.0f, 0.0f,  0.0f));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.9, 1.5, 1.1), vec3_new( -9,  8,  -6), vec3_new(-0.4,  0.7, -0.2));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(2.0, 1.2, 0.6), vec3_new( -1, -1, -10), vec3_new( 0.2, -0.5,  0.6));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.7, 1.8, 1.4), vec3_new( 10,  4,  -9), vec3_new(-0.7,  0.3,  0.1));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.6, 0.5, 1.2), vec3_new( -4,  2,   7), vec3_new( 0.1, -0.6,  0.8));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.0, 2.0, 1.3), vec3_new(  6, 0,  -3), vec3_new( 0.9,  0.2, -0.5));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.8, 1.4, 1.9), vec3_new( -7,  0,   5), vec3_new(-0.3,  0.4,  0.7));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.9, 1.1, 0.9), vec3_new(  1,  9, -10), vec3_new( 0.6, -0.8, -0.1));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.5, 1.7, 1.3), vec3_new(  8, 4,  -7), vec3_new( 0.4,  0.9,  0.2));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.4, 0.9, 1.8), vec3_new( -6,  7,  -1), vec3_new(-0.8, -0.3,  0.6));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(2.0, 1.0, 1.0), vec3_new(  2, -9,   6), vec3_new( 0.7,  0.1, -0.4));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.6, 1.6, 1.4), vec3_new(-10,  3,   4), vec3_new(-0.5,  0.8, -0.7));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.8, 1.2, 0.7), vec3_new(  4, -6,  10), vec3_new( 0.3, -0.9,  0.5));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.1, 0.7, 1.9), vec3_new( -2, 10,  -8), vec3_new(-0.6,  0.2, -0.3));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.7, 1.4, 0.8), vec3_new(  7,  5,  -5), vec3_new( 0.1, -0.7,  0.9));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.9, 2.0, 1.2), vec3_new( -8, -1,   2), vec3_new(-0.9,  0.4,  0.3));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.5, 1.3, 0.6), vec3_new(  0, -5,  -4), vec3_new( 0.2,  0.6, -0.8));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.7, 1.9, 1.0), vec3_new(  9,  1,  -3), vec3_new(-0.1,  0.7,  0.5));
-    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.2, 0.8, 1.6), vec3_new( -3,  6,  10), vec3_new( 0.8, -0.2, -0.6));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1, 1, 1), vec3_new( 0,  0,  -6), vec3_new(0, 0, 0));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1, 1, 1), vec3_new( -2,  0,  -4), vec3_new(0, 0, 0));
 
-    set_camera_pos((shz_vec3_t){3, -2.6, 43.9f}); // TESTING POSITION
-    //  set_camera_pos((shz_vec3_t){3, -1, 3});
+    // set_camera_pos((shz_vec3_t){3, -2.6, 43.9f}); // TESTING POSITION
+     set_camera_pos((shz_vec3_t){-1.6, 0.28, -1});
     return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -187,7 +171,7 @@ void process_graphics_pipeline(mesh_t *mesh)
             current_vertex.w = w;
             transformed_vertices[j] = current_vertex;
         }
-        shz_vec3_t origin = {0, 0, 0};
+        shz_vec3_t origin = shz_vec3_init(0, 0, 0);
         /////////////////
         // Cull back faces
         /////////////////
@@ -218,8 +202,7 @@ void process_graphics_pipeline(mesh_t *mesh)
             current_face.c_uv);
 
 
-        // Clip polygon with the view frustum
-
+        // TODO refactor this to use FIPVR 
         clip_polygon(&polygon);
 
 
@@ -237,7 +220,7 @@ void process_graphics_pipeline(mesh_t *mesh)
             shz_vec4_t projected_points[3];
             for (int j = 0; j < 3; j++)
             {
-                // TODO figure out how to use KOS perspective matrix
+                // TODO switch to sh4zam mtrx code
                 //  float x = triangle_after_clipping.points[j].x;
                 //  float y = triangle_after_clipping.points[j].y;
                 //  float z = triangle_after_clipping.points[j].z;
@@ -266,7 +249,7 @@ void process_graphics_pipeline(mesh_t *mesh)
             }
 
             ////////////////
-            //Lighting stage
+            //Lighting stage  TODO; add proper lighiting when sh4zam gets inv_mtrx_transpose
             ////////////////
 
             //  shz_vec3_t tri_center = {
@@ -340,10 +323,6 @@ void update(void)
     for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++)
     {
         mesh_t *mesh = get_mesh(mesh_index);
-        // if(mesh_index == 1){
-        //     mesh->translation.x = 15 * sinf(frame_count * 0.01f);
-        //     mesh->translation.z = 15 * cosf(frame_count * 0.01f);
-        // }
         process_graphics_pipeline(mesh);
 
     }
@@ -365,7 +344,7 @@ void process_input(void)
 
         if (PRESSED(CONT_A))
         {
-            // TODO
+            render_z_buffer = !render_z_buffer;
         }
         if (PRESSED(CONT_B))
         {
@@ -469,6 +448,9 @@ void render(void)
                 break;
         }
     }
+    if(render_z_buffer == true){
+        draw_z_buffer_to_screen();
+    }
     draw_info(render_mode, num_triangles_to_render, frame_count);
     num_triangles_to_render = 0; // Reset for next frame
 
@@ -486,16 +468,22 @@ int main(int argc, char *args[])
         process_input();
         update();
         render();
-       sq_cpy((void *)((uint8_t *)vram_s), (const void *)((uint8_t *)buffer), buffer_size);
-       //else blit_float_buffer_rgb565();
+        
+        // Need to actually test if this is faster than kos sq_cpy
+        sq_lock((void *)((uint8_t *)vram_s));
+        shz_sq_memcpy32((void *)((uint8_t *)vram_s), (const void *)((uint8_t *)buffer), buffer_size);
+        sq_unlock();
+
+        // will keep this here for now until shz_sq_memcpy32 is fully tested
+        // sq_cpy((void *)((uint8_t *)vram_s), (const void *)((uint8_t *)buffer), buffer_size);
        
-     
         memset(z_buffer, 0, (WINDOW_WIDTH * WINDOW_HEIGHT) * sizeof(float));
         frame_count++;
-      //  if(frame_count == 2000) isRunning = false;
+        if(frame_count == 2000) isRunning = false;
     }
-    double average_ns = (double)avg / frame_count;  // Cast to double for floating-point division
-    printf("Average frame time: %.2f ns (%.2f ms)\n", average_ns, average_ns / 1e6);
+    
+    // double average_ns = (double)avg / frame_count;  // Cast to double for floating-point division
+    // printf("Average frame time: %.2f ns (%.2f ms)\n", average_ns, average_ns / 1e6);
 
 
     free_meshes();

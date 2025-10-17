@@ -3,10 +3,19 @@
 #include "shz_mem.h"
 #include <stdint.h>
 
+inline float edge_func(float x0, float y0, float x1, float y1, float x, float y) {
+    shz_vec2_t edge = { x1 - x0, y1 - y0 };
+    shz_vec2_t toP  = { x - x0,  y - y0 };
+    return shz_vec2_cross(edge, toP);
+}
 
-inline int orient2d(vec2i_t* a, vec2i_t* b, vec2i_t* c)
-{
-    return ((b->x-a->x)*(c->y-a->y) - (b->y-a->y)*(c->x-a->x));
+static inline int is_top_left(float dx, float dy) {
+    // Top-left rule: edge is top if dy > 0, or if dy == 0 and dx < 0
+    return (dy > 0.0f) || (dy == 0.0f && dx < 0.0f);
+}
+
+static inline float clamp01(float a) {
+    return a < 0.0f ? 0.0f : (a > 1.0f ? 1.0f : a);
 }
 
 void draw_triangle(const triangle_t* tri, uint16_t color) {
@@ -39,10 +48,10 @@ void draw_filled_triangle(const triangle_t* tri, uint16_t color) {
     float maxy = fmaxf(y0, fmaxf(y1, y2));
 
     // Round to integer pixel bounds
-    int ix0 = (int)floorf(minx);
-    int iy0 = (int)floorf(miny);
-    int ix1 = (int)ceilf(maxx);
-    int iy1 = (int)ceilf(maxy);
+    int ix0 = (int)shz_floorf(minx);
+    int iy0 = (int)shz_floorf(miny);
+    int ix1 = (int)shz_ceilf(maxx);
+    int iy1 = (int)shz_ceilf(maxy);
 
     // Precompute edge deltas
     float A01 = y0 - y1, B01 = x1 - x0;
@@ -87,10 +96,10 @@ void draw_filled_triangle_wire(const triangle_t* tri, uint16_t color) {
     float maxx = fmaxf(x0, fmaxf(x1, x2));
     float maxy = fmaxf(y0, fmaxf(y1, y2));
 
-    int ix0 = (int)floorf(minx);
-    int iy0 = (int)floorf(miny);
-    int ix1 = (int)ceilf(maxx);
-    int iy1 = (int)ceilf(maxy);
+    int ix0 = (int)shz_floorf(minx);
+    int iy0 = (int)shz_floorf(miny);
+    int ix1 = (int)shz_ceilf(maxx);
+    int iy1 = (int)shz_ceilf(maxy);
 
     // Edge deltas
     float A01 = y0 - y1, B01 = x1 - x0;
@@ -136,24 +145,7 @@ void draw_filled_triangle_wire(const triangle_t* tri, uint16_t color) {
     draw_linef(x1, y1, x2, y2, 0xFFFF);
     draw_linef(x2, y2, x0, y0, 0xFFFF);
 }
-
-
-
-inline float edge_func(float x0, float y0, float x1, float y1, float x, float y) {
-    shz_vec2_t edge = { x1 - x0, y1 - y0 };
-    shz_vec2_t toP  = { x - x0,  y - y0 };
-    return shz_vec2_cross(edge, toP);
-}
-
-static inline int is_top_left(float dx, float dy) {
-    // Top-left rule: edge is top if dy > 0, or if dy == 0 and dx < 0
-    return (dy > 0.0f) || (dy == 0.0f && dx < 0.0f);
-}
-
-static inline float clamp01(float a) {
-    return a < 0.0f ? 0.0f : (a > 1.0f ? 1.0f : a);
-}
-
+// Depreciated but just keeping here for now as its a good before and after test 
 void draw_textured_triangle(const triangle_t *tri) {
     uint16_t *tex_data = (uint16_t *)tri->texture.data;
     const int tex_w = tri->texture.w;
@@ -189,10 +181,10 @@ void draw_textured_triangle(const triangle_t *tri) {
     float maxxf = fmaxf(x0, fmaxf(x1, x2));
     float maxyf = fmaxf(y0, fmaxf(y1, y2));
 
-    int minx = (int)floorf(minxf);
-    int miny = (int)floorf(minyf);
-    int maxx = (int)ceilf(maxxf) - 1;
-    int maxy = (int)ceilf(maxyf) - 1;
+    int minx = (int)shz_floorf(minxf);
+    int miny = (int)shz_floorf(minyf);
+    int maxx = (int)shz_ceilf(maxxf) - 1;
+    int maxy = (int)shz_ceilf(maxyf) - 1;
 
     if (minx > maxx || miny > maxy) return;
 
@@ -467,30 +459,6 @@ void draw_textured_triangle_scanline(const triangle_t *tri){
         v_right += slope_v_right;
     }
 }
-
-// static inline void shz_uv_step4(
-//     float u0, float du_dx,
-//     float v0, float dv_dx,
-//     float u_out[4], float v_out[4])
-// {
-//     vec4_t uvec = { u0, du_dx, 0.0f, 0.0f };
-//     vec4_t vvec = { v0, dv_dx, 0.0f, 0.0f };
-
-//     // Load progression matrix into XF unit
-//     shz_xmtrx_load_4x4(&uv_prog_matrix);
-
-//     // Transform U and V vectors
-//     shz_xvec_transform(&uvec);
-//     shz_xvec_transform(&vvec);
-
-//     // Copy results out
-//     for (int i = 0; i < 4; i++) {
-//         u_out[i] = uvec[i];
-//         v_out[i] = vvec[i];
-//     }
-// }
-
-
 
 shz_vec3_t get_triangle_face_normal(shz_vec4_t vertices[3]){
     shz_vec3_t v1 = shz_vec3_sub(vec3_from_vec4(vertices[1]),vec3_from_vec4(vertices[0]));
