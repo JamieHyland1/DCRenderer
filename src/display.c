@@ -235,8 +235,8 @@ void load_background_image(const char* path){
 
 void draw_background_image(){
     // uint64_t start_time = perf_cntr_timer_ns();   
-    // shz_memcpy32(buffer, background_texture, buffer_size);
-    sq_cpy((void *)((uint8_t *)buffer), (const void *)((uint8_t *)background_texture), 640 * 480 * sizeof(uint16_t));
+    shz_memcpy32(buffer, background_texture, buffer_size);
+    // sq_cpy((void *)((uint8_t *)buffer), (const void *)((uint8_t *)background_texture), 640 * 480 * sizeof(uint16_t));
     // uint64_t end_time = perf_cntr_timer_ns();
     // uint64_t elapsed_time = end_time - start_time;
     // printf("Background draw time: %llu ns\n", elapsed_time);

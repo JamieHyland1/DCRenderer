@@ -14,7 +14,7 @@ SH4ZAM_INC = /opt/toolchains/dc/kos/sh4zam/include/sh4zam
 SH4ZAM_LIB = /opt/toolchains/dc/kos/sh4zam/build
 
 # Compiler include flags
-CFLAGS += -std=c2x -std=gnu2x -I$(INCDIR) -I$(SH4ZAM_INC)
+CFLAGS += -std=c2x -std=gnu2x -I$(INCDIR) -I$(SH4ZAM_INC) -DNDEBUG
 
 # Add any libraries you use here
 LIBS = -lpng -lkosutils -lz -lstb_image -lsh4zam -fbuiltin -ffast-math -ffp-contract=fast

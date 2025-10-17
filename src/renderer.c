@@ -4,7 +4,7 @@
 #include "shz_matrix.h"
 #include "shz_xmtrx.h"
 #include "shz_fpscr.h"
-#define MAX_TRIANGLES_PER_MESH 100
+#define MAX_TRIANGLES_PER_MESH 10000
 
 int frame_count = 0;
 int previous_frame_time = 0;
@@ -12,7 +12,6 @@ int num_triangles_to_render = 0;
 float delta_time;
 float global_y_rotation = 0.0f; // Global rotation angle
 
-uint64_t avg = 0;
 
 mat4_t world_matrix;
 mat4_t projection_matrix;
@@ -43,7 +42,7 @@ enum render_method
     RENDER_FILL_TRIANGLE,
     RENDER_FILL_TRIANGLE_WIRE,
     RENDER_TEXTURED,
-    RENDER_TEXTURED_WIRED,
+    // RENDER_TEXTURED_WIRED,
     RENDER_TEXTURED_SCANLINE
 } render_method;
 
@@ -59,21 +58,18 @@ bool setup(void)
 {
     vid_set_mode(DM_640x480 | DM_MULTIBUFFER, PM_RGB565);
     vid_mode->fb_count = 2;
-     // shz_fpscr_t old = shz_fpscr_read();
-    // shz_fpscr_write(SHZ_FPSCR_INITIAL_VALUE);  
     printf("Framebuffer count after vid_set_mode: %d\n", vid_mode->fb_count);
     printf("Framebuffer size: %d bytes\n", vid_mode->fb_size);
     printf("Scanlines: %d pixels\n", vid_mode->scanlines);
     buffer_size = 640 * 480 * sizeof(uint16_t);
     buffer = (uint16_t *)aligned_alloc(32, buffer_size);
     background_texture = (uint16_t *)aligned_alloc(32, buffer_size);
-    z_buffer = (float *)malloc(sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
+    z_buffer = (float *)aligned_alloc(32, sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
     load_background_image("rd/background2.png");
-    init_timer(600);
 
     init_light((shz_vec3_t){0.0f, 0.0f, -1.0f});
 
-    render_mode = RENDER_TEXTURED_SCANLINE;
+    render_mode = RENDER_TEXTURED;
     cull_mode = CULL_BACKFACE;
 
     // Initialize projection matrix
@@ -99,17 +95,17 @@ bool setup(void)
                                                     // scale          position         rotation
     // load_mesh("rd/floor.obj", "rd/floor.png", vec3_new(2.5, 2, 2.5), vec3_new(0, -5, -10), vec3_new(0.5 * (180.0f / M_PI), 0, 0));
     // 20 cubes with random scale, position (-10..10), and rotation
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1, 1, 1), vec3_new(3, -2,  -2), vec3_new( 0.0f, 0.0f,  0.0f));
+    // load_mesh("rd/village.obj", "rd/vending_machine.png", vec3_new(1, 1, 1), vec3_new(3, -2,  -2), vec3_new( 0.0f, 0.0f,  0.0f));
     load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.9, 1.5, 1.1), vec3_new( -9,  8,  -6), vec3_new(-0.4,  0.7, -0.2));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(2.0, 1.2, 0.6), vec3_new( -1, -1, -10), vec3_new( 0.2, -0.5,  0.6));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.7, 1.8, 1.4), vec3_new( 10,  4,  -9), vec3_new(-0.7,  0.3,  0.1));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.6, 0.5, 1.2), vec3_new( -4,  2,   7), vec3_new( 0.1, -0.6,  0.8));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.0, 2.0, 1.3), vec3_new(  6, 0,  -3), vec3_new( 0.9,  0.2, -0.5));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.8, 1.4, 1.9), vec3_new( -7,  0,   5), vec3_new(-0.3,  0.4,  0.7));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.9, 1.1, 0.9), vec3_new(  1,  9, -10), vec3_new( 0.6, -0.8, -0.1));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.5, 1.7, 1.3), vec3_new(  8, 4,  -7), vec3_new( 0.4,  0.9,  0.2));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.4, 0.9, 1.8), vec3_new( -6,  7,  -1), vec3_new(-0.8, -0.3,  0.6));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(2.0, 1.0, 1.0), vec3_new(  2, -9,   6), vec3_new( 0.7,  0.1, -0.4));
+    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(2.0, 1.2, 0.6), vec3_new( -1, -1, -10), vec3_new( 0.2, -0.5,  0.6));
+    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.7, 1.8, 1.4), vec3_new( 10,  4,  -9), vec3_new(-0.7,  0.3,  0.1));
+    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.6, 0.5, 1.2), vec3_new( -4,  2,   7), vec3_new( 0.1, -0.6,  0.8));
+    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.0, 2.0, 1.3), vec3_new(  6, 0,  -3), vec3_new( 0.9,  0.2, -0.5));
+    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.8, 1.4, 1.9), vec3_new( -7,  0,   5), vec3_new(-0.3,  0.4,  0.7));
+    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.9, 1.1, 0.9), vec3_new(  1,  9, -10), vec3_new( 0.6, -0.8, -0.1));
+    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.5, 1.7, 1.3), vec3_new(  8, 4,  -7), vec3_new( 0.4,  0.9,  0.2));
+    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.4, 0.9, 1.8), vec3_new( -6,  7,  -1), vec3_new(-0.8, -0.3,  0.6));
+    // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(2.0, 1.0, 1.0), vec3_new(  2, -9,   6), vec3_new( 0.7,  0.1, -0.4));
     // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.6, 1.6, 1.4), vec3_new(-10,  3,   4), vec3_new(-0.5,  0.8, -0.7));
     // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.8, 1.2, 0.7), vec3_new(  4, -6,  10), vec3_new( 0.3, -0.9,  0.5));
     // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.1, 0.7, 1.9), vec3_new( -2, 10,  -8), vec3_new(-0.6,  0.2, -0.3));
@@ -119,7 +115,8 @@ bool setup(void)
     // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(0.7, 1.9, 1.0), vec3_new(  9,  1,  -3), vec3_new(-0.1,  0.7,  0.5));
     // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1.2, 0.8, 1.6), vec3_new( -3,  6,  10), vec3_new( 0.8, -0.2, -0.6));
 
-    set_camera_pos((shz_vec3_t){3, -2.6, 47.9f});
+    set_camera_pos((shz_vec3_t){3, -2.6, 43.9f}); // TESTING POSITION
+    //  set_camera_pos((shz_vec3_t){3, -1, 3});
     return true;
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -308,13 +305,6 @@ void process_graphics_pipeline(mesh_t *mesh)
             orientation_from_light = orientation_from_light < 0.15 ? 0.15 : orientation_from_light;
             orientation_from_light = orientation_from_light > 1.00 ? 1.00 : orientation_from_light;
             
-            float area = edge_func(
-                projected_points[0].x, projected_points[0].y,
-                projected_points[1].x, projected_points[1].y,
-                projected_points[2].x, projected_points[2].y);
-
-            if(area <= 0)
-                continue;
 
             triangle_t triangle_to_render = {
                 .points = {
@@ -324,8 +314,7 @@ void process_graphics_pipeline(mesh_t *mesh)
                 },
                 .texcoords = {{triangle_after_clipping.texcoords[0].u, triangle_after_clipping.texcoords[0].v}, {triangle_after_clipping.texcoords[1].u, triangle_after_clipping.texcoords[1].v}, {triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v}},
                 .texture = mesh->img,
-                .orientation_from_light = 0xFFFF,
-                .area = area};
+                .orientation_from_light = 0xFFFF};
             if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH)
             {
                 triangles_to_render[num_triangles_to_render] = triangle_to_render;
@@ -466,13 +455,17 @@ void render(void)
                 draw_filled_triangle_wire(&tri, 0xF800);
                 break;
             case RENDER_TEXTURED:
+                start_time = perf_cntr_timer_ns();
                 draw_textured_triangle(&tri);
-                break;
-            case RENDER_TEXTURED_WIRED:
-                draw_textured_triangle_scanline(&tri);
+                end_time = perf_cntr_timer_ns();
+                avg += end_time - start_time;
                 break;
             case RENDER_TEXTURED_SCANLINE:
+                start_time = perf_cntr_timer_ns();
                 draw_textured_triangle_scanline(&tri);
+                end_time = perf_cntr_timer_ns();
+                avg += end_time - start_time;
+
                 break;
         }
     }
@@ -489,38 +482,20 @@ int main(int argc, char *args[])
     while (isRunning)
     {
         vid_flip(vid_mode->fb_count);
-        
         draw_background_image();
-       
         process_input();
         update();
-        // perf_cntr_clear(PRFC0);
-        // perf_cntr_start(PRFC0, PMCR_INSTRUCTION_ISSUED_MODE, PMCR_COUNT_CPU_CYCLES);
-
-        // uint64_t start_time = perf_cntr_timer_ns();
         render();
-        // uint64_t end_time = perf_cntr_timer_ns();
-        // uint64_t elapsed_time = end_time - start_time;
-
-        // uint64_t cycles = perf_cntr_count(PRFC0);
-        // perf_cntr_stop(PRFC0);
-
-        // avg += elapsed_time;
-        // total_cycles += cycles;
-        sq_cpy((void *)((uint8_t *)vram_s), (const void *)((uint8_t *)buffer), buffer_size);
+       sq_cpy((void *)((uint8_t *)vram_s), (const void *)((uint8_t *)buffer), buffer_size);
+       //else blit_float_buffer_rgb565();
        
-      
-        // printf("Background draw time: %llu ns\n", elapsed_time);
-       
-       
+     
         memset(z_buffer, 0, (WINDOW_WIDTH * WINDOW_HEIGHT) * sizeof(float));
         frame_count++;
-        //if(frame_count == 1000) isRunning = false;
-
-
+      //  if(frame_count == 2000) isRunning = false;
     }
-    printf("Average frame time: %" PRIu64 " ns\n", avg / frame_count);
-    printf("Average cycles: %" PRIu64 "\n", total_cycles / frame_count);
+    double average_ns = (double)avg / frame_count;  // Cast to double for floating-point division
+    printf("Average frame time: %.2f ns (%.2f ms)\n", average_ns, average_ns / 1e6);
 
 
     free_meshes();

@@ -164,9 +164,11 @@ void draw_textured_triangle(const triangle_t *tri) {
     const float x1 = tri->points[1].x, y1 = tri->points[1].y, w1 = tri->points[1].w, z1 = tri->points[1].z;
     const float x2 = tri->points[2].x, y2 = tri->points[2].y, w2 = tri->points[2].w, z2 = tri->points[2].z;
 
-    // Early out: backface or degeneratetri->area
-    if (fabsf(tri->area) < 1e-6f) return;
-    const float inv_area = 1.0f / tri->area;
+    float area = edge_func(x0, y0, x1, y1, x2, y2);
+
+    // Early out: backface or degeneratearea
+    if (fabsf(area) < 1e-6f) return;
+    const float inv_area = 1.0f / area;
 
     // Perspective-correct setup
     const float invW0 = 1.0f / w0;
@@ -250,168 +252,11 @@ void draw_textured_triangle(const triangle_t *tri) {
 
                     float u = u_over_w / invW;
                     float v = v_over_w / invW;
-                    float z = z_over_w / invW;   // depth in [0..1]
+                    float z = z_over_w * invW;   // I was originally dividing by invW here
 
                     // Z-buffer test
                     float old_z = get_z_buffer_at(px, py);
-                    if (z > old_z || old_z == 0.0f) {  // closer or empty
-                        u = clamp01(u);
-                        v = clamp01(v);
-
-                        int tx = (int)(u * (float)(tex_w - 1));
-                        int ty = (int)((1.0f - v) * (float)(tex_h - 1));
-
-                        uint16_t color = tex_data[ty * tex_w + tx];
-                        uint16_t lit_color = light_apply_intensity(color, intensity);
-                        draw_pixel(px, py, lit_color);
-
-                        update_zbuffer(px, py, z);
-                    }
-                }
-            }
-
-            e01 += step_e01_x;
-            e12 += step_e12_x;
-            e20 += step_e20_x;
-        }
-
-        e01_row += step_e01_y;
-        e12_row += step_e12_y;
-        e20_row += step_e20_y;
-    }
-}
-
-void draw_textured_triangle_bc_optimized(const triangle_t *tri) {
-    uint16_t *tex_data = (uint16_t *)tri->texture.data;
-    const int tex_w = tri->texture.w;
-    const int tex_h = tri->texture.h;
-
-    // Vertex positions (screen space)
-    const float x0 = tri->points[0].x, y0 = tri->points[0].y, w0 = tri->points[0].w, z0 = tri->points[0].z;
-    const float x1 = tri->points[1].x, y1 = tri->points[1].y, w1 = tri->points[1].w, z1 = tri->points[1].z;
-    const float x2 = tri->points[2].x, y2 = tri->points[2].y, w2 = tri->points[2].w, z2 = tri->points[2].z;
-
-    // Early out: backface or degeneratetri->area
-    
-    if (tri->area == 0.0f) return;
-    const float inv_area = 1.0f /tri->area;
-
-    // Perspective-correct setup
-    register float invW0 asm("fr8")  = (float) 1.0f / w0;
-    register float invW1 asm("fr9")  = (float) 1.0f / w1;
-    register float invW2 asm("fr10") = (float) 1.0f / w2;
-
-    const float u0 = tri->texcoords[0].u, v0t = tri->texcoords[0].v;
-    const float u1 = tri->texcoords[1].u, v1t = tri->texcoords[1].v;
-    const float u2 = tri->texcoords[2].u, v2t = tri->texcoords[2].v;
-
-    const float u0o = u0 * invW0, v0o = v0t * invW0, z0o = z0 * invW0;
-    const float u1o = u1 * invW1, v1o = v1t * invW1, z1o = z1 * invW1;
-    const float u2o = u2 * invW2, v2o = v2t * invW2, z2o = z2 * invW2;
-
-    // Bounding box
-    float minxf = fminf(x0, fminf(x1, x2));
-    float minyf = fminf(y0, fminf(y1, y2));
-    float maxxf = fmaxf(x0, fmaxf(x1, x2));
-    float maxyf = fmaxf(y0, fmaxf(y1, y2));
-
-    int minx = (int)floorf(minxf);
-    int miny = (int)floorf(minyf);
-    int maxx = (int)ceilf(maxxf) - 1;
-    int maxy = (int)ceilf(maxyf) - 1;
-
-    if (minx < 0) minx = 0;
-    if (miny < 0) miny = 0;
-    if (maxx >= WINDOW_WIDTH)  maxx = WINDOW_WIDTH  - 1;
-    if (maxy >= WINDOW_HEIGHT) maxy = WINDOW_HEIGHT - 1;
-
-    shz_xmtrx_init_identity();
-
-    if (minx > maxx || miny > maxy) return;
-
-    // Edge deltas
-    const float dx01 = x1 - x0, dy01 = y1 - y0;
-    const float dx12 = x2 - x1, dy12 = y2 - y1;
-    const float dx20 = x0 - x2, dy20 = y0 - y2;
-
-    // Top-left flags
-    const int tl01 = is_top_left(dx01, dy01);
-    const int tl12 = is_top_left(dx12, dy12);
-    const int tl20 = is_top_left(dx20, dy20);
-
-    // Start values at top-left pixel center
-    float start_x = (float)minx ;
-    float start_y = (float)miny ;
-
-    float e01_row = edge_func(x0, y0, x1, y1, start_x, start_y);
-    float e12_row = edge_func(x1, y1, x2, y2, start_x, start_y);
-    float e20_row = edge_func(x2, y2, x0, y0, start_x, start_y);
-
-    // Edge function step increments
-    const float step_e01_x = (y0 - y1);
-    const float step_e12_x = (y1 - y2);
-    const float step_e20_x = (y2 - y0);
-
-    const float step_e01_y = (x1 - x0);
-    const float step_e12_y = (x2 - x1);
-    const float step_e20_y = (x0 - x2);
-
-    // Lighting
-    const float intensity = clamp01(tri->orientation_from_light);
-    matrix_t uvz;
-    shz_xmtrx_store_4x4(&uvz);
-    shz_xmtrx_init_identity();
-
-    // Rasterize
-    for (int py = miny; py <= maxy; ++py) {
-        float e01 = e01_row;
-        float e12 = e12_row;
-        float e20 = e20_row;
-
-        for (int px = minx; px <= maxx; ++px) {
-            const int c01 = (e01 > 0.0f) || (e01 == 0.0f && tl01);
-            const int c12 = (e12 > 0.0f) || (e12 == 0.0f && tl12);
-            const int c20 = (e20 > 0.0f) || (e20 == 0.0f && tl20);
-
-            if (c01 && c12 && c20) {
-
-                const float w0b = e12 * inv_area;
-                const float w1b = e20 * inv_area;
-                const float w2b = e01 * inv_area;
-
-                const float invW = w0b * invW0 + w1b * invW1 + w2b * invW2;
-
-                if (invW > 0.0f) {
-                    // Perspective correct interpolate
-                    // const float u_over_w = w0b * u0o + w1b * u1o + w2b * u2o;
-                    // const float v_over_w = w0b * v0o + w1b * v1o + w2b * v2o;
-                    // const float z_over_w = w0b * z0o + w1b * z1o + w2b * z2o;
-
-                    uvz[0][0] = u0o;
-                    uvz[0][1] = u1o;
-                    uvz[0][2] = u2o;
-
-                    uvz[1][0] = v0o;
-                    uvz[1][1] = v1o;
-                    uvz[1][2] = v2o;
-
-                    uvz[2][0] = z0o;
-                    uvz[2][1] = z1o;
-                    uvz[2][2] = z2o;
-
-                    float u_over_w = w0b;
-                    float v_over_w = w1b;
-                    float z_over_w = w2b;
-
-                    mat_trans_single3_nodiv(u_over_w, v_over_w, z_over_w);
-
-                    float u = shz_div_posf(u_over_w, invW);
-                    float v = shz_div_posf(v_over_w, invW);
-                    float z = shz_div_posf(z_over_w, invW);
-
-                    // Z-buffer test
-                    float old_z = get_z_buffer_at(px, py);
-                    if (z > old_z || old_z == 0.0f) {  // closer or empty
+                    if (z > old_z) {  // closer or empty
                         u = clamp01(u);
                         v = clamp01(v);
 
@@ -482,17 +327,12 @@ void draw_textured_triangle_scanline(const triangle_t *tri){
 
     if (height_top_to_bottom == 0.0f) return; // Degenerate triangle
 
-    // Compute horizontal slopes along edges
-    float slope_top_to_mid    = (height_top_to_mid != 0.0f) ? (x_mid - x_top) / height_top_to_mid : 0.0f;
-    float slope_top_to_bottom = (x_bottom - x_top) / height_top_to_bottom;
-
-    float slope_u_top_to_mid    = (height_top_to_mid != 0.0f) ? (u_mid - u_top) / height_top_to_mid : 0.0f;
-    float slope_v_top_to_mid    = (height_top_to_mid != 0.0f) ? (v_mid - v_top) / height_top_to_mid : 0.0f;
-    float slope_u_top_to_bottom = (height_top_to_bottom != 0.0f) ? (u_bottom - u_top) / height_top_to_bottom : 0.0f;
-    float slope_v_top_to_bottom = (height_top_to_bottom != 0.0f) ? (v_bottom - v_top) / height_top_to_bottom : 0.0f;
-    float slope_u_mid_to_bottom = (height_mid_to_bottom != 0.0f) ? (u_bottom - u_mid) / height_mid_to_bottom : 0.0f;
-    float slope_v_mid_to_bottom = (height_mid_to_bottom != 0.0f) ? (v_bottom - v_mid) / height_mid_to_bottom : 0.0f;
-
+    float slope_top_to_mid    = (height_top_to_mid != 0.0f) ? shz_divf((x_mid - x_top), height_top_to_mid) : 0.0f;
+    float slope_top_to_bottom = shz_divf((x_bottom - x_top), height_top_to_bottom);
+    float slope_u_top_to_mid    = (height_top_to_mid != 0.0f) ? shz_divf((u_mid - u_top), height_top_to_mid) : 0.0f;
+    float slope_v_top_to_mid    = (height_top_to_mid != 0.0f) ? shz_divf((v_mid - v_top), height_top_to_mid) : 0.0f;
+    float slope_u_top_to_bottom = shz_divf((u_bottom - u_top), height_top_to_bottom);
+    float slope_v_top_to_bottom = shz_divf((v_bottom - v_top), height_top_to_bottom);
 
     float x_left = x_top;
     float x_right = x_top;
@@ -501,26 +341,33 @@ void draw_textured_triangle_scanline(const triangle_t *tri){
     float u_right = u_top; 
     float v_right = v_top; 
 
+    float u_scale = (float)(tex_w - 1);
+    float v_scale = (float)(tex_h - 1);
+
     // --------------------------
     // Upper part: from top -> mid
     // --------------------------
-    for (int y = (int)ceilf(y_top); y <= (int)floorf(y_mid); y++) {
-        int x_start = (int)floorf(x_left);
-        int x_end   = (int)ceilf(x_right);
+    for (int y = (int)shz_ceilf(y_top); y <= (int)shz_floorf(y_mid); y++) {
+        
+        int x_start = (int)shz_floorf(x_left);
+        int x_end   = (int)shz_ceilf(x_right);
         if (x_start > x_end) { int t=x_start; x_start=x_end; x_end=t; }
 
         float span_width = (x_right - x_left);
-        if (fabsf(span_width) < 1e-6f) span_width = 1.0f; // avoid div0
+        if (fabsf(span_width) < 1e-6f){ 
+            span_width = 1.0f;
+        }
+        float inv_span = shz_invf(span_width);
 
-        float u = u_left + ( (x_start - x_left) / span_width ) * (u_right - u_left);
-        float v = v_left + ( (x_start - x_left) / span_width ) * (v_right - v_left);
+        float u = (u_left * u_scale) + ((x_start - x_left) * inv_span) * (u_right - u_left) * u_scale;
+        float v = (v_left * v_scale) + ((x_start - x_left) * inv_span) * (v_right - v_left) * v_scale;
 
-        float du_dx = (u_right - u_left) / span_width;
-        float dv_dx = (v_right - v_left) / span_width;
+        float du_dx = (u_right - u_left) * inv_span * u_scale;
+        float dv_dx = (v_right - v_left) * inv_span * v_scale;
 
         for (int x = x_start; x <= x_end; x++) {
-            int tx = (int)(u * (float)(tex_w - 1));
-            int ty = (int)((1.0f - v) * (float)(tex_h - 1));
+            int tx = (int)u;
+            int ty = tex_h - 1 - (int)v;
 
             // Sample texture
             uint16_t color = tex_data[ty * tex_w + tx];
@@ -560,36 +407,53 @@ void draw_textured_triangle_scanline(const triangle_t *tri){
     v_left = v_mid;
 
     // Right edge continues from where it was at y_mid
-    for (int y = (int)ceilf(y_mid); y <= (int)floorf(y_bottom); y++) {
-        int x_start = (int)floorf(x_left);
-        int x_end   = (int)ceilf(x_right);
+    for (int y = (int)shz_ceilf(y_mid); y <= (int)shz_floorf(y_bottom); y++) {
+        int x_start = (int)shz_floorf(x_left);
+        int x_end   = (int)shz_ceilf(x_right);
 
         if (x_start > x_end) { int t = x_start; x_start = x_end; x_end = t; }
 
         float span_width = (x_right - x_left);
-        // if (fabsf(span_width) < 1e-6f) {
-        //     x_left  += slope_x_left;
-        //     x_right += slope_x_right;
-        //     u_left  += slope_u_left;
-        //     v_left  += slope_v_left;
-        //     u_right += slope_u_right;
-        //     v_right += slope_v_right;
-        //     continue; // skip degenerate span
-        // }
+        if (fabsf(span_width) < 1e-6f) {
+            x_left  += slope_x_left;
+            x_right += slope_x_right;
+            u_left  += slope_u_left;
+            v_left  += slope_v_left;
+            u_right += slope_u_right;
+            v_right += slope_v_right;
+            continue; // skip degenerate span
+        }
 
-        float u = u_left + ((x_start - x_left) / span_width) * (u_right - u_left);
-        float v = v_left + ((x_start - x_left) / span_width) * (v_right - v_left);
+        float inv_span = shz_invf(span_width);
 
-        float du_dx = (u_right - u_left) / span_width;
-        float dv_dx = (v_right - v_left) / span_width;
+        float u = (u_left * u_scale) + ((x_start - x_left) * inv_span) * (u_right - u_left) * u_scale;
+        float v = (v_left * v_scale) + ((x_start - x_left) * inv_span) * (v_right - v_left) * v_scale;
+
+        float du_dx = (u_right - u_left) * inv_span * u_scale;
+        float dv_dx = (v_right - v_left) * inv_span * v_scale;
 
         for (int x = x_start; x <= x_end; x++) {
-            int tx = (int)(u * (float)(tex_w - 1));
-            int ty = (int)((1.0f - v) * (float)(tex_h - 1));
+            int tx = (int)u;
+            int ty = tex_h - 1 - (int)v;
+            // was gonna test out mess around with trying to batch 4 texel fetches using the SH4 matrix
+            // matrix_t uv;
+            // uv[0][0] = u;
+            // uv[1][0] = v;
+            // uv[0][1] = u + du_dx;
+            // uv[1][1] = v + dv_dx;
+            // uv[0][2] = u + 2*du_dx;
+            // uv[1][2] = v + 2*dv_dx;
+            // uv[0][3] = u + 3*du_dx;
+            // uv[1][3] = v + 3*dv_dx;
+            // shz_xmtrx_load_4x4(&uv);
 
-          
+
+
+            // start_time = perf_cntr_timer_ns();
             uint16_t color = tex_data[ty * tex_w + tx];
             draw_pixel(x, y, color);
+            // end_time = perf_cntr_timer_ns();
+            // avg += end_time - start_time;
 
             u += du_dx;
             v += dv_dx;
@@ -603,6 +467,28 @@ void draw_textured_triangle_scanline(const triangle_t *tri){
         v_right += slope_v_right;
     }
 }
+
+// static inline void shz_uv_step4(
+//     float u0, float du_dx,
+//     float v0, float dv_dx,
+//     float u_out[4], float v_out[4])
+// {
+//     vec4_t uvec = { u0, du_dx, 0.0f, 0.0f };
+//     vec4_t vvec = { v0, dv_dx, 0.0f, 0.0f };
+
+//     // Load progression matrix into XF unit
+//     shz_xmtrx_load_4x4(&uv_prog_matrix);
+
+//     // Transform U and V vectors
+//     shz_xvec_transform(&uvec);
+//     shz_xvec_transform(&vvec);
+
+//     // Copy results out
+//     for (int i = 0; i < 4; i++) {
+//         u_out[i] = uvec[i];
+//         v_out[i] = vvec[i];
+//     }
+// }
 
 
 

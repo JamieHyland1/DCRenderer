@@ -26,6 +26,7 @@ void load_mesh_obj_data(mesh_t* mesh, char* filename) {
             sscanf(line, "v %f %f %f", &vertex.x, &vertex.y, &vertex.z);
             array_push(mesh->vertices, vertex);
            
+           
         }
         if(strncmp(line,"vn ",3) == 0){
             shz_vec3_t normal;
@@ -48,6 +49,7 @@ void load_mesh_obj_data(mesh_t* mesh, char* filename) {
                 &vertex_indices[1], &texture_indices[1], &normal_indices[1], 
                 &vertex_indices[2], &texture_indices[2], &normal_indices[2]
             ); 
+           // Build face
             face_t face = {
                 .a = vertex_indices[0] - 1,
                 .b = vertex_indices[1] - 1,
@@ -58,14 +60,37 @@ void load_mesh_obj_data(mesh_t* mesh, char* filename) {
                 .a_uv = texcoords[texture_indices[0] - 1],
                 .b_uv = texcoords[texture_indices[1] - 1],
                 .c_uv = texcoords[texture_indices[2] - 1]
-                
             };
 
-            // printf("Loaded face: %d/%d/%d %d/%d/%d %d/%d/%d\n",
-            //     vertex_indices[0], texture_indices[0], normal_indices[0],
-            //     vertex_indices[1], texture_indices[1], normal_indices[1],
-            //     vertex_indices[2], texture_indices[2], normal_indices[2]
-            // );
+            // Check winding using cross product
+            shz_vec3_t v0 = mesh->vertices[face.a];
+            shz_vec3_t v1 = mesh->vertices[face.b];
+            shz_vec3_t v2 = mesh->vertices[face.c];
+
+            shz_vec3_t e1 = shz_vec3_sub(v1, v0);
+            shz_vec3_t e2 = shz_vec3_sub(v2, v0);
+            shz_vec3_t tri_normal = shz_vec3_cross(e1, e2);
+
+            // Use provided normal (if available) to check orientation
+            if (face.a_n >= 0) {
+                shz_vec3_t ref_normal = mesh->normals[face.a_n];
+                if (shz_vec3_dot(tri_normal, ref_normal) < 0) {
+                    printf("Flipping face winding in %s\n", filename);
+                    // Flip winding
+                    int tmp = face.b;
+                    face.b = face.c;
+                    face.c = tmp;
+
+                    int tmpn = face.b_n;
+                    face.b_n = face.c_n;
+                    face.c_n = tmpn;
+
+                    tex2_t tmpuv = face.b_uv;
+                    face.b_uv = face.c_uv;
+                    face.c_uv = tmpuv;
+                }
+            }
+
             array_push(mesh->faces, face);
         }
     }

@@ -27,7 +27,6 @@ typedef struct {
     tex2_t texcoords[3];
     kos_img_t texture;
     float orientation_from_light;
-    float area;
 }triangle_t;
 
 void draw_triangle(const triangle_t* tri, uint16_t color);

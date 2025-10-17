@@ -2,7 +2,9 @@
 #define DEBUG_H
 #include "display.h"
 #include <stdint.h>
-
+extern uint64_t avg;
+extern uint64_t start_time;
+extern uint64_t end_time;
 // Initialize the timer to average over N frames
 void init_timer(int frames);
 
