@@ -75,7 +75,7 @@ shz_vec3_t get_camera_lookat_target(){
     mat_rotate_y(get_camera_yaw());
     mat_rotate_x(get_camera_pitch());
 
-    shz_vec4_t camera_direction = (shz_vec4_t){0,0,0,0};
+    shz_vec4_t camera_direction = shz_vec4_init(0,0,0,0);
 
     float x = camera_direction.x;
     float y = camera_direction.y;
@@ -113,5 +113,5 @@ void update_camera_vectors(){
     up = shz_vec_cross(camera.right,camera.direction);
     camera.up = shz_vec_normalize(camera.up);
 
-    set_camera_vel((shz_vec3_t){0,0,0});
+    set_camera_vel(shz_vec3_init(0,0,0));
 }
