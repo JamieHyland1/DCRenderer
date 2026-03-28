@@ -14,5 +14,4 @@
 #include <dc/fmath.h>
 #include "shz_vector.h"
 #include <assert.h>
-
 #endif

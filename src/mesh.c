@@ -1,4 +1,5 @@
 #include "../include/renderer.h"
+#include "../include/texture.h"
 #include <string.h>
 mesh_t mesh = {
     .vertices =NULL,
@@ -14,7 +15,7 @@ static mesh_t meshes[MAX_NUMBER_MESHES];
 static int mesh_count = 0;
 
 
-void load_mesh_obj_data(mesh_t* mesh, char* filename) {
+bool load_mesh_obj_data(mesh_t* mesh, char* filename) {
     FILE* file;
     file = fopen(filename, "r");
     char line[1024];
@@ -94,28 +95,39 @@ void load_mesh_obj_data(mesh_t* mesh, char* filename) {
             array_push(mesh->faces, face);
         }
     }
+
     array_free(texcoords);
+    return true;
 }
 
-void load_mesh_png_data(mesh_t* mesh, char* filename){
+bool load_mesh_png_data(mesh_t* mesh, char* filename){
     png_to_img(filename, 0, &mesh->img);
-    if(mesh->img.w > 0){
-    }else{
-         fprintf(stderr, "Error loading PNG file: %s\n", filename);
-        return;
+    bool texture_init_result = texture_init(&mesh->texture_info, mesh->img, mesh->img.w, mesh->img.h);
+    // should be && but for testing just want to see if either works for now
+    if (mesh->img.w > 0 && mesh->img.h > 0 && texture_init_result) {        
+        printf("Loaded texture %s (%d x %d)\n", filename, mesh->img.w, mesh->img.h);
+        return true;
     }
+    fprintf(stderr, "Error loading PNG file: %s\n", filename);
+    return false;
 }
 
-void load_mesh(char* obj_path, char* png_path, shz_vec3_t scale, shz_vec3_t translation, shz_vec3_t rotation){
-    load_mesh_obj_data(&meshes[mesh_count], obj_path);
-    load_mesh_png_data(&meshes[mesh_count], png_path);
+bool load_mesh(char* obj_path, char* png_path, shz_vec3_t scale, shz_vec3_t translation, shz_vec3_t rotation){
+    bool load_obj_result = load_mesh_obj_data(&meshes[mesh_count], obj_path);
+    bool load_png_result = load_mesh_png_data(&meshes[mesh_count], png_path);
    
+    if (!load_obj_result || !load_png_result) {
+        fprintf(stderr, "Failed to load mesh: %s\n", obj_path);
+        return false;
+    }
+
     meshes[mesh_count].scale = scale;
     meshes[mesh_count].translation = translation;
     meshes[mesh_count].rotation = rotation;
 
 
     mesh_count++;
+    return true;
 }
 
 int get_num_meshes(){

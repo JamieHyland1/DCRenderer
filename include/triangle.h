@@ -25,7 +25,7 @@ typedef struct {
     shz_vec4_t points[3];
     shz_vec3_t normals[3];
     tex2_t texcoords[3];
-    kos_img_t texture;
+    texture_t* texture;
     float orientation_from_light;
 }triangle_t;
 

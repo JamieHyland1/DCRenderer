@@ -9,8 +9,9 @@
 int frame_count = 0;
 int previous_frame_time = 0;
 int num_triangles_to_render = 0;
-
+int num_skybox_triangles_to_render = 0;
 bool render_z_buffer = false;
+int skybox_tris_rendererd = 0;
 
 mat4_t world_matrix;
 mat4_t projection_matrix;
@@ -21,6 +22,7 @@ matrix_t w_mat;
 matrix_t p_mat;
 matrix_t pv_mat;
 triangle_t triangles_to_render[MAX_TRIANGLES_PER_MESH];
+triangle_t skybox_triangles_to_render[N_CUBE_FACES];
 uint64_t triangle_time = 0;
 uint64_t total_cycles = 0;
 
@@ -64,17 +66,17 @@ bool setup(void)
     printf("Framebuffer count after vid_set_mode: %d\n", vid_mode->fb_count);
     printf("Framebuffer size: %d bytes\n", vid_mode->fb_size);
     printf("Scanlines: %d pixels\n", vid_mode->scanlines);
-
+    printf("hello from jamies renderer!\n");
     buffer_size = 640 * 480 * sizeof(uint16_t);
     buffer = (uint16_t *)aligned_alloc(32, buffer_size);
     background_texture = (uint16_t *)aligned_alloc(32, buffer_size);
     z_buffer = (float *)aligned_alloc(32, sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
 
-    load_background_image("rd/background2.png");
+    load_background_image("rd/test_bg.png");
 
     init_light((shz_vec3_t){0.0f, 0.0f, -1.0f});
 
-    render_mode = RENDER_TEXTURED;
+    render_mode = RENDER_TEXTURED_SCANLINE;
     cull_mode = CULL_BACKFACE;
 
     // Initialize projection matrix
@@ -95,14 +97,124 @@ bool setup(void)
     projection_matrix = mat4_make_perspective(fov_y, aspect_y, znear, zfar);
     init_frustum_planes(fov_x, fov_y, znear, zfar);
 
-                                                    // scale          position         rotation
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1, 1, 1), vec3_new( 0,  0,  -6), vec3_new(0, 0, 0));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1, 1, 1), vec3_new( -2,  0,  -4), vec3_new(0, 0, 0));
+                                                  // scale          position         rotation
+    load_mesh("rd/Skybox.obj", "rd/SpeedHighway.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
+   // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
 
-    // set_camera_pos((shz_vec3_t){3, -2.6, 43.9f}); // TESTING POSITION
-     set_camera_pos((shz_vec3_t){-1.6, 0.28, -1});
+    //set_camera_pos((shz_vec3_t){3, -0.6, 43.9f}); // TESTING POSITION
+    set_camera_pos((shz_vec3_t){0.6, 0.28, 6.6});
     return true;
 }
+
+void process_skybox() {
+    mesh_t* mesh = get_mesh(0);
+
+    shz_xmtrx_init_identity();
+    shz_xmtrx_apply_scale(mesh->scale.x, mesh->scale.y, mesh->scale.z);
+
+    shz_xmtrx_apply_rotation_z(mesh->rotation.z);
+   // shz_xmtrx_apply_rotation_y(mesh->rotation.y += 0.01f);
+    shz_xmtrx_apply_rotation_x(mesh->rotation.x);
+
+    shz_xmtrx_apply_translation(mesh->translation.x, mesh->translation.y, mesh->translation.z);
+    // its trying to replace these
+    shz_xmtrx_store_4x4(&w_mat);
+    shz_xmtrx_load_4x4(&v_mat);
+    shz_xmtrx_apply_4x4(&w_mat);
+    int num_faces = array_length(mesh->faces);
+    for (int i = 0; i < num_faces; i++) {
+        face_t current_face = mesh->faces[i];
+
+        shz_vec3_t face_vertices[3] = {
+            mesh->vertices[current_face.a],
+            mesh->vertices[current_face.b],
+            mesh->vertices[current_face.c]
+        };
+
+        shz_vec4_t transformed_vertices[3];
+        for (int j = 0; j < 3; j++) {
+            shz_vec4_t v = vec4_from_vec3(face_vertices[j]);
+
+            float x = v.x, y = v.y, z = v.z;
+            mat_trans_single3_nodiv(x, y, z);
+
+            v.x = x; v.y = y; v.z = z;
+            transformed_vertices[j] = v;
+        }
+
+        shz_vec3_t origin = shz_vec3_init(0, 0, 0);
+        /////////////////
+        // Cull back faces
+        /////////////////
+        shz_vec3_t cameraRay = shz_vec_sub(origin, vec3_from_vec4(transformed_vertices[0]));
+        shz_vec3_t tri_normal = get_triangle_face_normal(transformed_vertices);
+        tri_normal = shz_vec_normalize(tri_normal);
+
+        // float orientation_from_camera = shz_vec_dot(tri_normal, cameraRay);
+        // if (cull_mode == CULL_BACKFACE)
+        // {
+        //     if (orientation_from_camera < 0)
+        //     {
+        //         continue;
+        //     }
+        // }
+
+        
+
+        // Near-plane safety guard (optional but recommended)
+        if (transformed_vertices[0].z <= znear ||
+            transformed_vertices[1].z <= znear ||
+            transformed_vertices[2].z <= znear) {
+            continue;
+        }
+
+        // Skip clipping: triangle "after clipping" is the original
+        triangle_t tri;
+        tri.points[0] = transformed_vertices[0];
+        tri.points[1] = transformed_vertices[1];
+        tri.points[2] = transformed_vertices[2];
+        tri.texcoords[0] = current_face.a_uv;
+        tri.texcoords[1] = current_face.b_uv;
+        tri.texcoords[2] = current_face.c_uv;
+
+        // Project
+        shz_vec4_t projected_points[3];
+        for (int j = 0; j < 3; j++) {
+            projected_points[j] = mat4_mul_vec4_project(projection_matrix, tri.points[j]);
+
+            projected_points[j].x *= WINDOW_WIDTH * 0.5f;
+            projected_points[j].y *= WINDOW_HEIGHT * 0.5f;
+            projected_points[j].y *= -1;
+            projected_points[j].x += WINDOW_WIDTH * 0.5f;
+            projected_points[j].y += WINDOW_HEIGHT * 0.5f;
+
+            // Force far depth (choose correct constant for your z-test)
+            projected_points[j].z = 1.0f;
+        }
+
+        triangle_t triangle_to_render = {
+            .points = {
+                {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
+                {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
+                {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w},
+            },
+            .texcoords = {
+                {tri.texcoords[0].u, tri.texcoords[0].v},
+                {tri.texcoords[1].u, tri.texcoords[1].v},
+                {tri.texcoords[2].u, tri.texcoords[2].v}
+            },
+            .texture = &mesh->texture_info,
+            .orientation_from_light = 0xFFFF
+        };
+
+        if (num_skybox_triangles_to_render < N_CUBE_FACES) {
+            skybox_triangles_to_render[num_skybox_triangles_to_render++] = triangle_to_render;
+        }
+    }
+   // printf("Processed skybox with %d triangles\n", num_skybox_triangles_to_render );
+}
+
+
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // Process the graphics pipeline in various stages
 //
@@ -296,7 +408,7 @@ void process_graphics_pipeline(mesh_t *mesh)
                     {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w},
                 },
                 .texcoords = {{triangle_after_clipping.texcoords[0].u, triangle_after_clipping.texcoords[0].v}, {triangle_after_clipping.texcoords[1].u, triangle_after_clipping.texcoords[1].v}, {triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v}},
-                .texture = mesh->img,
+                .texture = &mesh->texture_info,
                 .orientation_from_light = 0xFFFF};
             if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH)
             {
@@ -319,13 +431,23 @@ void update(void)
     // View matrix
     mat_lookat((vector_t*)&cam_pos,(vector_t*) &cam_target, (vector_t*)&cam_up);
     shz_xmtrx_store_4x4(&v_mat);
+    mesh_t* skybox = get_mesh(0);
+   
+
+//    printf("skybox_pos %f, %f, %f\n", skybox->translation.x, skybox->translation.y, skybox->translation.z);
+    
+    process_skybox();
 
     for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++)
     {
         mesh_t *mesh = get_mesh(mesh_index);
+         shz_vec3_t cp = get_camera_pos();
+        if(mesh_index == 0)mesh->translation = vec3_new(cp.x,cp.y,cp.z);
         process_graphics_pipeline(mesh);
 
     }
+
+    
 }
 
 void process_input(void)
@@ -419,7 +541,17 @@ void process_input(void)
 void render(void)
 {
    
-    clear_z_buffer();
+    /* clear_z_buffer(); */
+
+    for(int i = 0; i < num_skybox_triangles_to_render; i++){
+        triangle_t tri =  skybox_triangles_to_render[i]; 
+      //  start_time = perf_cntr_timer_ns();
+          draw_textured_triangle_scanline(&tri);
+        // end_time = perf_cntr_timer_ns();
+        // avg += end_time - start_time;
+
+   }
+
     for (int i = 0; i < num_triangles_to_render; i++)
     {
         triangle_t tri = triangles_to_render[i];
@@ -437,22 +569,25 @@ void render(void)
                 start_time = perf_cntr_timer_ns();
                 draw_textured_triangle(&tri);
                 end_time = perf_cntr_timer_ns();
-                avg += end_time - start_time;
                 break;
             case RENDER_TEXTURED_SCANLINE:
                 start_time = perf_cntr_timer_ns();
                 draw_textured_triangle_scanline(&tri);
                 end_time = perf_cntr_timer_ns();
                 avg += end_time - start_time;
-
                 break;
         }
     }
+
+
+
     if(render_z_buffer == true){
         draw_z_buffer_to_screen();
     }
-    draw_info(render_mode, num_triangles_to_render, frame_count);
+    skybox_tris_rendererd = num_triangles_to_render;
+  //  draw_info(render_mode, num_triangles_to_render, frame_count);
     num_triangles_to_render = 0; // Reset for next frame
+    num_skybox_triangles_to_render = 0; 
 
 }
 
@@ -464,7 +599,7 @@ int main(int argc, char *args[])
     while (isRunning)
     {
         vid_flip(vid_mode->fb_count);
-        draw_background_image();
+      //  draw_background_image();
         process_input();
         update();
         render();
@@ -479,12 +614,14 @@ int main(int argc, char *args[])
        
         memset(z_buffer, 0, (WINDOW_WIDTH * WINDOW_HEIGHT) * sizeof(float));
         frame_count++;
-        if(frame_count == 2000) isRunning = false;
+       // if(frame_count == 1000) isRunning = false;
     }
     
-    // double average_ns = (double)avg / frame_count;  // Cast to double for floating-point division
-    // printf("Average frame time: %.2f ns (%.2f ms)\n", average_ns, average_ns / 1e6);
+    double avg_face_ns =
+        (double)avg / ((double)frame_count * (double)skybox_tris_rendererd);
 
+    printf("Skybox average: %.2f ns/face (%.3f ms/face)\n",
+       avg_face_ns, avg_face_ns / 1e6);
 
     free_meshes();
     destroy_window();
