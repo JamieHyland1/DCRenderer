@@ -5,13 +5,14 @@ SRCDIR = src
 INCDIR = include
 SRCS := $(wildcard $(SRCDIR)/*.c)
 OBJS := $(SRCS:.c=.o) romdisk.o
+FLYCAST ?= /c/flycast/build/flycast.exe
 
 # ROM Disk setup (if used)
 KOS_ROMDISK_DIR = romdisk
 
 # SH4ZAM paths
-SH4ZAM_INC = /opt/toolchains/dc/kos/sh4zam/include/sh4zam
-SH4ZAM_LIB = /opt/toolchains/dc/kos/sh4zam/build
+SH4ZAM_INC = /opt/toolchains/dc/kos-ports/sh4zam/build/sh4zam-1.0.0/include/sh4zam
+SH4ZAM_LIB = /opt/toolchains/dc/kos-ports/sh4zam/build/sh4zam-1.0.0/build
 
 # Compiler include flags
 CFLAGS += -std=c2x -std=gnu2x -I$(INCDIR) -I$(SH4ZAM_INC) -DNDEBUG
@@ -38,8 +39,8 @@ $(TARGET): $(OBJS)
  
 
 # Run via Flycast emulator (optional)
-run:
-	flycast $(TARGET)
+run: $(TARGET)
+	"$(FLYCAST)" "$(TARGET)"
 
 # Create a stripped binary (optional for CD builds)
 dist: $(TARGET)

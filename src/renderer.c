@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "../include/renderer.h"
+#include "dc/syscalls.h"
 #include "shz_trig.h"
 #include "shz_matrix.h"
 #include "shz_xmtrx.h"
@@ -99,14 +100,21 @@ bool setup(void)
 
                                                   // scale          position         rotation
     load_mesh("rd/Skybox.obj", "rd/SpeedHighway.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
-   // load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
+    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
+    for(int i = 0; i < 10; i++){
+        create_object("cube", get_mesh(1));
+        printf("number of objects in scene: %d\n",get_num_objects());
+
+    }
 
     //set_camera_pos((shz_vec3_t){3, -0.6, 43.9f}); // TESTING POSITION
     set_camera_pos((shz_vec3_t){0.6, 0.28, 6.6});
     return true;
 }
 
-void process_skybox() {
+
+/* Remember to fix this to remove the skybox from the regular mesh pipeline */
+/* void process_skybox() {
     mesh_t* mesh = get_mesh(0);
 
     shz_xmtrx_init_identity();
@@ -212,7 +220,7 @@ void process_skybox() {
         }
     }
    // printf("Processed skybox with %d triangles\n", num_skybox_triangles_to_render );
-}
+} */
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -436,14 +444,20 @@ void update(void)
 
 //    printf("skybox_pos %f, %f, %f\n", skybox->translation.x, skybox->translation.y, skybox->translation.z);
     
-    process_skybox();
+//    process_skybox();
 
-    for (int mesh_index = 0; mesh_index < get_num_meshes(); mesh_index++)
+    for (int object_index = 0; object_index < get_num_objects(); object_index++)
     {
-        mesh_t *mesh = get_mesh(mesh_index);
-         shz_vec3_t cp = get_camera_pos();
-        if(mesh_index == 0)mesh->translation = vec3_new(cp.x,cp.y,cp.z);
-        process_graphics_pipeline(mesh);
+        object_t obj;
+        if(get_object(object_index, &obj)){
+            mesh_t *mesh = obj.mesh;
+            mesh->translation = vec3_new( (object_index+1.5f), mesh->translation.y, mesh->translation.z);
+             shz_vec3_t cp = get_camera_pos();
+            /* if(mesh_index == 0)mesh->translation = vec3_new(cp.x,cp.y,cp.z); */
+            process_graphics_pipeline(mesh);
+        }else{
+            printf("issue retrieving object at index: %d\n", object_index);
+        }
 
     }
 
@@ -543,14 +557,14 @@ void render(void)
    
     /* clear_z_buffer(); */
 
-    for(int i = 0; i < num_skybox_triangles_to_render; i++){
+    /* for(int i = 0; i < num_skybox_triangles_to_render; i++){
         triangle_t tri =  skybox_triangles_to_render[i]; 
       //  start_time = perf_cntr_timer_ns();
           draw_textured_triangle_scanline(&tri);
         // end_time = perf_cntr_timer_ns();
         // avg += end_time - start_time;
 
-   }
+   } */
 
     for (int i = 0; i < num_triangles_to_render; i++)
     {
@@ -587,7 +601,7 @@ void render(void)
     skybox_tris_rendererd = num_triangles_to_render;
   //  draw_info(render_mode, num_triangles_to_render, frame_count);
     num_triangles_to_render = 0; // Reset for next frame
-    num_skybox_triangles_to_render = 0; 
+    // num_skybox_triangles_to_render = 0; 
 
 }
 
@@ -599,7 +613,7 @@ int main(int argc, char *args[])
     while (isRunning)
     {
         vid_flip(vid_mode->fb_count);
-      //  draw_background_image();
+        draw_background_image();
         process_input();
         update();
         render();

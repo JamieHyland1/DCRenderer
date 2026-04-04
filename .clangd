@@ -1,0 +1,10 @@
+CompileFlags:
+  Add:
+    - -D_arch_dreamcast
+    - -DNDEBUG
+    - -std=gnu2x
+    - -I${workspaceFolder}/include
+    - -IC:/DreamSDK/opt/toolchains/dc/kos/include
+    - -IC:/DreamSDK/opt/toolchains/dc/kos/kernel/arch/dreamcast/include
+    - -IC:/DreamSDK/opt/toolchains/dc/kos/addons/include
+    - -IC:/DreamSDK/opt/toolchains/dc/kos/sh4zam/include/sh4zam

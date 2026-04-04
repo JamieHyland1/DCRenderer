@@ -7,5 +7,5 @@
 #include "vmu.h"
 #include "vector.h"
 #include "matrix.h"
-
+#include "object.h"
 #endif
