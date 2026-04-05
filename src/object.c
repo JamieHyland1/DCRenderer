@@ -4,9 +4,9 @@
 static object_t objects[MAX_OBJECTS_PER_SCENE];
 static int object_count = 0;
 
-bool create_object(char* name, mesh_t* mesh){
+bool create_object(char* name, int id){
   objects[object_count].name = name;
-  objects[object_count].mesh = mesh;
+  objects[object_count].id = id;
   object_count++;
   return true;
 }

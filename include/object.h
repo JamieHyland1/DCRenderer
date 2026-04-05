@@ -7,10 +7,10 @@
 
 typedef struct {
   char* name;
-  mesh_t* mesh;
+  int id;
 } object_t;
 
-bool create_object(char* name, mesh_t* mesh);
+bool create_object(char* name, int id);
 bool get_object(int index, object_t* out);
 
 

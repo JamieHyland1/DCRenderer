@@ -32,7 +32,7 @@ typedef struct {
 //_Static_assert(sizeof(mesh_t) % 32 == 0, "mesh_t must be 32-byte aligned for performance");
 extern mesh_t mesh;
 
-bool load_mesh(char* obj_path, char* png_path, shz_vec3_t scale, shz_vec3_t translation, shz_vec3_t rotation);
+int  load_assets(char* obj_path, char* png_path, shz_vec3_t scale, shz_vec3_t translation, shz_vec3_t rotation);
 bool load_mesh_png_data(mesh_t* mesh, char* filename);
 bool load_obj_file_data(mesh_t mesh,char* filename);
 

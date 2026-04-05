@@ -112,13 +112,13 @@ bool load_mesh_png_data(mesh_t* mesh, char* filename){
     return false;
 }
 
-bool load_mesh(char* obj_path, char* png_path, shz_vec3_t scale, shz_vec3_t translation, shz_vec3_t rotation){
+int load_assets(char* obj_path, char* png_path, shz_vec3_t scale, shz_vec3_t translation, shz_vec3_t rotation){
     bool load_obj_result = load_mesh_obj_data(&meshes[mesh_count], obj_path);
     bool load_png_result = load_mesh_png_data(&meshes[mesh_count], png_path);
    
     if (!load_obj_result || !load_png_result) {
         fprintf(stderr, "Failed to load mesh: %s\n", obj_path);
-        return false;
+        return -1;
     }
 
     meshes[mesh_count].scale = scale;
@@ -127,7 +127,8 @@ bool load_mesh(char* obj_path, char* png_path, shz_vec3_t scale, shz_vec3_t tran
 
 
     mesh_count++;
-    return true;
+    int id = mesh_count - 1;
+    return id;
 }
 
 int get_num_meshes(){

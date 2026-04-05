@@ -2,6 +2,18 @@
 #include <stdint.h>
 #include "../include/renderer.h"
 
+#define MAX_NUMBER_TEXTURES 33
+
+static texture_t textures[MAX_NUMBER_TEXTURES];
+static int texture_count = 0;
+
+
+
+int get_num_textures(){
+    return texture_count;
+}
+
+
 
 tex2_t new_tex2(float u, float v){
     tex2_t result;
@@ -74,6 +86,10 @@ bool texture_init(texture_t *t, kos_img_t img,
     t->w_mask  = t->img.w - 1;
     t->h_mask  = t->img.h - 1;
 
+
+    textures[texture_count] = *t;
+    texture_count++;
+    printf("Number of textures: %d\n",texture_count);
     printf("INIT: img.w=%d img.h=%d w_shift=%d w_mask=%d h_mask=%d data=%p\n",
        t->img.w, t->img.h, t->w_shift, t->w_mask, t->h_mask, t->img.data);
 

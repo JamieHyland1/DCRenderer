@@ -99,10 +99,11 @@ bool setup(void)
     init_frustum_planes(fov_x, fov_y, znear, zfar);
 
                                                   // scale          position         rotation
-    load_mesh("rd/Skybox.obj", "rd/SpeedHighway.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
-    load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
+    int skybox_id = load_assets("rd/Skybox.obj", "rd/SpeedHighway.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
+    int cube_id = load_assets("rd/cube.obj", "rd/cube.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
+
     for(int i = 0; i < 150; i++){
-        create_object("cube", get_mesh(1));
+        create_object("cube", cube_id);
         printf("number of objects in scene: %d\n",get_num_objects());
 
     }
@@ -458,7 +459,7 @@ void update(void)
 
             if (get_object(index, &obj)) {
                 float x = i * 5.5f;
-                mesh_t *mesh = obj.mesh;
+                mesh_t *mesh = get_mesh(obj.id);
                 mesh->translation = vec3_new(x, mesh->translation.y, z);
                 process_graphics_pipeline(mesh);
             } else {
