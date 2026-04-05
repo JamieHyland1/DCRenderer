@@ -101,14 +101,14 @@ bool setup(void)
                                                   // scale          position         rotation
     load_mesh("rd/Skybox.obj", "rd/SpeedHighway.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
     load_mesh("rd/cube.obj", "rd/cube.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
-    for(int i = 0; i < 10; i++){
+    for(int i = 0; i < 150; i++){
         create_object("cube", get_mesh(1));
         printf("number of objects in scene: %d\n",get_num_objects());
 
     }
 
-    //set_camera_pos((shz_vec3_t){3, -0.6, 43.9f}); // TESTING POSITION
-    set_camera_pos((shz_vec3_t){0.6, 0.28, 6.6});
+    set_camera_pos((shz_vec3_t){29, 10.6, 43.9f}); // TESTING POSITION
+    // set_camera_pos((shz_vec3_t){0.6, 0.28, 6.6});
     return true;
 }
 
@@ -445,22 +445,27 @@ void update(void)
 //    printf("skybox_pos %f, %f, %f\n", skybox->translation.x, skybox->translation.y, skybox->translation.z);
     
 //    process_skybox();
+    int num_objects = get_num_objects();
+    int rows = 10;
+    int cols = num_objects/10;
+    // printf("Number of rows 10, number of columns: %d\n", cols);
+    for (int object_index = 0; object_index < cols; object_index++) {
+        float z = object_index * 5.5f;
 
-    for (int object_index = 0; object_index < get_num_objects(); object_index++)
-    {
-        object_t obj;
-        if(get_object(object_index, &obj)){
-            mesh_t *mesh = obj.mesh;
-            mesh->translation = vec3_new( (object_index+1.5f), mesh->translation.y, mesh->translation.z);
-             shz_vec3_t cp = get_camera_pos();
-            /* if(mesh_index == 0)mesh->translation = vec3_new(cp.x,cp.y,cp.z); */
-            process_graphics_pipeline(mesh);
-        }else{
-            printf("issue retrieving object at index: %d\n", object_index);
+        for (int i = 0; i < rows; i++) {
+            object_t obj;
+            int index = (object_index * rows) + i;
+
+            if (get_object(index, &obj)) {
+                float x = i * 5.5f;
+                mesh_t *mesh = obj.mesh;
+                mesh->translation = vec3_new(x, mesh->translation.y, z);
+                process_graphics_pipeline(mesh);
+            } else {
+                printf("issue retrieving object at index: %d\n", index);
+            }
         }
-
     }
-
     
 }
 
@@ -599,7 +604,7 @@ void render(void)
         draw_z_buffer_to_screen();
     }
     skybox_tris_rendererd = num_triangles_to_render;
-  //  draw_info(render_mode, num_triangles_to_render, frame_count);
+    // draw_info(render_mode, num_triangles_to_render, frame_count);
     num_triangles_to_render = 0; // Reset for next frame
     // num_skybox_triangles_to_render = 0; 
 
