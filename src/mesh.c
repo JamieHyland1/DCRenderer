@@ -102,7 +102,8 @@ bool load_mesh_obj_data(mesh_t* mesh, char* filename) {
 
 bool load_mesh_png_data(mesh_t* mesh, char* filename){
     png_to_img(filename, 0, &mesh->img);
-    bool texture_init_result = texture_init(&mesh->texture_info, mesh->img, mesh->img.w, mesh->img.h);
+    texture_t texture;
+    bool texture_init_result = texture_init(&texture, mesh->img, mesh->img.w, mesh->img.h);
     // should be && but for testing just want to see if either works for now
     if (mesh->img.w > 0 && mesh->img.h > 0 && texture_init_result) {        
         printf("Loaded texture %s (%d x %d)\n", filename, mesh->img.w, mesh->img.h);

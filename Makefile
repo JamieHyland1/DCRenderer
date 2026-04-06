@@ -20,9 +20,13 @@ OBJS := $(SRCS:.c=.o) romdisk.o
 
 # Unity test sources
 TEST_SRCS := \
+	${SRCDIR}/display.c \
 	$(TESTDIR)/test_main.c \
 	$(TESTDIR)/test_vec3.c \
-	$(UNITYDIR)/unity.c
+	$(TESTDIR)/test_utils.c \
+	$(TESTDIR)/test_fixtures.c \
+	$(TESTDIR)/test_memory.c \
+ 	$(UNITYDIR)/unity.c
 
 # ------------------------------------------------------------
 # IMPORTANT:

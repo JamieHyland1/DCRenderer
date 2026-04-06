@@ -25,14 +25,13 @@ typedef struct {
     shz_vec3_t scale;         // 12 bytes
     shz_vec3_t translation;   // 12 bytes
     kos_img_t img;         // 20 bytes
-    texture_t texture_info; // 24 bytes
     uint8_t padding[20];      // Add 20 bytes to reach 96 bytes
 } mesh_t; //__attribute__((aligned(32)));
 
 //_Static_assert(sizeof(mesh_t) % 32 == 0, "mesh_t must be 32-byte aligned for performance");
 extern mesh_t mesh;
 
-int  load_assets(char* obj_path, char* png_path, shz_vec3_t scale, shz_vec3_t translation, shz_vec3_t rotation);
+int load_assets(char* obj_path, char* png_path, shz_vec3_t scale, shz_vec3_t translation, shz_vec3_t rotation);
 bool load_mesh_png_data(mesh_t* mesh, char* filename);
 bool load_obj_file_data(mesh_t mesh,char* filename);
 

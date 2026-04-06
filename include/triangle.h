@@ -25,16 +25,16 @@ typedef struct {
     shz_vec4_t points[3];
     shz_vec3_t normals[3];
     tex2_t texcoords[3];
-    texture_t* texture;
+    int id;
     float orientation_from_light;
 }triangle_t;
 
 void draw_triangle(const triangle_t* tri, uint16_t color);
 void draw_filled_triangle(const triangle_t* tri, uint16_t color);
 void draw_filled_triangle_wire(const triangle_t* tri, uint16_t color);
-void draw_textured_triangle(const triangle_t *tri);
+/* void draw_textured_triangle(const triangle_t *tri); */
 void draw_textured_triangle_bc_optimized(const triangle_t *tri);
-void draw_textured_triangle_scanline(const triangle_t *tri);
+void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* text);
 void draw_flat_bottom_triangle(const triangle_t *tri);
 void draw_flat_top_triangle(const triangle_t *tri);
 shz_vec3_t get_triangle_face_normal(shz_vec4_t vertices[3]);

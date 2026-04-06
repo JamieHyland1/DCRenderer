@@ -108,7 +108,7 @@ bool setup(void)
 
     }
 
-    set_camera_pos((shz_vec3_t){29, 10.6, 43.9f}); // TESTING POSITION
+    set_camera_pos((shz_vec3_t){24.20, 10.6, 114.70f}); // TESTING POSITION
     // set_camera_pos((shz_vec3_t){0.6, 0.28, 6.6});
     return true;
 }
@@ -241,8 +241,9 @@ bool setup(void)
 //
 //                           [ SCREEN SPACE ] <- Final image is now ready to be rendered to the screen
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-void process_graphics_pipeline(mesh_t *mesh)
+void process_graphics_pipeline(object_t* obj)
 {
+    mesh_t* mesh = get_mesh(obj->id);
     // World matrix
     shz_xmtrx_init_identity();
     shz_xmtrx_apply_scale(mesh->scale.x, mesh->scale.y, mesh->scale.z);
@@ -417,7 +418,7 @@ void process_graphics_pipeline(mesh_t *mesh)
                     {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w},
                 },
                 .texcoords = {{triangle_after_clipping.texcoords[0].u, triangle_after_clipping.texcoords[0].v}, {triangle_after_clipping.texcoords[1].u, triangle_after_clipping.texcoords[1].v}, {triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v}},
-                .texture = &mesh->texture_info,
+                .id = obj->id,
                 .orientation_from_light = 0xFFFF};
             if (num_triangles_to_render < MAX_TRIANGLES_PER_MESH)
             {
@@ -461,7 +462,7 @@ void update(void)
                 float x = i * 5.5f;
                 mesh_t *mesh = get_mesh(obj.id);
                 mesh->translation = vec3_new(x, mesh->translation.y, z);
-                process_graphics_pipeline(mesh);
+                process_graphics_pipeline(&obj);
             } else {
                 printf("issue retrieving object at index: %d\n", index);
             }
@@ -575,6 +576,7 @@ void render(void)
     for (int i = 0; i < num_triangles_to_render; i++)
     {
         triangle_t tri = triangles_to_render[i];
+        texture_t* texture = get_texture(tri.id);
         switch (render_mode){
             case RENDER_WIRE:
                 draw_triangle(&tri, 0xFFFF);
@@ -587,15 +589,16 @@ void render(void)
                 break;
             case RENDER_TEXTURED:
                 start_time = perf_cntr_timer_ns();
-                draw_textured_triangle(&tri);
+                /* draw_textured_triangle(&tri); */
                 end_time = perf_cntr_timer_ns();
                 break;
-            case RENDER_TEXTURED_SCANLINE:
-                start_time = perf_cntr_timer_ns();
-                draw_textured_triangle_scanline(&tri);
-                end_time = perf_cntr_timer_ns();
-                avg += end_time - start_time;
-                break;
+            case RENDER_TEXTURED_SCANLINE: {
+                const texture_t* texture = get_texture(tri.id);
+                // start_time = perf_cntr_timer_ns();
+                draw_textured_triangle_scanline(&tri, texture);
+                // end_time = perf_cntr_timer_ns();
+            break;
+        }
         }
     }
 
@@ -632,7 +635,7 @@ int main(int argc, char *args[])
         // will keep this here for now until shz_sq_memcpy32 is fully tested
         // sq_cpy((void *)((uint8_t *)vram_s), (const void *)((uint8_t *)buffer), buffer_size);
        
-        memset(z_buffer, 0, (WINDOW_WIDTH * WINDOW_HEIGHT) * sizeof(float));
+       // memset(z_buffer, 0, (WINDOW_WIDTH * WINDOW_HEIGHT) * sizeof(float));
         frame_count++;
        // if(frame_count == 1000) isRunning = false;
     }

@@ -13,7 +13,9 @@ int get_num_textures(){
     return texture_count;
 }
 
-
+texture_t* get_texture(int index){
+    return &textures[index];
+}
 
 tex2_t new_tex2(float u, float v){
     tex2_t result;

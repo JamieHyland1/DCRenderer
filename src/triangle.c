@@ -179,134 +179,134 @@ void draw_filled_triangle_wire(const triangle_t* tri, uint16_t color) {
     draw_linef(x2, y2, x0, y0, 0xFFFF);
 }
 // Depreciated but just keeping here for now as its a good before and after test 
-void draw_textured_triangle(const triangle_t *tri) {
-    uint16_t *tex_data = (uint16_t *)tri->texture->img.data;
-    const int tex_w = tri->texture->img.w;
-    const int tex_h = tri->texture->img.h;
+// void draw_textured_triangle(const triangle_t *tri) {
+//     uint16_t *tex_data = (uint16_t *)tri->texture->img.data;
+//     const int tex_w = tri->texture->img.w;
+//     const int tex_h = tri->texture->img.h;
 
-    // Vertex positions (screen space)
-    const float x0 = tri->points[0].x, y0 = tri->points[0].y, w0 = tri->points[0].w, z0 = tri->points[0].z;
-    const float x1 = tri->points[1].x, y1 = tri->points[1].y, w1 = tri->points[1].w, z1 = tri->points[1].z;
-    const float x2 = tri->points[2].x, y2 = tri->points[2].y, w2 = tri->points[2].w, z2 = tri->points[2].z;
+//     // Vertex positions (screen space)
+//     const float x0 = tri->points[0].x, y0 = tri->points[0].y, w0 = tri->points[0].w, z0 = tri->points[0].z;
+//     const float x1 = tri->points[1].x, y1 = tri->points[1].y, w1 = tri->points[1].w, z1 = tri->points[1].z;
+//     const float x2 = tri->points[2].x, y2 = tri->points[2].y, w2 = tri->points[2].w, z2 = tri->points[2].z;
 
-    float area = edge_func(x0, y0, x1, y1, x2, y2);
+//     float area = edge_func(x0, y0, x1, y1, x2, y2);
 
-    // Early out: backface or degeneratearea
-    if (fabsf(area) < 1e-6f) return;
-    const float inv_area = 1.0f / area;
+//     // Early out: backface or degeneratearea
+//     if (fabsf(area) < 1e-6f) return;
+//     const float inv_area = 1.0f / area;
 
-    // Perspective-correct setup
-    const float invW0 = 1.0f / w0;
-    const float invW1 = 1.0f / w1;
-    const float invW2 = 1.0f / w2;
+//     // Perspective-correct setup
+//     const float invW0 = 1.0f / w0;
+//     const float invW1 = 1.0f / w1;
+//     const float invW2 = 1.0f / w2;
 
-    const float u0 = tri->texcoords[0].u, v0t = tri->texcoords[0].v;
-    const float u1 = tri->texcoords[1].u, v1t = tri->texcoords[1].v;
-    const float u2 = tri->texcoords[2].u, v2t = tri->texcoords[2].v;
+//     const float u0 = tri->texcoords[0].u, v0t = tri->texcoords[0].v;
+//     const float u1 = tri->texcoords[1].u, v1t = tri->texcoords[1].v;
+//     const float u2 = tri->texcoords[2].u, v2t = tri->texcoords[2].v;
 
-    const float u0o = u0 * invW0, v0o = v0t * invW0, z0o = z0 * invW0;
-    const float u1o = u1 * invW1, v1o = v1t * invW1, z1o = z1 * invW1;
-    const float u2o = u2 * invW2, v2o = v2t * invW2, z2o = z2 * invW2;
+//     const float u0o = u0 * invW0, v0o = v0t * invW0, z0o = z0 * invW0;
+//     const float u1o = u1 * invW1, v1o = v1t * invW1, z1o = z1 * invW1;
+//     const float u2o = u2 * invW2, v2o = v2t * invW2, z2o = z2 * invW2;
 
-    // Bounding box
-    float minxf = fminf(x0, fminf(x1, x2));
-    float minyf = fminf(y0, fminf(y1, y2));
-    float maxxf = fmaxf(x0, fmaxf(x1, x2));
-    float maxyf = fmaxf(y0, fmaxf(y1, y2));
+//     // Bounding box
+//     float minxf = fminf(x0, fminf(x1, x2));
+//     float minyf = fminf(y0, fminf(y1, y2));
+//     float maxxf = fmaxf(x0, fmaxf(x1, x2));
+//     float maxyf = fmaxf(y0, fmaxf(y1, y2));
 
-    int minx = (int)shz_floorf(minxf);
-    int miny = (int)shz_floorf(minyf);
-    int maxx = (int)shz_ceilf(maxxf) - 1;
-    int maxy = (int)shz_ceilf(maxyf) - 1;
+//     int minx = (int)shz_floorf(minxf);
+//     int miny = (int)shz_floorf(minyf);
+//     int maxx = (int)shz_ceilf(maxxf) - 1;
+//     int maxy = (int)shz_ceilf(maxyf) - 1;
 
-    if (minx > maxx || miny > maxy) return;
+//     if (minx > maxx || miny > maxy) return;
 
-    // Edge deltas
-    const float dx01 = x1 - x0, dy01 = y1 - y0;
-    const float dx12 = x2 - x1, dy12 = y2 - y1;
-    const float dx20 = x0 - x2, dy20 = y0 - y2;
+//     // Edge deltas
+//     const float dx01 = x1 - x0, dy01 = y1 - y0;
+//     const float dx12 = x2 - x1, dy12 = y2 - y1;
+//     const float dx20 = x0 - x2, dy20 = y0 - y2;
 
-    // Top-left flags
-    const int tl01 = is_top_left(dx01, dy01);
-    const int tl12 = is_top_left(dx12, dy12);
-    const int tl20 = is_top_left(dx20, dy20);
+//     // Top-left flags
+//     const int tl01 = is_top_left(dx01, dy01);
+//     const int tl12 = is_top_left(dx12, dy12);
+//     const int tl20 = is_top_left(dx20, dy20);
 
-    // Start values at top-left pixel center
-    float start_x = (float)minx ;
-    float start_y = (float)miny ;
+//     // Start values at top-left pixel center
+//     float start_x = (float)minx ;
+//     float start_y = (float)miny ;
 
-    float e01_row = edge_func(x0, y0, x1, y1, start_x, start_y);
-    float e12_row = edge_func(x1, y1, x2, y2, start_x, start_y);
-    float e20_row = edge_func(x2, y2, x0, y0, start_x, start_y);
+//     float e01_row = edge_func(x0, y0, x1, y1, start_x, start_y);
+//     float e12_row = edge_func(x1, y1, x2, y2, start_x, start_y);
+//     float e20_row = edge_func(x2, y2, x0, y0, start_x, start_y);
 
-    // Edge function step increments
-    const float step_e01_x = (y0 - y1);
-    const float step_e12_x = (y1 - y2);
-    const float step_e20_x = (y2 - y0);
+//     // Edge function step increments
+//     const float step_e01_x = (y0 - y1);
+//     const float step_e12_x = (y1 - y2);
+//     const float step_e20_x = (y2 - y0);
 
-    const float step_e01_y = (x1 - x0);
-    const float step_e12_y = (x2 - x1);
-    const float step_e20_y = (x0 - x2);
+//     const float step_e01_y = (x1 - x0);
+//     const float step_e12_y = (x2 - x1);
+//     const float step_e20_y = (x0 - x2);
 
-    // Lighting
-    const float intensity = clamp01(tri->orientation_from_light);
+//     // Lighting
+//     const float intensity = clamp01(tri->orientation_from_light);
 
-    // Rasterize
-    for (int py = miny; py <= maxy; ++py) {
-        float e01 = e01_row;
-        float e12 = e12_row;
-        float e20 = e20_row;
+//     // Rasterize
+//     for (int py = miny; py <= maxy; ++py) {
+//         float e01 = e01_row;
+//         float e12 = e12_row;
+//         float e20 = e20_row;
 
-        for (int px = minx; px <= maxx; ++px) {
-            const int c01 = (e01 > 0.0f) || (e01 == 0.0f && tl01);
-            const int c12 = (e12 > 0.0f) || (e12 == 0.0f && tl12);
-            const int c20 = (e20 > 0.0f) || (e20 == 0.0f && tl20);
+//         for (int px = minx; px <= maxx; ++px) {
+//             const int c01 = (e01 > 0.0f) || (e01 == 0.0f && tl01);
+//             const int c12 = (e12 > 0.0f) || (e12 == 0.0f && tl12);
+//             const int c20 = (e20 > 0.0f) || (e20 == 0.0f && tl20);
 
-            if (c01 && c12 && c20) {
-                const float w0b = e12 * inv_area;
-                const float w1b = e20 * inv_area;
-                const float w2b = e01 * inv_area;
+//             if (c01 && c12 && c20) {
+//                 const float w0b = e12 * inv_area;
+//                 const float w1b = e20 * inv_area;
+//                 const float w2b = e01 * inv_area;
 
-                const float invW = w0b * invW0 + w1b * invW1 + w2b * invW2;
+//                 const float invW = w0b * invW0 + w1b * invW1 + w2b * invW2;
 
-                if (invW > 0.0f) {
-                    // Perspective correct interpolate
-                    const float u_over_w = w0b * u0o + w1b * u1o + w2b * u2o;
-                    const float v_over_w = w0b * v0o + w1b * v1o + w2b * v2o;
-                    const float z_over_w = w0b * z0o + w1b * z1o + w2b * z2o;
+//                 if (invW > 0.0f) {
+//                     // Perspective correct interpolate
+//                     const float u_over_w = w0b * u0o + w1b * u1o + w2b * u2o;
+//                     const float v_over_w = w0b * v0o + w1b * v1o + w2b * v2o;
+//                     const float z_over_w = w0b * z0o + w1b * z1o + w2b * z2o;
 
-                    float u = u_over_w / invW;
-                    float v = v_over_w / invW;
-                    float z = z_over_w * invW;   // I was originally dividing by invW here
+//                     float u = u_over_w / invW;
+//                     float v = v_over_w / invW;
+//                     float z = z_over_w * invW;   // I was originally dividing by invW here
 
-                    // Z-buffer test
-                    float old_z = get_z_buffer_at(px, py);
-                    if (z > old_z) {  // closer or empty
-                        u = clamp01(u);
-                        v = clamp01(v);
+//                     // Z-buffer test
+//                     float old_z = get_z_buffer_at(px, py);
+//                     if (z > old_z) {  // closer or empty
+//                         u = clamp01(u);
+//                         v = clamp01(v);
 
-                        int tx = (int)(u * (float)(tex_w - 1));
-                        int ty = (int)((1.0f - v) * (float)(tex_h - 1));
+//                         int tx = (int)(u * (float)(tex_w - 1));
+//                         int ty = (int)((1.0f - v) * (float)(tex_h - 1));
 
-                        uint16_t color = tex_data[ty * tex_w + tx];
-                        uint16_t lit_color = light_apply_intensity(color, intensity);
-                        draw_pixel(px, py, lit_color);
+//                         uint16_t color = tex_data[ty * tex_w + tx];
+//                         uint16_t lit_color = light_apply_intensity(color, intensity);
+//                         draw_pixel(px, py, lit_color);
 
-                        update_zbuffer(px, py, z);
-                    }
-                }
-            }
+//                         update_zbuffer(px, py, z);
+//                     }
+//                 }
+//             }
 
-            e01 += step_e01_x;
-            e12 += step_e12_x;
-            e20 += step_e20_x;
-        }
+//             e01 += step_e01_x;
+//             e12 += step_e12_x;
+//             e20 += step_e20_x;
+//         }
 
-        e01_row += step_e01_y;
-        e12_row += step_e12_y;
-        e20_row += step_e20_y;
-    }
-}
+//         e01_row += step_e01_y;
+//         e12_row += step_e12_y;
+//         e20_row += step_e20_y;
+//     }
+// }
 
 static inline int clampi(int x, int lo, int hi) {
     if (x < lo) return lo;
@@ -314,16 +314,17 @@ static inline int clampi(int x, int lo, int hi) {
     return x;
 }
 
-void draw_textured_triangle_scanline(const triangle_t *tri)
+void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* text)
 {
-    uint16_t *tex_data = (uint16_t *)tri->texture->img.data;
 
-    const int tex_w = tri->texture->img.w;      // padded storage width
-    const int tex_h = tri->texture->img.h;      // padded storage height
-    const int sample_w = tri->texture->cw;      // real content width
-    const int sample_h = tri->texture->ch;      // real content height
+    uint16_t *tex_data = (const uint16_t *)text->img.data;
 
-    const int shift = tri->texture->w_shift;
+    const int tex_w = text->img.w;      // padded storage width
+    const int tex_h = text->img.h;      // padded storage height
+    const int sample_w = text->cw;      // real content width
+    const int sample_h = text->ch;      // real content height
+
+    const int shift = text->w_shift;
 
     // Vertex positions
     float x_top    = tri->points[0].x, y_top    = tri->points[0].y;
