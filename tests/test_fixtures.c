@@ -50,6 +50,16 @@ texture_t make_test_texture_2x2(void) {
     return tex;
 }
 
+
+int install_test_texture(texture_t tex) {
+    return register_texture(tex);
+}
+
+bool install_test_texture_at_id(int id, texture_t tex) {
+    return install_texture_at(id, tex);
+}
+
+
 triangle_t make_test_triangle_screen_space(int texture_id) {
     triangle_t tri;
     memset(&tri, 0, sizeof(tri));
@@ -168,6 +178,30 @@ triangle_t make_test_triangle_custom(
     tri.orientation_from_light = 1.0f;
 
     return tri;
+}
+
+triangle_t make_fullscreen_triangle_1(int texture_id) {
+    return make_test_triangle_custom(
+        0.0f,   0.0f,   0.5f, 1.0f,
+        639.0f, 0.0f,   0.5f, 1.0f,
+        0.0f,   479.0f, 0.5f, 1.0f,
+        make_test_tex2(0.0f, 0.0f),
+        make_test_tex2(1.0f, 0.0f),
+        make_test_tex2(0.0f, 1.0f),
+        texture_id
+    );
+}
+
+triangle_t make_fullscreen_triangle_2(int texture_id) {
+    return make_test_triangle_custom(
+        639.0f, 0.0f,   0.5f, 1.0f,
+        639.0f, 479.0f, 0.5f, 1.0f,
+        0.0f,   479.0f, 0.5f, 1.0f,
+        make_test_tex2(1.0f, 0.0f),
+        make_test_tex2(1.0f, 1.0f),
+        make_test_tex2(0.0f, 1.0f),
+        texture_id
+    );
 }
 
 face_t make_test_face(void) {

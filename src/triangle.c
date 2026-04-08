@@ -422,7 +422,7 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* tex
                 }
 
                 float span_width = xR - xL;
-                if (fabsf(span_width) < 1e-6f) {
+                if (span_width <= 0.0f) {
                     x_left  += slope_top_to_mid;
                     x_right += slope_top_to_bottom;
                     u_left  += slope_u_top_to_mid;
@@ -441,7 +441,7 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* tex
 
                 float dx = (float)x_start - xL;
                 float u = (uL * u_scale) + dx * du_dx;
-                float v = (float)(tex_h - 1) - ((vL * v_scale) + dx * dv_dx);
+                float v = (float)(sample_h - 1) - ((vL * v_scale) + dx * dv_dx);
 
                 int xs0 = x_start;
                 int xe0 = x_end;
@@ -562,7 +562,7 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* tex
         }
 
         float span_width = xR - xL;
-        if (fabsf(span_width) < 1e-6f) {
+        if (span_width <= 0.0f) {
             x_left  += slope_x_left;
             u_left  += slope_u_left;
             v_left  += slope_v_left;
@@ -627,8 +627,8 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* tex
                 }
 
                 for (int i = n4; i < count; i++) {
-                    int tx = clampi((int)u, 0, sample_w - 1);
-                    int ty = clampi((int)v, 0, sample_h - 1);
+                    int tx = ((int)u) & text->w_mask;
+                    int ty = ((int)v) & text->h_mask;
 
                     *dst++ = tex_data[(ty << shift) + tx];
 

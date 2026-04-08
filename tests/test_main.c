@@ -11,6 +11,14 @@ extern void test_bench_z_buffer_clear(void);
 extern void test_bench_color_buffer_clear(void);
 extern void test_bench_background_copy(void);
 extern void test_bench_vram_copy(void);
+extern void test_bench_fullscreen_triangle_scanline(void);
+extern void test_bench_fullscreen_quad_scanline(void);
+extern void test_bench_clamp_only(void);
+extern void test_bench_fetch_only(void);
+extern void test_bench_clamp_and_fetch(void);
+extern void test_bench_fetch_no_clamp(void);
+extern void test_bench_scanline_640_pixels_clamp(void);
+extern void test_bench_scanline_640_pixels_no_clamp(void);
 
 void setUp(void) {
 }
@@ -42,6 +50,15 @@ int main(int argc, char **argv) {
     RUN_TEST(test_bench_z_buffer_clear);
     RUN_TEST(test_bench_color_buffer_clear);
     RUN_TEST(test_bench_background_copy);
+    RUN_TEST(test_bench_clamp_only);
+    RUN_TEST(test_bench_fetch_only);
+    RUN_TEST(test_bench_clamp_and_fetch);
+    RUN_TEST(test_bench_fetch_no_clamp);
+    RUN_TEST(test_bench_scanline_640_pixels_clamp);
+    RUN_TEST(test_bench_scanline_640_pixels_no_clamp);
+    RUN_TEST(test_bench_fullscreen_triangle_scanline);
+    RUN_TEST(test_bench_fullscreen_quad_scanline);
+    printf("\n==== Benchmark Results ====\n%s\n", bench_log_get());
     /* RUN_TEST(test_bench_vram_copy); */
     int failures = UNITY_END();
 

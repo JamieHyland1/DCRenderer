@@ -97,3 +97,29 @@ bool texture_init(texture_t *t, kos_img_t img,
 
     return true;
 }
+
+int register_texture(texture_t tex) {
+    if (texture_count >= MAX_NUMBER_TEXTURES) {
+        return -1;
+    }
+
+    textures[texture_count] = tex;
+    return texture_count++;
+}
+
+void reset_textures(void) {
+    texture_count = 0;
+}
+
+bool install_texture_at(int index, texture_t tex) {
+    if (index < 0 || index >= MAX_NUMBER_TEXTURES) {
+        return false;
+    }
+
+    textures[index] = tex;
+    if (index >= texture_count) {
+        texture_count = index + 1;
+    }
+
+    return true;
+}

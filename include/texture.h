@@ -23,4 +23,7 @@ static int log2_pow2(int x);
 bool texture_init(texture_t *t, kos_img_t img, int content_w, int content_h);
 int get_num_textures();
 texture_t* get_texture(int index);
+int register_texture(texture_t tex);
+void reset_textures(void);
+bool install_texture_at(int index, texture_t tex);
 #endif

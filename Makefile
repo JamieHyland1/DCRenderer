@@ -21,11 +21,14 @@ OBJS := $(SRCS:.c=.o) romdisk.o
 # Unity test sources
 TEST_SRCS := \
 	${SRCDIR}/display.c \
+	${SRCDIR}/triangle.c \
+	${SRCDIR}/texture.c \
 	$(TESTDIR)/test_main.c \
 	$(TESTDIR)/test_vec3.c \
 	$(TESTDIR)/test_utils.c \
 	$(TESTDIR)/test_fixtures.c \
 	$(TESTDIR)/test_memory.c \
+	$(TESTDIR)/test_drawing.c \
  	$(UNITYDIR)/unity.c
 
 # ------------------------------------------------------------

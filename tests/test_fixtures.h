@@ -6,6 +6,10 @@
 
 texture_t make_test_texture_4x4(void);
 texture_t make_test_texture_2x2(void);
+texture_t make_test_texture_4x4(void);
+
+int install_test_texture(texture_t tex);
+bool install_test_texture_at_id(int id, texture_t tex);
 
 triangle_t make_test_triangle_screen_space(int texture_id);
 triangle_t make_test_triangle_object_space(int texture_id);
@@ -17,6 +21,9 @@ triangle_t make_test_triangle_custom(
     tex2_t uv0, tex2_t uv1, tex2_t uv2,
     int texture_id
 );
+
+triangle_t make_fullscreen_triangle_1(int texture_id);
+triangle_t make_fullscreen_triangle_2(int texture_id);
 
 face_t make_test_face(void);
 

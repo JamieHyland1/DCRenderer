@@ -8,6 +8,10 @@
 #define TEST_SCREEN_HEIGHT 480
 #define TEST_SCREEN_BUF_SIZE (TEST_SCREEN_WIDTH * TEST_SCREEN_HEIGHT * sizeof(uint16_t))
 
+
+inline uint64_t bench_now_ns(void);
+
+
 /* Simple on-screen benchmark log */
 void bench_log_reset(void);
 void bench_log_append(const char *fmt, ...);

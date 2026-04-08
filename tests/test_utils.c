@@ -4,11 +4,16 @@
 #include <stdarg.h>
 #include <string.h>
 #include <dc/minifont.h>
+#include <dc/perfctr.h>
 
 #define BENCH_LOG_CAPACITY 4096
 
 static char g_bench_log[BENCH_LOG_CAPACITY];
 static int g_bench_log_len = 0;
+
+uint64_t bench_now_ns(void) {
+    return perf_cntr_timer_ns();
+}
 
 void bench_log_reset(void) {
     g_bench_log[0] = '\0';
@@ -81,6 +86,13 @@ void draw_multiline_text(uint16_t *buf, int width, int x, int y, const char *tex
 void print_bench_result(const char *name, uint64_t total_ns, int iterations, size_t bytes) {
     double per_iter_ns = (double)total_ns / (double)iterations;
     double per_iter_ms = per_iter_ns / 1000000.0;
+
+    if (bytes == 0) {
+        bench_log_append("%s: %.2f ns  %.6f ms\n", name, per_iter_ns, per_iter_ms);
+        printf("%s: %.2f ns  %.6f ms\n", name, per_iter_ns, per_iter_ms);
+        return;
+    }
+
     double mb_per_iter = (double)bytes / (1024.0 * 1024.0);
     double mbps = 0.0;
 
@@ -89,4 +101,5 @@ void print_bench_result(const char *name, uint64_t total_ns, int iterations, siz
     }
 
     bench_log_append("%s: %.3f ms  %.2f MB/s\n", name, per_iter_ms, mbps);
+    printf("%s: %.3f ms  %.2f MB/s\n", name, per_iter_ms, mbps);
 }
