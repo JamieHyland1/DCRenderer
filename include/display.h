@@ -41,4 +41,6 @@ uint16_t get_background_color();
 void set_background_color(uint16_t color);
 void load_background_image(const char* path);
 void draw_background_image();
+bool init_test_render_buffers(size_t buffer_offset_bytes);
+void shutdown_test_render_buffers(void);
 #endif

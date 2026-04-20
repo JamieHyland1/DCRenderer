@@ -8,6 +8,8 @@ int WINDOW_WIDTH = 640;
 int WINDOW_HEIGHT = 480;
 //declare an array to uint32 elements
 float* z_buffer = NULL;
+float *z_template = NULL;
+
 bool isRunning = false;
 uint16_t* buffer = NULL;
 uint16_t* background_texture = NULL;
@@ -22,6 +24,90 @@ static int window_height = 480;
 
 int get_offset(int x, int y){
      return y * 640 + x;
+}
+
+static void *buffer_base = NULL;
+static void *background_base = NULL;
+
+bool init_test_render_buffers(size_t buffer_offset_bytes) {
+    buffer_size = WINDOW_WIDTH * WINDOW_HEIGHT * sizeof(uint16_t);
+
+    /* keep the render buffer 32-byte aligned */
+    if ((buffer_offset_bytes & 31) != 0) {
+        return false;
+    }
+
+    /* free old allocations so repeated calls can test different offsets */
+    free(buffer_base);
+    free(background_base);
+    free(z_buffer);
+    free(z_template);
+
+    buffer_base = NULL;
+    background_base = NULL;
+    buffer = NULL;
+    background_texture = NULL;
+    z_buffer = NULL;
+    z_template = NULL;
+
+    /* allocate extra room so we can shift buffer forward */
+    buffer_base = aligned_alloc(32, buffer_size + buffer_offset_bytes);
+    if (!buffer_base) return false;
+
+    background_base = aligned_alloc(32, buffer_size);
+    if (!background_base) {
+        free(buffer_base);
+        buffer_base = NULL;
+        return false;
+    }
+
+    z_buffer = (float *)aligned_alloc(32, sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
+    if (!z_buffer) {
+        free(buffer_base);
+        free(background_base);
+        buffer_base = NULL;
+        background_base = NULL;
+        return false;
+    }
+
+    z_template = (float *)aligned_alloc(32, sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
+    if (!z_template) {
+        free(buffer_base);
+        free(background_base);
+        free(z_buffer);
+        buffer_base = NULL;
+        background_base = NULL;
+        z_buffer = NULL;
+        return false;
+    }
+
+    buffer = (uint16_t *)((uint8_t *)buffer_base + buffer_offset_bytes);
+    background_texture = (uint16_t *)background_base;
+
+    memset(buffer, 0, buffer_size);
+    memset(background_texture, 0, buffer_size);
+
+    for (int i = 0; i < WINDOW_WIDTH * WINDOW_HEIGHT; i++) {
+        z_buffer[i] = 1.0f;
+        z_template[i] = 0.0f;
+    }
+
+    return true;
+}
+
+void shutdown_test_render_buffers(void) {
+    free(buffer_base);
+    free(background_base);
+    free(z_buffer);
+    free(z_template);
+
+    buffer_base = NULL;
+    background_base = NULL;
+    buffer = NULL;
+    background_texture = NULL;
+    z_buffer = NULL;
+    z_template = NULL;
+    buffer_size = 0;
 }
 
 void draw_z_buffer_to_screen(void) {
@@ -138,19 +224,24 @@ void draw_linef(float x0, float y0, float x1, float y1, uint16_t color) {
 
 void destroy_window(void){
     free(z_buffer);
+    free(z_template);
 }
 
 bool initialize_window(void){
+    int count = window_width * window_height;
+    z_buffer    = (float*)aligned_alloc(32, sizeof(float) * window_width * window_height);
+    z_template  = (float *)aligned_alloc(32, sizeof(float) * window_width * window_height);
 
-    z_buffer = (float*)malloc(sizeof(float) * window_width * window_height);
+    for (size_t i = 0; i < count; i++) {
+        z_buffer[i] = 1.0f;
+        z_template[i] = 0.0f;
+    }
 
     return true;
 }
 
 void clear_z_buffer(){
-    for(int i = 0; i < 640 * 480; i++){
-        z_buffer[i] = 0.0;
-    }
+    shz_memcpy32(z_buffer, z_template, sizeof(float) * window_width * window_height);
 }
 
 float get_z_buffer_at(int x, int y){

@@ -11,6 +11,9 @@ TESTDIR      = tests
 UNITYDIR     = third_party/unity
 
 FLYCAST ?= /c/flycast/build/flycast.exe
+DC_TOOL ?= dc-tool-ser
+DC_PORT ?= COM3
+DC_BAUD ?=
 
 # ------------------------------------------------------------
 # Source discovery
@@ -20,26 +23,23 @@ OBJS := $(SRCS:.c=.o) romdisk.o
 
 # Unity test sources
 TEST_SRCS := \
-	${SRCDIR}/display.c \
-	${SRCDIR}/triangle.c \
-	${SRCDIR}/texture.c \
+	$(SRCDIR)/display.c \
+	$(SRCDIR)/triangle.c \
+	$(SRCDIR)/texture.c \
 	$(TESTDIR)/test_main.c \
 	$(TESTDIR)/test_vec3.c \
 	$(TESTDIR)/test_utils.c \
 	$(TESTDIR)/test_fixtures.c \
 	$(TESTDIR)/test_memory.c \
 	$(TESTDIR)/test_drawing.c \
- 	$(UNITYDIR)/unity.c
+	$(UNITYDIR)/unity.c
 
 # ------------------------------------------------------------
 # IMPORTANT:
 # Add ONLY the application source files you want to test here.
 # Do NOT include the file that contains your normal main().
-#
-# Example:
-# TEST_APP_SRCS := src/vec3.c src/mat4.c src/clipping.c
 # ------------------------------------------------------------
-TEST_APP_SRCS := 
+TEST_APP_SRCS :=
 
 TEST_OBJS := $(TEST_SRCS:.c=.o) $(TEST_APP_SRCS:.c=.o)
 
@@ -58,12 +58,20 @@ SH4ZAM_LIB = /opt/toolchains/dc/kos-ports/sh4zam/build/sh4zam-1.0.0/build
 # Compiler / linker flags
 # ------------------------------------------------------------
 CFLAGS += -std=gnu2x -I$(INCDIR) -I$(SH4ZAM_INC) -DNDEBUG
-
-# These extra include paths are harmless for the normal build and
-# make the test objects compile cleanly using the default KOS rules.
 CFLAGS += -I$(TESTDIR) -I$(UNITYDIR)
+CFLAGS += -fbuiltin -ffast-math -ffp-contract=fast
 
-LIBS = -lpng -lkosutils -lz -lstb_image -lsh4zam -fbuiltin -ffast-math -ffp-contract=fast
+LIBS = -lpng -lkosutils -lz -lstb_image -lsh4zam
+
+# Per-file optimization overrides
+TRIANGLE_SRC    := $(SRCDIR)/triangle.c
+TRIANGLE_OBJ    := $(SRCDIR)/triangle.o
+TRIANGLE_CFLAGS := -O3
+
+$(TRIANGLE_OBJ): CFLAGS += $(TRIANGLE_CFLAGS)
+
+# Optional baud flag for dc-tool-ser
+DC_BAUD_FLAG := $(if $(strip $(DC_BAUD)),-b $(DC_BAUD),)
 
 # ------------------------------------------------------------
 # Default target
@@ -84,8 +92,8 @@ $(TARGET): $(OBJS)
 # ------------------------------------------------------------
 # Unity test build
 # ------------------------------------------------------------
-$(TEST_TARGET): $(TEST_OBJS)
-	kos-cc -o $(TEST_TARGET) $(TEST_OBJS) $(LIBS) -I$(SH4ZAM_INC) -L$(SH4ZAM_LIB) -L$(KOS_BASE)/lib/dreamcast
+$(TEST_TARGET): $(TEST_OBJS) romdisk.o
+	kos-cc -o $(TEST_TARGET) $(TEST_OBJS) romdisk.o $(LIBS) -I$(SH4ZAM_INC) -L$(SH4ZAM_LIB) -L$(KOS_BASE)/lib/dreamcast
 
 # ------------------------------------------------------------
 # Run targets
@@ -93,13 +101,26 @@ $(TEST_TARGET): $(TEST_OBJS)
 run: $(TARGET)
 	"$(FLYCAST)" "$(TARGET)"
 
-test: $(TEST_TARGET)
+tests: $(TEST_TARGET)
+
+test-run: $(TEST_TARGET)
 	"$(FLYCAST)" "$(TEST_TARGET)"
+
+test: test-run
 
 # Optional: build tests, then run tests, then build app
 check: $(TEST_TARGET)
 	"$(FLYCAST)" "$(TEST_TARGET)"
 	$(MAKE) $(TARGET)
+
+# ------------------------------------------------------------
+# Dreamcast run targets
+# ------------------------------------------------------------
+dreamcast: $(TARGET)
+	$(DC_TOOL) -t $(DC_PORT) $(DC_BAUD_FLAG) -x $(TARGET)
+
+dreamcast-test: $(TEST_TARGET)
+	$(DC_TOOL) -t $(DC_PORT) $(DC_BAUD_FLAG) -x $(TEST_TARGET)
 
 # ------------------------------------------------------------
 # Dist / deployment helpers
@@ -108,20 +129,30 @@ dist: $(TARGET)
 	-rm -f $(OBJS)
 	$(KOS_STRIP) $(TARGET)
 
-dreamcast:
-	/opt/dreamsdk/tools/dcload-serial/host-src/dc-tool-serial -t COM3 -x $(TARGET)
-
 # ------------------------------------------------------------
 # Assembly output helpers
 # ------------------------------------------------------------
+ASM_DIR := asm
+
 asm:
-	$(foreach src, $(SRCS), \
-		kos-cc -S -o $(basename $(src)).s $(src) &&) true
+	@mkdir -p $(ASM_DIR)
+	@for src in $(SRCS); do \
+		out="$(ASM_DIR)/$$(basename $${src%.c}).s"; \
+		extra=""; \
+		if [ "$$src" = "$(TRIANGLE_SRC)" ]; then extra="$(TRIANGLE_CFLAGS)"; fi; \
+		echo "  ASMSRC  $$src -> $$out"; \
+		kos-cc $(CFLAGS) $$extra -S "$$src" -o "$$out" || exit $$?; \
+	done
 
 vasm:
-	@mkdir -p asm
-	$(foreach src, $(SRCS), \
-		kos-cc -S -fverbose-asm -O2 -I$(INCDIR) $(src) -o asm/$(notdir $(basename $(src))).s &&) true
+	@mkdir -p $(ASM_DIR)
+	@for src in $(SRCS); do \
+		out="$(ASM_DIR)/$$(basename $${src%.c}).s"; \
+		extra=""; \
+		if [ "$$src" = "$(TRIANGLE_SRC)" ]; then extra="$(TRIANGLE_CFLAGS)"; fi; \
+		echo "  VASM    $$src -> $$out"; \
+		kos-cc $(CFLAGS) $$extra -S -fverbose-asm "$$src" -o "$$out" || exit $$?; \
+	done
 
 # ------------------------------------------------------------
 # Debug build
@@ -141,4 +172,4 @@ clean: rm-elf
 # ------------------------------------------------------------
 # Phony targets
 # ------------------------------------------------------------
-.PHONY: all run test check dist dreamcast asm vasm debug clean rm-elf
+.PHONY: all run tests test-run test check dreamcast dreamcast-test dist asm vasm debug clean rm-elf

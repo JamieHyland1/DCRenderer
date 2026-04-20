@@ -102,7 +102,7 @@ bool setup(void)
     int skybox_id = load_assets("rd/Skybox.obj", "rd/SpeedHighway.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
     int cube_id = load_assets("rd/cube.obj", "rd/cube.png", vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
 
-    for(int i = 0; i < 150; i++){
+    for(int i = 0; i < 100; i++){
         create_object("cube", cube_id);
         printf("number of objects in scene: %d\n",get_num_objects());
 
@@ -562,7 +562,7 @@ void process_input(void)
 void render(void)
 {
    
-    /* clear_z_buffer(); */
+    clear_z_buffer(); 
 
     /* for(int i = 0; i < num_skybox_triangles_to_render; i++){
         triangle_t tri =  skybox_triangles_to_render[i]; 
@@ -594,8 +594,15 @@ void render(void)
                 break;
             case RENDER_TEXTURED_SCANLINE: {
                 const texture_t* texture = get_texture(tri.id);
+                if(triangle_fully_inside_screen(&tri)){
+                   // printf("triangle fully inside screen, using fast path\n");
+                    draw_textured_triangle_scanline_fast(&tri, texture);
+
+                }else{
+                   // printf("triangle partially outside screen, using slow path\n");
+                    draw_textured_triangle_scanline(&tri, texture);
+                }
                 // start_time = perf_cntr_timer_ns();
-                draw_textured_triangle_scanline(&tri, texture);
                 // end_time = perf_cntr_timer_ns();
             break;
         }
@@ -608,7 +615,7 @@ void render(void)
         draw_z_buffer_to_screen();
     }
     skybox_tris_rendererd = num_triangles_to_render;
-    // draw_info(render_mode, num_triangles_to_render, frame_count);
+    //draw_info(render_mode, num_triangles_to_render, frame_count);
     num_triangles_to_render = 0; // Reset for next frame
     // num_skybox_triangles_to_render = 0; 
 

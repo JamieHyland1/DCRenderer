@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
+#include "shz_mem.h"
 #include <dc/perfctr.h>
 
 #include "test_utils.h"
@@ -121,6 +122,131 @@ void test_bench_background_copy(void) {
 
     free(src);
     free(dst);
+    TEST_ASSERT_TRUE((end - start) > 0);
+}
+
+void test_bench_background_copy_shz(void) {
+    const int iterations = BENCH_ITERS_LARGE;
+    const size_t cbytes =
+        (size_t)TEST_SCREEN_WIDTH * (size_t)TEST_SCREEN_HEIGHT * sizeof(uint16_t);
+
+    TEST_ASSERT_EQUAL_UINT32(0, cbytes % 32);
+
+    uint16_t *src = aligned_alloc(32, cbytes);
+    uint16_t *dst = aligned_alloc(32, cbytes);
+    TEST_ASSERT_NOT_NULL(src);
+    TEST_ASSERT_NOT_NULL(dst);
+
+    memset(src, 0xAA, cbytes);
+    memset(dst, 0x11, cbytes);
+    warmup_memory(src, dst, cbytes);
+
+    uint64_t start = bench_now_ns();
+    for (int i = 0; i < iterations; i++) {
+        shz_memcpy32(dst, src, cbytes);
+    }
+    uint64_t end = bench_now_ns();
+
+    g_bench_sink ^= sample_bytes_u8(dst, cbytes);
+    print_bench_result("background_copy_shz_memcpy32", end - start, iterations, cbytes);
+
+    free(src);
+    free(dst);
+    TEST_ASSERT_TRUE((end - start) > 0);
+}
+
+void test_bench_background_copy_shz_sq(void) {
+    const int iterations = BENCH_ITERS_LARGE;
+    const size_t cbytes =
+        (size_t)TEST_SCREEN_WIDTH * (size_t)TEST_SCREEN_HEIGHT * sizeof(uint16_t);
+
+    TEST_ASSERT_EQUAL_UINT32(0, cbytes % 32);
+
+    uint16_t *src = aligned_alloc(32, cbytes);
+    uint16_t *dst = aligned_alloc(32, cbytes);
+    TEST_ASSERT_NOT_NULL(src);
+    TEST_ASSERT_NOT_NULL(dst);
+
+    memset(src, 0xAA, cbytes);
+    memset(dst, 0x11, cbytes);
+    warmup_memory(src, dst, cbytes);
+
+    uint64_t start = bench_now_ns();
+    for (int i = 0; i < iterations; i++) {
+        shz_sq_memcpy32(dst, src, cbytes);
+    }
+    uint64_t end = bench_now_ns();
+
+    g_bench_sink ^= sample_bytes_u8(dst, cbytes);
+    print_bench_result("background_copy_shz_sq_memcpy32", end - start, iterations, cbytes);
+
+    free(src);
+    free(dst);
+    TEST_ASSERT_TRUE((end - start) > 0);
+}
+
+void test_bench_z_buffer_clear_template_copy(void) {
+    const int iterations = BENCH_ITERS_LARGE;
+    const size_t count = (size_t)TEST_SCREEN_WIDTH * (size_t)TEST_SCREEN_HEIGHT;
+    const size_t zbytes = count * sizeof(float);
+
+    /* shz_memcpy32 requires dst 32-byte aligned and bytes multiple of 32 */
+    TEST_ASSERT_EQUAL_UINT32(0, zbytes % 32);
+
+    float *z_buffer = (float *)aligned_alloc(32, zbytes);
+    float *z_template = (float *)aligned_alloc(32, zbytes);
+    TEST_ASSERT_NOT_NULL(z_buffer);
+    TEST_ASSERT_NOT_NULL(z_template);
+
+    for (size_t i = 0; i < count; i++) {
+        z_template[i] = 1.0f;
+        z_buffer[i] = 0.0f;
+    }
+
+    warmup_memory(z_template, z_buffer, zbytes);
+
+    uint64_t start = bench_now_ns();
+    for (int i = 0; i < iterations; i++) {
+        shz_memcpy32(z_buffer, z_template, zbytes);
+    }
+    uint64_t end = bench_now_ns();
+
+    g_bench_sink ^= sample_bytes_u8((const uint8_t *)z_buffer, zbytes);
+
+    print_bench_result("z_buffer_clear_template_copy", end - start, iterations, zbytes);
+
+    free(z_buffer);
+    free(z_template);
+    TEST_ASSERT_TRUE((end - start) > 0);
+}
+
+void test_bench_z_buffer_clear_float_loop(void) {
+    const int iterations = BENCH_ITERS_LARGE;
+    const size_t count = (size_t)TEST_SCREEN_WIDTH * (size_t)TEST_SCREEN_HEIGHT;
+    const size_t zbytes = count * sizeof(float);
+
+    float *z_buffer = (float *)aligned_alloc(32, zbytes);
+    TEST_ASSERT_NOT_NULL(z_buffer);
+
+    for (size_t i = 0; i < count; i++) {
+        z_buffer[i] = 0.0f;
+    }
+
+    warmup_memory(z_buffer, z_buffer, zbytes);
+
+    uint64_t start = bench_now_ns();
+    for (int it = 0; it < iterations; it++) {
+        for (size_t i = 0; i < count; i++) {
+            z_buffer[i] = 1.0f;
+        }
+    }
+    uint64_t end = bench_now_ns();
+
+    g_bench_sink ^= sample_bytes_u8((const uint8_t *)z_buffer, zbytes);
+
+    print_bench_result("z_buffer_clear_float_loop", end - start, iterations, zbytes);
+
+    free(z_buffer);
     TEST_ASSERT_TRUE((end - start) > 0);
 }
 

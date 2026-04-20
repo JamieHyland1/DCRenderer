@@ -35,8 +35,11 @@ void draw_filled_triangle_wire(const triangle_t* tri, uint16_t color);
 /* void draw_textured_triangle(const triangle_t *tri); */
 void draw_textured_triangle_bc_optimized(const triangle_t *tri);
 void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* text);
+void draw_textured_triangle_scanline_fast(const triangle_t *tri, const texture_t* text);
 void draw_flat_bottom_triangle(const triangle_t *tri);
 void draw_flat_top_triangle(const triangle_t *tri);
 shz_vec3_t get_triangle_face_normal(shz_vec4_t vertices[3]);
 float edge_func(float x0, float y0, float x1, float y1, float x, float y);
+  int triangle_outside_screen(const triangle_t *tri);
+  int triangle_fully_inside_screen(const triangle_t *tri);
 #endif
