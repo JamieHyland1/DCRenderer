@@ -17,6 +17,9 @@ typedef struct {
     int v[4];
 } Vec4i;
 
+static inline shz_vec4_t vec4_from_vec3f(shz_vec3_t v) {
+    return (shz_vec4_t){ v.x, v.y, v.z, 1.0f };
+}
 
 /////////////////////////
 /// Vector 2D functions 

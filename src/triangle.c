@@ -458,9 +458,8 @@ static inline int clampi(int x, int lo, int hi) {
 void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* text)
 {
 
-    uint16_t *tex_data = (const uint16_t *)text->img.data;
+    const uint16_t *tex_data = (const uint16_t *)text->img.data;
 
-    const int tex_w = text->img.w;      // padded storage width
     const int tex_h = text->img.h;      // padded storage height
     const int sample_w = text->cw;      // real content width
     const int sample_h = text->ch;      // real content height
@@ -600,7 +599,6 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* tex
 
                         uint16_t *dst = buffer + y * WINDOW_WIDTH + xs;
                         int count = (xe - xs + 1);
-                        int n4 = count & ~3;
                         const int max_tx = sample_w - 1;
                         const int max_ty = sample_h - 1;
                         int n2 = count & ~1;

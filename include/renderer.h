@@ -3,6 +3,7 @@
 #define RENDERER_H
 
 #include "core.h"
+#include "render_target.h"
 #include "graphics.h"
 #include "scene.h"
 #include <kos.h>
@@ -14,4 +15,5 @@
 #include <dc/fmath.h>
 #include "shz_vector.h"
 #include <assert.h>
+#include "vector.h"
 #endif

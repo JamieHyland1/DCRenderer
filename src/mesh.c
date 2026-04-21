@@ -5,9 +5,9 @@ mesh_t mesh = {
     .vertices =NULL,
     .faces = NULL,
     .face_normals = NULL,
-    .rotation = {0,0,0},
-    .scale = {1.0,1.0,1.0},
-    .translation = {0,0,0}
+    .rotation = {{0, 0, 0}},
+    .scale = {{1.0f, 1.0f, 1.0f}},
+    .translation = {{0, 0, 0}}
 };
 
 #define MAX_NUMBER_MESHES 32    
@@ -106,7 +106,7 @@ bool load_mesh_png_data(mesh_t* mesh, char* filename){
     bool texture_init_result = texture_init(&texture, mesh->img, mesh->img.w, mesh->img.h);
     // should be && but for testing just want to see if either works for now
     if (mesh->img.w > 0 && mesh->img.h > 0 && texture_init_result) {        
-        printf("Loaded texture %s (%d x %d)\n", filename, mesh->img.w, mesh->img.h);
+        printf("Loaded texture %s (%u x %u)\n", filename, (unsigned)mesh->img.w, (unsigned)mesh->img.h);
         return true;
     }
     fprintf(stderr, "Error loading PNG file: %s\n", filename);

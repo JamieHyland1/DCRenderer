@@ -110,15 +110,15 @@ void debug_end(void) {
 //                 projected_points[j] = mat4_mul_vec4_project(projection_matrix, triangle_after_clipping.points[j]);
 
 //                 // Scale to middle of screen
-//                 projected_points[j].x *= get_window_width() * 0.5f;
-//                 projected_points[j].y *= get_window_height() * 0.5f;
+//                 projected_points[j].x *= get_WINDOW_WIDTH() * 0.5f;
+//                 projected_points[j].y *= get_WINDOW_HEIGHT() * 0.5f;
 
 //                 // Invert Y values to account for flipped y screen coordinate
 //                 projected_points[j].y *= -1;
 
 //                 // Translate to middle of screen
-//                 projected_points[j].x += get_window_width() * 0.5f;
-//                 projected_points[j].y += get_window_height() * 0.5f;
+//                 projected_points[j].x += get_WINDOW_WIDTH() * 0.5f;
+//                 projected_points[j].y += get_WINDOW_HEIGHT() * 0.5f;
 //             }
 //             triangle_t triangle_to_render = {
 //                 .points = {
