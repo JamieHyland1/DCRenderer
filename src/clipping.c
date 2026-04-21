@@ -18,32 +18,33 @@ void init_frustum_planes(float fov_x, float fov_y, float znear, float zfar){
     float cos_half_fov_y = pairY.cos;
     float sin_half_fov_y = pairY.sin;
 
+    shz_vec3_t origin;
+    origin.x = 0.0f;
+    origin.y = 0.0f;
+    origin.z = 0.0f; 
 
-    shz_vec3_t origin = {{.x = 0, .y = 0, .z = 0}};
-    
     frustum_planes[LEFT_FRUSTUM_PLANE].point  = origin;
-    frustum_planes[LEFT_FRUSTUM_PLANE].normal = (shz_vec3_t){{cos_half_fov_x, 0, sin_half_fov_x}};
+    frustum_planes[LEFT_FRUSTUM_PLANE].normal = (shz_vec3_t){{{cos_half_fov_x, 0, sin_half_fov_x}}};
 
-    
-    
+
     frustum_planes[RIGHT_FRUSTUM_PLANE].point  = origin;
-    frustum_planes[RIGHT_FRUSTUM_PLANE].normal = (shz_vec3_t){{-cos_half_fov_x, 0, sin_half_fov_x}};
+    frustum_planes[RIGHT_FRUSTUM_PLANE].normal = (shz_vec3_t){{{-cos_half_fov_x, 0, sin_half_fov_x}}};
 
     frustum_planes[TOP_FRUSTUM_PLANE].point  = origin;
-    frustum_planes[TOP_FRUSTUM_PLANE].normal = (shz_vec3_t){{0, -cos_half_fov_y, sin_half_fov_y}};
+    frustum_planes[TOP_FRUSTUM_PLANE].normal = (shz_vec3_t){{{0, -cos_half_fov_y, sin_half_fov_y}}};
 
     frustum_planes[BOTTOM_FRUSTUM_PLANE].point  = origin;
-    frustum_planes[BOTTOM_FRUSTUM_PLANE].normal = (shz_vec3_t){{0, cos_half_fov_y, sin_half_fov_y}};
+    frustum_planes[BOTTOM_FRUSTUM_PLANE].normal = (shz_vec3_t){{{0, cos_half_fov_y, sin_half_fov_y}}};
 
     frustum_planes[BOTTOM_FRUSTUM_PLANE].normal.y += 0.05;
     frustum_planes[TOP_FRUSTUM_PLANE].normal.y -= 0.05;
 
-    frustum_planes[NEAR_FRUSTUM_PLANE].point  = (shz_vec3_t){{0, 0, znear}};
-    frustum_planes[NEAR_FRUSTUM_PLANE].normal = (shz_vec3_t){{0, 0, 1}};
+    frustum_planes[NEAR_FRUSTUM_PLANE].point  = (shz_vec3_t){{{0, 0, znear}}};
+    frustum_planes[NEAR_FRUSTUM_PLANE].normal = (shz_vec3_t){{{0, 0, 1}}};
 
     
-    frustum_planes[FAR_FRUSTUM_PLANE].point  = (shz_vec3_t){{0, 0, zfar}};
-    frustum_planes[FAR_FRUSTUM_PLANE].normal = (shz_vec3_t){{0, 0, -1}};
+    frustum_planes[FAR_FRUSTUM_PLANE].point  = (shz_vec3_t){{{0, 0, zfar}}};
+    frustum_planes[FAR_FRUSTUM_PLANE].normal = (shz_vec3_t){{{0, 0, -1}}};
 }
 
 void triangles_from_polygon(polygon_t* polygon, triangle_t triangles[], int* num_triangles){

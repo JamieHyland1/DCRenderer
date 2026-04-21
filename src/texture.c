@@ -7,8 +7,6 @@
 static texture_t textures[MAX_NUMBER_TEXTURES];
 static int texture_count = 0;
 
-
-
 int get_num_textures(){
     return texture_count;
 }
@@ -24,6 +22,7 @@ tex2_t new_tex2(float u, float v){
 
     return result;
 }
+
 static inline int is_pow2(int x) {
     return x > 0 && (x & (x - 1)) == 0;
 }
@@ -55,9 +54,9 @@ bool texture_init(texture_t *t, kos_img_t img,
         size_t new_size = new_width * new_height * sizeof(uint16_t);
 
         fprintf(stderr,
-            "Texture not power of two (%d x %d). "
+            "Texture not power of two (%u x %u). "
             "Resizing to %d x %d\n",
-            img.w, img.h,
+            (unsigned)img.w, (unsigned)img.h,
             new_width, new_height);
 
         uint16_t *dst = memalign(32, new_size);
@@ -68,7 +67,7 @@ bool texture_init(texture_t *t, kos_img_t img,
 
         memset(dst, 0, new_size);
 
-        for (int y = 0; y < img.h; y++) {
+        for (int y = 0; y < (int)img.h; y++) {
             memcpy(
                 &dst[y * new_width],
                 &src[y * img.w],
@@ -88,12 +87,12 @@ bool texture_init(texture_t *t, kos_img_t img,
     t->w_mask  = t->img.w - 1;
     t->h_mask  = t->img.h - 1;
 
-
     textures[texture_count] = *t;
     texture_count++;
-    printf("Number of textures: %d\n",texture_count);
-    printf("INIT: img.w=%d img.h=%d w_shift=%d w_mask=%d h_mask=%d data=%p\n",
-       t->img.w, t->img.h, t->w_shift, t->w_mask, t->h_mask, t->img.data);
+    printf("Number of textures: %d\n", texture_count);
+    printf("INIT: img.w=%u img.h=%u w_shift=%d w_mask=%d h_mask=%d data=%p\n",
+           (unsigned)t->img.w, (unsigned)t->img.h,
+           t->w_shift, t->w_mask, t->h_mask, t->img.data);
 
     return true;
 }

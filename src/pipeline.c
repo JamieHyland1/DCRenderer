@@ -327,9 +327,9 @@ void process_graphics_pipeline(object_t* obj)
 
             triangle_t triangle_to_render = {
                 .points = {
-                    {projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w},
-                    {projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w},
-                    {projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w},
+                    {{{projected_points[0].x, projected_points[0].y, projected_points[0].z, projected_points[0].w}}},
+                    {{{projected_points[1].x, projected_points[1].y, projected_points[1].z, projected_points[1].w}}},
+                    {{{projected_points[2].x, projected_points[2].y, projected_points[2].z, projected_points[2].w}}},
                 },
                 .texcoords = {{triangle_after_clipping.texcoords[0].u, triangle_after_clipping.texcoords[0].v}, {triangle_after_clipping.texcoords[1].u, triangle_after_clipping.texcoords[1].v}, {triangle_after_clipping.texcoords[2].u, triangle_after_clipping.texcoords[2].v}},
                 .id = obj->id,

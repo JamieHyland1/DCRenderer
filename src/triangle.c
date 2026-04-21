@@ -4,8 +4,8 @@
 #include <stdint.h>
 
 inline float edge_func(float x0, float y0, float x1, float y1, float x, float y) {
-    shz_vec2_t edge = { x1 - x0, y1 - y0 };
-    shz_vec2_t toP  = { x - x0,  y - y0 };
+    shz_vec2_t edge = {{{ x1 - x0, y1 - y0 }}};
+    shz_vec2_t toP  = {{{ x - x0,  y - y0 }}};
     return shz_vec2_cross(edge, toP);
 }
 

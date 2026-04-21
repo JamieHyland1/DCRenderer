@@ -18,8 +18,7 @@ typedef struct {
 
 
 tex2_t new_tex2(float u, float v);
-static int is_pow2(int x);
-static int log2_pow2(int x);
+
 bool texture_init(texture_t *t, kos_img_t img, int content_w, int content_h);
 int get_num_textures();
 texture_t* get_texture(int index);

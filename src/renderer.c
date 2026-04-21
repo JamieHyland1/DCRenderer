@@ -41,7 +41,7 @@ bool setup(void)
 
     load_background_image("rd/yokohama.png");
 
-    init_light((shz_vec3_t){{0.0f, 0.0f, -1.0f}});
+    init_light((shz_vec3_t){{{0.0f, 0.0f, -1.0f}}});
 
     render_mode = RENDER_TEXTURED_SCANLINE;
     cull_mode = CULL_BACKFACE;
@@ -75,15 +75,15 @@ bool setup(void)
 
     }
 
-    set_camera_pos((shz_vec3_t){{24.20f, 10.6f, 114.70f}}); // TESTING POSITION
-    // set_camera_pos((shz_vec3_t){0.6, 0.28, 6.6});
+    set_camera_pos((shz_vec3_t){{{24.20f, 10.6f, 114.70f}}}); // TESTING POSITION
+    // set_camera_pos((shz_vec3_t){{{0.6, 0.28, 6.6}}});
     return true;
 }
 
 
 void update(void)
 {
-    init_light((shz_vec3_t){{0.0f, 0.0f, -1.0f}});
+    init_light((shz_vec3_t){{{0.0f, 0.0f, -1.0f}}});
     shz_xmtrx_init_identity();
 
     shz_vec4_t cam_pos = vec4_from_vec3f(get_camera_pos());

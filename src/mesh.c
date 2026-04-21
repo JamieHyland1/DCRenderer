@@ -5,9 +5,9 @@ mesh_t mesh = {
     .vertices =NULL,
     .faces = NULL,
     .face_normals = NULL,
-    .rotation = {{0, 0, 0}},
-    .scale = {{1.0f, 1.0f, 1.0f}},
-    .translation = {{0, 0, 0}}
+    .rotation = {{{0, 0, 0}}},
+    .scale = {{{1.0f, 1.0f, 1.0f}}},
+    .translation = {{{0, 0, 0}}}
 };
 
 #define MAX_NUMBER_MESHES 32    
