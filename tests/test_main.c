@@ -8,6 +8,7 @@
 #include "../include/texture.h"
 #include "test_utils.h"
 #include "test_drawing.h"
+#include "test_pipeline.h"
 
 extern void test_bench_z_buffer_clear(void);
 extern void test_bench_color_buffer_clear(void);
@@ -25,6 +26,7 @@ extern void test_bench_scanline_640_pixels_clamp(void);
 extern void test_bench_scanline_640_pixels_no_clamp(void);
 extern void test_bench_scanline_fill_only(void);
 extern void test_bench_scanline_setup_only(void);
+extern void test_pipeline(void);
 
 void setUp(void) {
 }
@@ -98,12 +100,16 @@ int main(int argc, char **argv) {
     UNITY_BEGIN();
     RUN_TEST(test_basic_sanity);
     RUN_TEST(test_bench_scanline_640_fixed_mask_unrolled4);
+    RUN_TEST(test_bench_background_copy);
+    RUN_TEST(test_bench_background_copy_shz);
+    RUN_TEST(test_bench_background_copy_shz_sq);
     RUN_TEST(test_bench_scanline_fill_only);
     RUN_TEST(test_bench_scanline_setup_only);
     RUN_TEST(test_bench_fullscreen_triangle_scanline_textured);
     RUN_TEST(test_bench_fullscreen_triangle_scanline_flat);
     RUN_TEST(test_bench_fullscreen_quad_scanline_textured);
     RUN_TEST(test_bench_fullscreen_quad_scanline_flat);
+    RUN_TEST(test_pipeline);
 
     printf("\n==== Benchmark Results ====\n%s\n", bench_log_get());
     int failures = UNITY_END();

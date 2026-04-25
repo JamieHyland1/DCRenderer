@@ -599,18 +599,21 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* tex
 
                         uint16_t *dst = buffer + y * WINDOW_WIDTH + xs;
                         int count = (xe - xs + 1);
-                        const int max_tx = sample_w - 1;
-                        const int max_ty = sample_h - 1;
                         int n2 = count & ~1;
 
-                        for (int i = 0; i < n2; i += 2) {
-                            int tx0 = clampi((int)u, 0, max_tx);
-                            int ty0 = clampi((int)v, 0, max_ty);
-                            u += du_dx; v -= dv_dx;
+                        const int wmask = text->w_mask;
+                        const int hmask = text->h_mask;
 
-                            int tx1 = clampi((int)u, 0, max_tx);
-                            int ty1 = clampi((int)v, 0, max_ty);
-                            u += du_dx; v -= dv_dx;
+                        for (int i = 0; i < n2; i += 2) {
+                            int tx0 = ((int)u) & wmask;
+                            int ty0 = ((int)v) & hmask;
+                            u += du_dx;
+                            v -= dv_dx;
+
+                            int tx1 = ((int)u) & wmask;
+                            int ty1 = ((int)v) & hmask;
+                            u += du_dx;
+                            v -= dv_dx;
 
                             dst[0] = tex_data[(ty0 << shift) + tx0];
                             dst[1] = tex_data[(ty1 << shift) + tx1];
@@ -618,8 +621,8 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* tex
                         }
 
                         for (int i = n2; i < count; i++) {
-                            int tx = clampi((int)u, 0, max_tx);
-                            int ty = clampi((int)v, 0, max_ty);
+                            int tx = ((int)u) & wmask;
+                            int ty = ((int)v) & hmask;
                             *dst++ = tex_data[(ty << shift) + tx];
                             u += du_dx;
                             v -= dv_dx;
@@ -731,16 +734,20 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* tex
                 uint16_t *dst = buffer + y * WINDOW_WIDTH + xs;
                 int count = (xe - xs + 1);
                 int n2 = count & ~1;
-                const int max_tx = sample_w - 1;
-                const int max_ty = sample_h - 1;
-                for (int i = 0; i < n2; i += 2) {
-                    int tx0 = clampi((int)u, 0, max_tx);
-                    int ty0 = clampi((int)v, 0, max_ty);
-                    u += du_dx; v -= dv_dx;
 
-                    int tx1 = clampi((int)u, 0, max_tx);
-                    int ty1 = clampi((int)v, 0, max_ty);
-                    u += du_dx; v -= dv_dx;
+                const int wmask = text->w_mask;
+                const int hmask = text->h_mask;
+
+                for (int i = 0; i < n2; i += 2) {
+                    int tx0 = ((int)u) & wmask;
+                    int ty0 = ((int)v) & hmask;
+                    u += du_dx;
+                    v -= dv_dx;
+
+                    int tx1 = ((int)u) & wmask;
+                    int ty1 = ((int)v) & hmask;
+                    u += du_dx;
+                    v -= dv_dx;
 
                     dst[0] = tex_data[(ty0 << shift) + tx0];
                     dst[1] = tex_data[(ty1 << shift) + tx1];
@@ -748,8 +755,8 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* tex
                 }
 
                 for (int i = n2; i < count; i++) {
-                    int tx = clampi((int)u, 0, max_tx);
-                    int ty = clampi((int)v, 0, max_ty);
+                    int tx = ((int)u) & wmask;
+                    int ty = ((int)v) & hmask;
                     *dst++ = tex_data[(ty << shift) + tx];
                     u += du_dx;
                     v -= dv_dx;

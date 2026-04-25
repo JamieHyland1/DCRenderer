@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include "shz_mem.h"
 #include <dc/perfctr.h>
+#include "../include/display.h"
+#include "../include/renderer.h"
+#include "../include/texture.h"
 
 #include "test_utils.h"
 
@@ -126,62 +129,58 @@ void test_bench_background_copy(void) {
 }
 
 void test_bench_background_copy_shz(void) {
-    const int iterations = BENCH_ITERS_LARGE;
+       const int iterations = 100;
     const size_t cbytes =
         (size_t)TEST_SCREEN_WIDTH * (size_t)TEST_SCREEN_HEIGHT * sizeof(uint16_t);
 
     TEST_ASSERT_EQUAL_UINT32(0, cbytes % 32);
 
     uint16_t *src = aligned_alloc(32, cbytes);
-    uint16_t *dst = aligned_alloc(32, cbytes);
     TEST_ASSERT_NOT_NULL(src);
-    TEST_ASSERT_NOT_NULL(dst);
 
     memset(src, 0xAA, cbytes);
-    memset(dst, 0x11, cbytes);
-    warmup_memory(src, dst, cbytes);
+    warmup_memory(src, src, cbytes);
+
+    void *dst_vram = (void *)vram_s;
 
     uint64_t start = bench_now_ns();
     for (int i = 0; i < iterations; i++) {
-        shz_memcpy32(dst, src, cbytes);
+        shz_memcpy32(dst_vram, src, cbytes);
     }
     uint64_t end = bench_now_ns();
 
-    g_bench_sink ^= sample_bytes_u8(dst, cbytes);
-    print_bench_result("background_copy_shz_memcpy32", end - start, iterations, cbytes);
+    print_bench_result("vram_copy_shz_memcpy32", end - start, iterations, cbytes);
 
     free(src);
-    free(dst);
     TEST_ASSERT_TRUE((end - start) > 0);
 }
 
 void test_bench_background_copy_shz_sq(void) {
-    const int iterations = BENCH_ITERS_LARGE;
+    const int iterations = 100;
     const size_t cbytes =
         (size_t)TEST_SCREEN_WIDTH * (size_t)TEST_SCREEN_HEIGHT * sizeof(uint16_t);
 
     TEST_ASSERT_EQUAL_UINT32(0, cbytes % 32);
 
     uint16_t *src = aligned_alloc(32, cbytes);
-    uint16_t *dst = aligned_alloc(32, cbytes);
     TEST_ASSERT_NOT_NULL(src);
-    TEST_ASSERT_NOT_NULL(dst);
 
     memset(src, 0xAA, cbytes);
-    memset(dst, 0x11, cbytes);
-    warmup_memory(src, dst, cbytes);
+    warmup_memory(src, src, cbytes);
+
+    void *dst_vram = (void *)vram_s;
 
     uint64_t start = bench_now_ns();
     for (int i = 0; i < iterations; i++) {
-        shz_sq_memcpy32(dst, src, cbytes);
+        sq_lock(dst_vram);
+        shz_sq_memcpy32(dst_vram, src, cbytes);
+        sq_unlock();
     }
     uint64_t end = bench_now_ns();
 
-    g_bench_sink ^= sample_bytes_u8(dst, cbytes);
-    print_bench_result("background_copy_shz_sq_memcpy32", end - start, iterations, cbytes);
+    print_bench_result("vram_copy_shz_sq_memcpy32", end - start, iterations, cbytes);
 
     free(src);
-    free(dst);
     TEST_ASSERT_TRUE((end - start) > 0);
 }
 
@@ -247,6 +246,32 @@ void test_bench_z_buffer_clear_float_loop(void) {
     print_bench_result("z_buffer_clear_float_loop", end - start, iterations, zbytes);
 
     free(z_buffer);
+    TEST_ASSERT_TRUE((end - start) > 0);
+}
+
+void test_bench_vram_copy_shz(void) {
+    const int iterations = 100;
+    const size_t cbytes =
+        (size_t)TEST_SCREEN_WIDTH * (size_t)TEST_SCREEN_HEIGHT * sizeof(uint16_t);
+
+    TEST_ASSERT_EQUAL_UINT32(0, cbytes % 32);
+
+    uint16_t *src = (uint16_t *)aligned_alloc(32, cbytes);
+    TEST_ASSERT_NOT_NULL(src);
+
+    memset(src, 0xAA, cbytes);
+
+    warmup_memory(src, src, cbytes);
+
+    uint64_t start = bench_now_ns();
+    for (int i = 0; i < iterations; i++) {
+        shz_memcpy32((void *)((uint8_t *)vram_s), src, cbytes);
+    }
+    uint64_t end = bench_now_ns();
+
+    print_bench_result("vram_copy_shz_memcpy32", end - start, iterations, cbytes);
+
+    free(src);
     TEST_ASSERT_TRUE((end - start) > 0);
 }
 

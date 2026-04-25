@@ -3,7 +3,7 @@
 
 #pragma once
 
-#define MAX_TRIANGLES_PER_MESH 10000
+#define MAX_TRIANGLES_PER_MESH 4096
 extern enum cull_method cull_mode;
 extern float znear;
 
@@ -23,5 +23,7 @@ extern int num_skybox_triangles_to_render;
 
 void process_graphics_pipeline(object_t *obj);
 shz_vec4_t vec4_from_vec3f(shz_vec3_t v);
+void print_pipeline_debug_stats(int frame_count);
+
 
 #endif

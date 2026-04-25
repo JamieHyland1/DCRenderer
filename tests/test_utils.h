@@ -24,5 +24,7 @@ void draw_multiline_text(uint16_t *buf, int width, int x, int y, const char *tex
 
 /* Benchmark formatting helper */
 void print_bench_result(const char *name, uint64_t total_ns, int iterations, size_t bytes);
+void print_counter_result(const char *name, uint64_t total_ns, uint64_t counter_value, int iterations);
+
 
 #endif

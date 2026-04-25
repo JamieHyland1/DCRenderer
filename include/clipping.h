@@ -32,7 +32,7 @@ typedef struct{
 polygon_t create_polygon_from_triangle(shz_vec3_t v0, shz_vec3_t v1, shz_vec3_t v2, tex2_t t0, tex2_t t1, tex2_t t2);
 
 void triangles_from_polygon(polygon_t* polygon, triangle_t triangles_after_clipping[], int* num_triangles);  
-
+void clip_polygon_against_frustum(polygon_t* polygon);
 void clip_polygon(polygon_t* polygon);
 void clip_polygon_against_plane(polygon_t* polygon, int frustum_plane);
 void init_frustum_planes(float fov_x,float fov_y, float znear, float zfar);

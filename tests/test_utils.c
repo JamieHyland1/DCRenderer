@@ -103,3 +103,16 @@ void print_bench_result(const char *name, uint64_t total_ns, int iterations, siz
     bench_log_append("%s: %.3f ms  %.2f MB/s\n", name, per_iter_ms, mbps);
     printf("%s: %.3f ms  %.2f MB/s\n", name, per_iter_ms, mbps);
 }
+
+void print_counter_result(const char *name, uint64_t total_ns, uint64_t counter_value, int iterations) {
+    const double elapsed_us = (double)total_ns / 1000.0;
+
+    print_bench_result(name, total_ns, iterations, 0);
+    printf("%s: PMCR_PIPELINE_FREEZE_BY_DCACHE_MISS_MODE total=%llu, per iter=%.2f\n",
+           name,
+           (unsigned long long)counter_value,
+           (double)counter_value / (double)iterations);
+    printf("%s: PMCR_PIPELINE_FREEZE_BY_DCACHE_MISS_MODE per us=%.2f\n",
+           name,
+           (elapsed_us > 0.0) ? ((double)counter_value / elapsed_us) : 0.0);
+}

@@ -1,3 +1,5 @@
+.DEFAULT_GOAL := all
+
 # ------------------------------------------------------------
 # Project settings
 # ------------------------------------------------------------
@@ -23,16 +25,31 @@ OBJS := $(SRCS:.c=.o) romdisk.o
 
 # Unity test sources
 TEST_SRCS := \
-	$(SRCDIR)/display.c \
-	$(SRCDIR)/triangle.c \
-	$(SRCDIR)/texture.c \
-	$(TESTDIR)/test_main.c \
-	$(TESTDIR)/test_vec3.c \
-	$(TESTDIR)/test_utils.c \
-	$(TESTDIR)/test_fixtures.c \
-	$(TESTDIR)/test_memory.c \
-	$(TESTDIR)/test_drawing.c \
-	$(UNITYDIR)/unity.c
+    $(SRCDIR)/display.c \
+    $(SRCDIR)/triangle.c \
+    $(SRCDIR)/texture.c \
+    $(SRCDIR)/vector.c \
+    $(SRCDIR)/utils.c \
+    $(SRCDIR)/render_target.c \
+    $(SRCDIR)/skybox.c \
+    $(SRCDIR)/pipeline.c \
+    $(SRCDIR)/object.c \
+    $(SRCDIR)/mesh.c \
+    $(SRCDIR)/matrix.c \
+    $(SRCDIR)/camera.c \
+    $(SRCDIR)/clipping.c \
+    $(SRCDIR)/light.c \
+    $(SRCDIR)/array.c \
+    $(SRCDIR)/debug.c \
+    $(SRCDIR)/vmu.c \
+    $(TESTDIR)/test_main.c \
+    $(TESTDIR)/test_vec3.c \
+    $(TESTDIR)/test_utils.c \
+    $(TESTDIR)/test_fixtures.c \
+    $(TESTDIR)/test_memory.c \
+    $(TESTDIR)/test_drawing.c \
+    $(TESTDIR)/test_pipeline.c \
+    $(UNITYDIR)/unity.c
 
 # ------------------------------------------------------------
 # IMPORTANT:
@@ -57,18 +74,35 @@ SH4ZAM_LIB = /opt/toolchains/dc/kos-ports/sh4zam/build/sh4zam-1.0.0/build
 # ------------------------------------------------------------
 # Compiler / linker flags
 # ------------------------------------------------------------
-CFLAGS += -std=gnu2x -I$(INCDIR) -I$(SH4ZAM_INC) -DNDEBUG
+CFLAGS += -std=gnu2x -I$(INCDIR) -I$(SH4ZAM_INC)
 CFLAGS += -I$(TESTDIR) -I$(UNITYDIR)
 CFLAGS += -fbuiltin -ffast-math -ffp-contract=fast
+CFLAGS += -DNDEBUG
 
 LIBS = -lpng -lkosutils -lz -lstb_image -lsh4zam
 
+# ------------------------------------------------------------
 # Per-file optimization overrides
+# ------------------------------------------------------------
 TRIANGLE_SRC    := $(SRCDIR)/triangle.c
 TRIANGLE_OBJ    := $(SRCDIR)/triangle.o
 TRIANGLE_CFLAGS := -O3
 
+CLIPPING_SRC    := $(SRCDIR)/clipping.c
+CLIPPING_OBJ    := $(SRCDIR)/clipping.o
+CLIPPING_CFLAGS := -O3
+
 $(TRIANGLE_OBJ): CFLAGS += $(TRIANGLE_CFLAGS)
+$(CLIPPING_OBJ): CFLAGS += $(CLIPPING_CFLAGS)
+
+# ------------------------------------------------------------
+# Debug / release builds
+# ------------------------------------------------------------
+debug: CFLAGS := $(filter-out -DNDEBUG,$(CFLAGS))
+debug: CFLAGS += -DDEBUG -DDEBUG_ENABLED
+debug: clean all
+
+release: clean all
 
 # Optional baud flag for dc-tool-ser
 DC_BAUD_FLAG := $(if $(strip $(DC_BAUD)),-b $(DC_BAUD),)
@@ -140,6 +174,7 @@ asm:
 		out="$(ASM_DIR)/$$(basename $${src%.c}).s"; \
 		extra=""; \
 		if [ "$$src" = "$(TRIANGLE_SRC)" ]; then extra="$(TRIANGLE_CFLAGS)"; fi; \
+		if [ "$$src" = "$(CLIPPING_SRC)" ]; then extra="$$extra $(CLIPPING_CFLAGS)"; fi; \
 		echo "  ASMSRC  $$src -> $$out"; \
 		kos-cc $(CFLAGS) $$extra -S "$$src" -o "$$out" || exit $$?; \
 	done
@@ -150,15 +185,10 @@ vasm:
 		out="$(ASM_DIR)/$$(basename $${src%.c}).s"; \
 		extra=""; \
 		if [ "$$src" = "$(TRIANGLE_SRC)" ]; then extra="$(TRIANGLE_CFLAGS)"; fi; \
+		if [ "$$src" = "$(CLIPPING_SRC)" ]; then extra="$$extra $(CLIPPING_CFLAGS)"; fi; \
 		echo "  VASM    $$src -> $$out"; \
 		kos-cc $(CFLAGS) $$extra -S -fverbose-asm "$$src" -o "$$out" || exit $$?; \
 	done
-
-# ------------------------------------------------------------
-# Debug build
-# ------------------------------------------------------------
-debug: CFLAGS += -DDEBUG_ENABLED
-debug: clean all
 
 # ------------------------------------------------------------
 # Cleanup
@@ -172,4 +202,4 @@ clean: rm-elf
 # ------------------------------------------------------------
 # Phony targets
 # ------------------------------------------------------------
-.PHONY: all run tests test-run test check dreamcast dreamcast-test dist asm vasm debug clean rm-elf
+.PHONY: all run tests test-run test check dreamcast dreamcast-test dist asm vasm debug release clean rm-elf

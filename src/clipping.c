@@ -3,6 +3,8 @@
 #include "../include/texture.h"
 #include <kos.h>
 #include "shz_trig.h"
+#include "shz_matrix.h"
+#include "shz_xmtrx.h"
 #define NUM_PLANES 6
 
 plane_t frustum_planes[NUM_PLANES];
@@ -143,7 +145,6 @@ void clip_polygon_against_plane(polygon_t* polygon, int frustum_plane){
 }
 
 
-
 void clip_polygon(polygon_t* polygon){
     clip_polygon_against_plane(polygon, LEFT_FRUSTUM_PLANE);
     clip_polygon_against_plane(polygon, RIGHT_FRUSTUM_PLANE);
@@ -153,8 +154,186 @@ void clip_polygon(polygon_t* polygon){
     clip_polygon_against_plane(polygon, FAR_FRUSTUM_PLANE);
 }
 
-
-void clip_polygon_against_frustum(polygon_t* polygon){
-    
+static inline shz_vec4_t make_plane_eq(plane_t p) {
+    shz_vec4_t eq = {0};
+    float d = -shz_vec_dot(p.normal, p.point);
+    eq.x = p.normal.x;
+    eq.y = p.normal.y;
+    eq.z = p.normal.z;
+    eq.w = d;
+    return eq;
 }
 
+static inline bool clip_against_plane_shz_t(shz_vec3_t v0,
+                                            shz_vec3_t v1,
+                                            plane_t plane,
+                                            float *t_out,
+                                            shz_vec3_t *out) {
+    shz_vec3_t line_dir = shz_vec_sub(v1, v0);
+    float denom = shz_vec_dot(plane.normal, line_dir);
+
+    if (fabsf(denom) < 1e-6f) {
+        return false;
+    }
+
+    float t =  shz_divf((shz_vec_dot(plane.normal, plane.point) - shz_vec_dot(plane.normal, v0)),denom);
+    *t_out = t;
+    *out = shz_vec_add(v0, shz_vec3_scale(line_dir, t));
+    return true;
+}
+static inline void check_against_frustum_planes(
+    shz_vec3_t *inside_vertices,
+    tex2_t *inside_texcoords,
+    int *num_inside_vertices,
+    const shz_vec3_t *current_vertex,
+    const shz_vec3_t *previous_vertex,
+    const tex2_t *current_texcoord,
+    const tex2_t *previous_texcoords,
+    int index
+) {
+    shz_vec3_t I;
+    float t;
+
+    if (clip_against_plane_shz_t(*current_vertex,
+                                 *previous_vertex,
+                                 frustum_planes[index],
+                                 &t,
+                                 &I)) {
+        tex2_t I_UV = {
+            .u = shz_lerpf(current_texcoord->u, previous_texcoords->u, t),
+            .v = shz_lerpf(current_texcoord->v, previous_texcoords->v, t)
+        };
+
+        inside_vertices[*num_inside_vertices] = I;
+        inside_texcoords[*num_inside_vertices] = I_UV;
+        (*num_inside_vertices)++;
+    }
+}
+
+void clip_polygon_against_frustum(polygon_t *polygon) {
+    shz_vec3_t inside_vertices[MAX_NUM_POLY_VERTS];
+    tex2_t inside_texcoords[MAX_NUM_POLY_VERTS];
+    int num_inside_vertices = 0;
+
+    shz_vec3_t *current_vertex = &polygon->vertices[0];
+    tex2_t *current_texcoord = &polygon->texcoords[0];
+
+    shz_vec3_t *previous_vertex = &polygon->vertices[polygon->num_vertices - 1];
+    tex2_t *previous_texcoords = &polygon->texcoords[polygon->num_vertices - 1];
+
+    shz_vec4_t left_eq   = make_plane_eq(frustum_planes[LEFT_FRUSTUM_PLANE]);
+    shz_vec4_t right_eq  = make_plane_eq(frustum_planes[RIGHT_FRUSTUM_PLANE]);
+    shz_vec4_t top_eq    = make_plane_eq(frustum_planes[TOP_FRUSTUM_PLANE]);
+    shz_vec4_t bottom_eq = make_plane_eq(frustum_planes[BOTTOM_FRUSTUM_PLANE]);
+    shz_vec4_t near_eq   = make_plane_eq(frustum_planes[NEAR_FRUSTUM_PLANE]);
+    shz_vec4_t far_eq    = make_plane_eq(frustum_planes[FAR_FRUSTUM_PLANE]);
+
+    shz_mat4x4_t m = {
+        left_eq.x,   right_eq.x,   top_eq.x,   bottom_eq.x,
+        left_eq.y,   right_eq.y,   top_eq.y,   bottom_eq.y,
+        left_eq.z,   right_eq.z,   top_eq.z,   bottom_eq.z,
+        left_eq.w,   right_eq.w,   top_eq.w,   bottom_eq.w
+    };
+
+    shz_xmtrx_load_4x4(&m);
+
+    while (current_vertex != &polygon->vertices[polygon->num_vertices]) {
+        shz_vec4_t cur4 = {0};
+        cur4.x = current_vertex->x;
+        cur4.y = current_vertex->y;
+        cur4.z = current_vertex->z;
+        cur4.w = 1.0f;
+
+        shz_vec4_t prev4 = {0};
+        prev4.x = previous_vertex->x;
+        prev4.y = previous_vertex->y;
+        prev4.z = previous_vertex->z;
+        prev4.w = 1.0f;
+
+        shz_vec4_t cur_dist  = shz_xmtrx_transform_vec4(cur4);
+        shz_vec4_t prev_dist = shz_xmtrx_transform_vec4(prev4);
+
+        float curr_near_dist = fipr(cur4.x,  cur4.y,  cur4.z,  cur4.w,
+                                    near_eq.x, near_eq.y, near_eq.z, near_eq.w);
+        float prev_near_dist = fipr(prev4.x, prev4.y, prev4.z, prev4.w,
+                                    near_eq.x, near_eq.y, near_eq.z, near_eq.w);
+
+        float curr_far_dist  = fipr(cur4.x,  cur4.y,  cur4.z,  cur4.w,
+                                    far_eq.x, far_eq.y, far_eq.z, far_eq.w);
+        float prev_far_dist  = fipr(prev4.x, prev4.y, prev4.z, prev4.w,
+                                    far_eq.x, far_eq.y, far_eq.z, far_eq.w);
+
+        bool current_inside_all =
+            (cur_dist.x >= 0.0f) &&
+            (cur_dist.y >= 0.0f) &&
+            (cur_dist.z >= 0.0f) &&
+            (cur_dist.w >= 0.0f) &&
+            (curr_near_dist >= 0.0f) &&
+            (curr_far_dist >= 0.0f);
+
+        /* side planes */
+        for (int i = 0; i < 4; i++) {
+            float cd = cur_dist.e[i];
+            float pd = prev_dist.e[i];
+
+            if (cd * pd < 0.0f) {
+                check_against_frustum_planes(
+                    inside_vertices,
+                    inside_texcoords,
+                    &num_inside_vertices,
+                    current_vertex,
+                    previous_vertex,
+                    current_texcoord,
+                    previous_texcoords,
+                    i
+                );
+            }
+        }
+
+        /* near plane */
+        if (curr_near_dist * prev_near_dist < 0.0f) {
+            check_against_frustum_planes(
+                inside_vertices,
+                inside_texcoords,
+                &num_inside_vertices,
+                current_vertex,
+                previous_vertex,
+                current_texcoord,
+                previous_texcoords,
+                NEAR_FRUSTUM_PLANE
+            );
+        }
+
+        /* far plane */
+        if (curr_far_dist * prev_far_dist < 0.0f) {
+            check_against_frustum_planes(
+                inside_vertices,
+                inside_texcoords,
+                &num_inside_vertices,
+                current_vertex,
+                previous_vertex,
+                current_texcoord,
+                previous_texcoords,
+                FAR_FRUSTUM_PLANE
+            );
+        }
+
+        if (current_inside_all) {
+            inside_vertices[num_inside_vertices] = *current_vertex;
+            inside_texcoords[num_inside_vertices] = *current_texcoord;
+            num_inside_vertices++;
+        }
+
+        previous_vertex = current_vertex;
+        previous_texcoords = current_texcoord;
+        current_vertex++;
+        current_texcoord++;
+    }
+
+    for (int i = 0; i < num_inside_vertices; i++) {
+        polygon->vertices[i] = inside_vertices[i];
+        polygon->texcoords[i] = inside_texcoords[i];
+    }
+
+    polygon->num_vertices = num_inside_vertices;
+}

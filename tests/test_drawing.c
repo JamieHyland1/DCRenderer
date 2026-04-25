@@ -33,18 +33,7 @@ static uint32_t sample_u16_buffer(const uint16_t *buf, int count) {
     return sum;
 }
 
-static void print_counter_result(const char *name, uint64_t total_ns, uint64_t counter_value, int iterations) {
-    const double elapsed_us = (double)total_ns / 1000.0;
 
-    print_bench_result(name, total_ns, iterations, 0);
-    printf("%s: PMCR_PIPELINE_FREEZE_BY_DCACHE_MISS_MODE total=%llu, per iter=%.2f\n",
-           name,
-           (unsigned long long)counter_value,
-           (double)counter_value / (double)iterations);
-    printf("%s: PMCR_PIPELINE_FREEZE_BY_DCACHE_MISS_MODE per us=%.2f\n",
-           name,
-           (elapsed_us > 0.0) ? ((double)counter_value / elapsed_us) : 0.0);
-}
 
 void test_bench_fullscreen_triangle_scanline_textured(void) {
     TEST_ASSERT_TRUE(init_test_render_buffers(64));
@@ -107,7 +96,7 @@ void test_bench_fullscreen_quad_scanline_textured(void) {
 
     triangle_t tri1 = make_fullscreen_triangle_1(id);
     triangle_t tri2 = make_fullscreen_triangle_2(id);
-    const int iterations = 500;
+    const int iterations = 1;
 
     uint64_t start = bench_now_ns();
     for (int i = 0; i < iterations; i++) {
