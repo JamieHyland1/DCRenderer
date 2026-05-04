@@ -7,7 +7,98 @@
 #include "shz_xmtrx.h"
 #define NUM_PLANES 6
 
+#define FRUSTUM_LEFT_BIT    (1 << LEFT_FRUSTUM_PLANE)
+#define FRUSTUM_RIGHT_BIT   (1 << RIGHT_FRUSTUM_PLANE)
+#define FRUSTUM_TOP_BIT     (1 << TOP_FRUSTUM_PLANE)
+#define FRUSTUM_BOTTOM_BIT  (1 << BOTTOM_FRUSTUM_PLANE)
+#define FRUSTUM_NEAR_BIT    (1 << NEAR_FRUSTUM_PLANE)
+#define FRUSTUM_FAR_BIT     (1 << FAR_FRUSTUM_PLANE)
+
 plane_t frustum_planes[NUM_PLANES];
+
+shz_vec4_t left_eq;
+shz_vec4_t right_eq;
+shz_vec4_t top_eq;
+shz_vec4_t bottom_eq;
+shz_vec4_t near_eq;
+shz_vec4_t far_eq;
+shz_mat4x4_t m;
+
+
+void load_clipping_planes(){
+    shz_xmtrx_load_4x4(&m);
+}
+
+static inline shz_vec4_t make_plane_eq(plane_t p) {
+    shz_vec4_t eq = {0};
+    float d = -shz_vec_dot(p.normal, p.point);
+    eq.x = p.normal.x;
+    eq.y = p.normal.y;
+    eq.z = p.normal.z;
+    eq.w = d;
+    return eq;
+}
+
+void setup_plan_eq(){
+    left_eq   = make_plane_eq(frustum_planes[LEFT_FRUSTUM_PLANE]);
+    right_eq  = make_plane_eq(frustum_planes[RIGHT_FRUSTUM_PLANE]);
+    top_eq    = make_plane_eq(frustum_planes[TOP_FRUSTUM_PLANE]);
+    bottom_eq = make_plane_eq(frustum_planes[BOTTOM_FRUSTUM_PLANE]);
+    near_eq   = make_plane_eq(frustum_planes[NEAR_FRUSTUM_PLANE]);
+    far_eq    = make_plane_eq(frustum_planes[FAR_FRUSTUM_PLANE]);
+
+    m = (shz_mat4x4_t){
+        left_eq.x,   right_eq.x,   top_eq.x,   bottom_eq.x,
+        left_eq.y,   right_eq.y,   top_eq.y,   bottom_eq.y,
+        left_eq.z,   right_eq.z,   top_eq.z,   bottom_eq.z,
+        left_eq.w,   right_eq.w,   top_eq.w,   bottom_eq.w
+    };
+
+}
+
+static inline float signed_dist_to_plane(shz_vec3_t v, plane_t p) {
+    return shz_vec_dot(p.normal, v) - shz_vec_dot(p.normal, p.point);
+}
+
+inline int vertex_frustum_mask(shz_vec3_t v) {
+    int mask = 0;
+
+
+    shz_vec4_t cur4 = {
+        v.x,
+        v.y,
+        v.z,
+        1.0f
+    };
+
+    shz_vec4_t mask_vals = shz_xmtrx_transform_vec4(cur4);
+
+    if (mask_vals.x < 0.0f) {
+        mask |= FRUSTUM_LEFT_BIT;
+    }
+
+    if (mask_vals.y < 0.0f) {
+        mask |= FRUSTUM_RIGHT_BIT;
+    }
+
+    if (mask_vals.z < 0.0f) {
+        mask |= FRUSTUM_TOP_BIT;
+    }
+
+    if (mask_vals.w < 0.0f) {
+        mask |= FRUSTUM_BOTTOM_BIT;
+    }
+
+    if (signed_dist_to_plane(v, frustum_planes[NEAR_FRUSTUM_PLANE]) < 0.0f) {
+        mask |= FRUSTUM_NEAR_BIT;
+    }
+
+    if (signed_dist_to_plane(v, frustum_planes[FAR_FRUSTUM_PLANE]) < 0.0f) {
+        mask |= FRUSTUM_FAR_BIT;
+    }
+
+    return mask;
+}
 
 shz_sincos_t pairX, pairY;
 void init_frustum_planes(float fov_x, float fov_y, float znear, float zfar){
@@ -154,15 +245,7 @@ void clip_polygon(polygon_t* polygon){
     clip_polygon_against_plane(polygon, FAR_FRUSTUM_PLANE);
 }
 
-static inline shz_vec4_t make_plane_eq(plane_t p) {
-    shz_vec4_t eq = {0};
-    float d = -shz_vec_dot(p.normal, p.point);
-    eq.x = p.normal.x;
-    eq.y = p.normal.y;
-    eq.z = p.normal.z;
-    eq.w = d;
-    return eq;
-}
+
 
 static inline bool clip_against_plane_shz_t(shz_vec3_t v0,
                                             shz_vec3_t v1,
@@ -220,22 +303,6 @@ void clip_polygon_against_frustum(polygon_t *polygon) {
 
     shz_vec3_t *previous_vertex = &polygon->vertices[polygon->num_vertices - 1];
     tex2_t *previous_texcoords = &polygon->texcoords[polygon->num_vertices - 1];
-
-    shz_vec4_t left_eq   = make_plane_eq(frustum_planes[LEFT_FRUSTUM_PLANE]);
-    shz_vec4_t right_eq  = make_plane_eq(frustum_planes[RIGHT_FRUSTUM_PLANE]);
-    shz_vec4_t top_eq    = make_plane_eq(frustum_planes[TOP_FRUSTUM_PLANE]);
-    shz_vec4_t bottom_eq = make_plane_eq(frustum_planes[BOTTOM_FRUSTUM_PLANE]);
-    shz_vec4_t near_eq   = make_plane_eq(frustum_planes[NEAR_FRUSTUM_PLANE]);
-    shz_vec4_t far_eq    = make_plane_eq(frustum_planes[FAR_FRUSTUM_PLANE]);
-
-    shz_mat4x4_t m = {
-        left_eq.x,   right_eq.x,   top_eq.x,   bottom_eq.x,
-        left_eq.y,   right_eq.y,   top_eq.y,   bottom_eq.y,
-        left_eq.z,   right_eq.z,   top_eq.z,   bottom_eq.z,
-        left_eq.w,   right_eq.w,   top_eq.w,   bottom_eq.w
-    };
-
-    shz_xmtrx_load_4x4(&m);
 
     while (current_vertex != &polygon->vertices[polygon->num_vertices]) {
         shz_vec4_t cur4 = {0};

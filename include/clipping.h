@@ -27,8 +27,10 @@ typedef struct{
 
 
 }polygon_t;
+void load_clipping_planes();
+int vertex_frustum_mask(shz_vec3_t v);
 
-
+void setup_plan_eq();
 polygon_t create_polygon_from_triangle(shz_vec3_t v0, shz_vec3_t v1, shz_vec3_t v2, tex2_t t0, tex2_t t1, tex2_t t2);
 
 void triangles_from_polygon(polygon_t* polygon, triangle_t triangles_after_clipping[], int* num_triangles);  

@@ -69,22 +69,19 @@ bool setup(void)
 
     projection_matrix = mat4_make_perspective(fov_y, aspect_y, znear, zfar);
     init_frustum_planes(fov_x, fov_y, znear, zfar);
+    setup_plan_eq();
 
     // scale          position         rotation
-    int skybox_id = load_assets("rd/Skybox.obj", "rd/SpeedHighway.png",
-                                vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
+    int skybox_id = load_assets("rd/Skybox.obj", "rd/SpeedHighway.png");
     (void)skybox_id;
 
-    int cube_id = load_assets("rd/cube.obj", "rd/cube.png",
-                              vec3_new(1,1,1), vec3_new(0,0,0), vec3_new(0,0,0));
+    int cube_id = load_assets("rd/cube.obj", "rd/cube.png");
 
-    for (int i = 0; i < 50; i++) {
-        create_object("cube", cube_id);
-       // printf("number of objects in scene: %d\n", get_num_objects());
+    for (int i = 0; i < 150; i++) {
+        create_object(cube_id);
     }
-
+    printf("size of object_t: %d bytes\n", sizeof(object_t));
     set_camera_pos((shz_vec3_t){{{24.20f, 10.6f, 114.70f}}}); // TESTING POSITION
-    // set_camera_pos((shz_vec3_t){{{0.6, 0.28, 6.6}}});
 
     return true;
 }
@@ -118,9 +115,13 @@ void update(void)
                 float x = i * 5.5f;
                 mesh_t *mesh = get_mesh(obj.id);
                 if (mesh) {
-                    mesh->translation = vec3_new(x, mesh->translation.y, z);
+                    shz_vec3_t pos = vec3_new(x, obj.translation.y, z);
+                    shz_vec3_t rot = get_obj_rotation(index);
+                    rot.y += 0.1;
+                    update_obj_rotation(index, &rot);
+                    update_obj_translation(index, &pos);
                 }
-                process_graphics_pipeline(&obj);
+                process_graphics_pipeline_blocked(&obj);
             }
         }
     }

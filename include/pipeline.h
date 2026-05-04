@@ -4,6 +4,31 @@
 #pragma once
 
 #define MAX_TRIANGLES_PER_MESH 4096
+#define MAX_MESH_VERTICES 4096
+
+typedef struct {
+    object_t *obj;
+    mesh_t   *mesh;
+    int       base_vertex;   // offset into transformed vertex arena
+    int       num_vertices;
+} object_batch_t;
+
+typedef struct {
+    shz_vec4_t *verts;
+    int count;
+} transformed_vertex_arena_t;
+
+/* typedef struct {
+    polygon_t *polys;
+    int count;
+} polygon_arena_t; */
+
+typedef struct {
+    triangle_t *tris;
+    int count;
+} render_triangle_arena_t;
+
+
 extern enum cull_method cull_mode;
 extern float znear;
 

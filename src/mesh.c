@@ -5,9 +5,6 @@ mesh_t mesh = {
     .vertices =NULL,
     .faces = NULL,
     .face_normals = NULL,
-    .rotation = {{{0, 0, 0}}},
-    .scale = {{{1.0f, 1.0f, 1.0f}}},
-    .translation = {{{0, 0, 0}}}
 };
 
 #define MAX_NUMBER_MESHES 32    
@@ -113,7 +110,7 @@ bool load_mesh_png_data(mesh_t* mesh, char* filename){
     return false;
 }
 
-int load_assets(char* obj_path, char* png_path, shz_vec3_t scale, shz_vec3_t translation, shz_vec3_t rotation){
+int load_assets(char* obj_path, char* png_path){
     bool load_obj_result = load_mesh_obj_data(&meshes[mesh_count], obj_path);
     bool load_png_result = load_mesh_png_data(&meshes[mesh_count], png_path);
    
@@ -121,11 +118,6 @@ int load_assets(char* obj_path, char* png_path, shz_vec3_t scale, shz_vec3_t tra
         fprintf(stderr, "Failed to load mesh: %s\n", obj_path);
         return -1;
     }
-
-    meshes[mesh_count].scale = scale;
-    meshes[mesh_count].translation = translation;
-    meshes[mesh_count].rotation = rotation;
-
 
     mesh_count++;
     int id = mesh_count - 1;

@@ -1078,10 +1078,20 @@ void draw_textured_triangle_scanline_fast(const triangle_t *tri, const texture_t
 }
 
 
-shz_vec3_t get_triangle_face_normal(shz_vec4_t vertices[3]){
-    shz_vec3_t v1 = shz_vec3_sub(vec3_from_vec4(vertices[1]),vec3_from_vec4(vertices[0]));
-    shz_vec3_t v2 = shz_vec3_sub(vec3_from_vec4(vertices[2]),vec3_from_vec4(vertices[0]));
-    shz_vec3_t tri_normal = shz_vec3_cross(v1, v2);
+inline shz_vec3_t get_triangle_face_normal(shz_vec4_t vertices[3]){
+    float e1x = vertices[1].x - vertices[0].x;
+    float e1y = vertices[1].y - vertices[0].y;
+    float e1z = vertices[1].z - vertices[0].z;
+
+    float e2x = vertices[2].x - vertices[0].x;
+    float e2y = vertices[2].y - vertices[0].y;
+    float e2z = vertices[2].z - vertices[0].z;
+
+    shz_vec3_t tri_normal;
+
+    tri_normal.x = e1y * e2z - e1z * e2y;
+    tri_normal.y = e1z * e2x - e1x * e2z;
+    tri_normal.z = e1x * e2y - e1y * e2x;
 
     return tri_normal;
 }

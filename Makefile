@@ -156,6 +156,18 @@ dreamcast: $(TARGET)
 dreamcast-test: $(TEST_TARGET)
 	$(DC_TOOL) -t $(DC_PORT) $(DC_BAUD_FLAG) -x $(TEST_TARGET)
 
+dreamcast-log:
+	@mkdir -p logs
+	@log="logs/$$(date +%Y-%m-%d_%H-%M-%S).txt"; \
+	echo "Logging dreamcast run to $$log"; \
+	$(MAKE) dreamcast 2>&1 | tee "$$log"
+
+dreamcast-test-log:
+	@mkdir -p logs
+	@log="logs/$$(date +%Y-%m-%d_%H-%M-%S)_TEST.txt"; \
+	echo "Logging dreamcast test run to $$log"; \
+	$(MAKE) dreamcast-test 2>&1 | tee "$$log"
+
 # ------------------------------------------------------------
 # Dist / deployment helpers
 # ------------------------------------------------------------
@@ -202,4 +214,4 @@ clean: rm-elf
 # ------------------------------------------------------------
 # Phony targets
 # ------------------------------------------------------------
-.PHONY: all run tests test-run test check dreamcast dreamcast-test dist asm vasm debug release clean rm-elf
+.PHONY: all run tests test-run test check dreamcast dreamcast-test dist asm vasm debug release clean rm-elf  dreamcast-log dreamcast-test-log
