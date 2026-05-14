@@ -12,6 +12,7 @@
 #include "pipeline.h"
 #include "renderer.h"
 #include "input.h"
+#include "profile.h"
     
 enum cull_method
 {

@@ -32,7 +32,7 @@ typedef struct {
 void draw_triangle(const triangle_t* tri, uint16_t color);
 void draw_filled_triangle(const triangle_t* tri, uint16_t color);
 void draw_filled_triangle_wire(const triangle_t* tri, uint16_t color);
-/* void draw_textured_triangle(const triangle_t *tri); */
+void draw_textured_triangle(const triangle_t *tri, const texture_t *text);
 void draw_textured_triangle_bc_optimized(const triangle_t *tri);
 void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* text);
 void draw_textured_triangle_scanline_fast(const triangle_t *tri, const texture_t* text);

@@ -20,6 +20,7 @@ int skybox_tris_rendererd = 0;
 uint64_t triangle_time = 0;
 uint64_t total_cycles = 0;
 uint64_t elapsed_time = 0;
+int64_t dcache_freeze = 0;
 
 enum render_method render_mode;
 
@@ -81,7 +82,8 @@ bool setup(void)
         create_object(cube_id);
     }
     printf("size of object_t: %d bytes\n", sizeof(object_t));
-    set_camera_pos((shz_vec3_t){{{24.20f, 10.6f, 114.70f}}}); // TESTING POSITION
+    set_camera_pos((shz_vec3_t){{{21.60f, 0.6f, 116.70f}}}); // TESTING POSITION
+    //set_camera_pos((shz_vec3_t){{{24.20f, 10.6f, 114.70f}}}); // BENCHMARK POSITION
 
     return true;
 }
@@ -249,11 +251,15 @@ void render(void)
 
             case RENDER_TEXTURED_SCANLINE: {
                 const texture_t *texture = get_texture(tri.id);
-                if (triangle_fully_inside_screen(&tri)) {
+               // PROFILE_PERF_START(PROF_EVENT_DCACHE_FREEZE);
+                // if (triangle_fully_inside_screen(&tri)) {
+
                     draw_textured_triangle_scanline(&tri, texture);
-                } else {
-                    draw_textured_triangle_scanline(&tri, texture);
-                }
+                // } else {
+                //     draw_textured_triangle_scanline_fast(&tri, texture);
+                // }
+                dcache_freeze = PROFILE_PERF_STOP();
+
                 break;
             }
 
@@ -267,7 +273,7 @@ void render(void)
     }
 
     skybox_tris_rendererd = num_triangles_to_render;
-    // draw_info(render_mode, num_triangles_to_render, frame_count);
+    //draw_info(render_mode, num_triangles_to_render, frame_count);
     num_triangles_to_render = 0;
 
     render_total_ns += (perf_cntr_timer_ns() - start);
@@ -285,7 +291,7 @@ int main(int argc, char *args[])
 
     while (isRunning)
     {
-        vid_flip(vid_mode->fb_count);
+        
         draw_background_image();
         process_input();
         update();
@@ -311,6 +317,8 @@ int main(int argc, char *args[])
         if (frame_count == 1000) isRunning = false;
     #endif
 
+    vid_flip(vid_mode->fb_count);
+
     }
     #ifdef DEBUG
     app_end_ns = perf_cntr_timer_ns();
@@ -319,6 +327,9 @@ int main(int argc, char *args[])
     double app_total_ms = (double)app_total_ns / 1e6;
     double avg_frame_ms = (frame_count > 0) ? (app_total_ms / (double)frame_count) : 0.0;
     double avg_fps = (app_total_ns > 0) ? ((double)frame_count * 1e9 / (double)app_total_ns) : 0.0;
+
+    printf("render dcache freeze: %llu\n",
+       (unsigned long long)dcache_freeze);
 
     printf("Average pipeline time: %.3f ms/frame\n",
            (frame_count > 0) ? ((double)pipeline_total_ns / (double)frame_count / 1e6) : 0.0);

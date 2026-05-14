@@ -1,0 +1,3231 @@
+
+src/triangle.o:     file format elf32-shl
+
+
+Disassembly of section .text.inner_loop_textured_z_fixed_uv:
+
+00000000 <_inner_loop_textured_z_fixed_uv>:
+   0:	86 2f       	mov.l	r8,@-r15
+   2:	73 61       	mov	r7,r1
+   4:	96 2f       	mov.l	r9,@-r15
+   6:	08 41       	shll2	r1
+   8:	a6 2f       	mov.l	r10,@-r15
+   a:	fc 71       	add	#-4,r1
+   c:	b6 2f       	mov.l	r11,@-r15
+   e:	09 41       	shlr2	r1
+  10:	c6 2f       	mov.l	r12,@-r15
+  12:	01 71       	add	#1,r1
+  14:	f5 53       	mov.l	@(20,r15),r3
+  16:	f6 52       	mov.l	@(24,r15),r2
+  18:	f7 59       	mov.l	@(28,r15),r9
+  1a:	f8 58       	mov.l	@(32,r15),r8
+  1c:	f9 5c       	mov.l	@(36,r15),r12
+  1e:	fa 5b       	mov.l	@(40,r15),r11
+  20:	fb 5a       	mov.l	@(44,r15),r10
+  22:	09 00       	nop	
+  24:	49 f1       	fmov	@r4+,fr1
+  26:	15 f5       	fcmp/gt	fr1,fr5
+  28:	0d 8f       	bf.s	46 <_inner_loop_textured_z_fixed_uv+0x46>
+  2a:	29 60       	swap.w	r2,r0
+  2c:	43 67       	mov	r4,r7
+  2e:	fc 77       	add	#-4,r7
+  30:	5a f7       	fmov	fr5,@r7
+  32:	0f 60       	exts.w	r0,r0
+  34:	39 67       	swap.w	r3,r7
+  36:	b9 20       	and	r11,r0
+  38:	7f 67       	exts.w	r7,r7
+  3a:	c9 27       	and	r12,r7
+  3c:	ad 40       	shld	r10,r0
+  3e:	7c 30       	add	r7,r0
+  40:	0c 30       	add	r0,r0
+  42:	6d 07       	mov.w	@(r0,r6),r7
+  44:	71 25       	mov.w	r7,@r5
+  46:	10 41       	dt	r1
+  48:	40 f5       	fadd	fr4,fr5
+  4a:	9c 33       	add	r9,r3
+  4c:	88 32       	sub	r8,r2
+  4e:	e9 8f       	bf.s	24 <_inner_loop_textured_z_fixed_uv+0x24>
+  50:	02 75       	add	#2,r5
+  52:	f6 6c       	mov.l	@r15+,r12
+  54:	f6 6b       	mov.l	@r15+,r11
+  56:	f6 6a       	mov.l	@r15+,r10
+  58:	f6 69       	mov.l	@r15+,r9
+  5a:	0b 00       	rts	
+  5c:	f6 68       	mov.l	@r15+,r8
+  5e:	09 00       	nop	
+
+Disassembly of section .text.edge_func:
+
+00000000 <_edge_func>:
+   0:	41 f6       	fsub	fr4,fr6
+   2:	51 f9       	fsub	fr5,fr9
+   4:	51 f7       	fsub	fr5,fr7
+   6:	41 f8       	fsub	fr4,fr8
+   8:	92 f6       	fmul	fr9,fr6
+   a:	7c f0       	fmov	fr7,fr0
+   c:	4d f6       	fneg	fr6
+   e:	8e f6       	fmac	fr0,fr8,fr6
+  10:	0b 00       	rts	
+  12:	6c f0       	fmov	fr6,fr0
+
+Disassembly of section .text.draw_triangle:
+
+00000000 <_draw_triangle>:
+   0:	86 2f       	mov.l	r8,@-r15
+   2:	43 61       	mov	r4,r1
+   4:	96 2f       	mov.l	r9,@-r15
+   6:	5d 68       	extu.w	r5,r8
+   8:	cb ff       	fmov	fr12,@-r15
+   a:	04 e0       	mov	#4,r0
+   c:	db ff       	fmov	fr13,@-r15
+   e:	eb ff       	fmov	fr14,@-r15
+  10:	fb ff       	fmov	fr15,@-r15
+  12:	22 4f       	sts.l	pr,@-r15
+  14:	19 fc       	fmov	@r1+,fr12
+  16:	f8 7f       	add	#-8,r15
+  18:	18 fd       	fmov	@r1,fr13
+  1a:	14 d9       	mov.l	6c <_draw_triangle+0x6c>,r9	! 0 <_draw_triangle>
+  1c:	43 61       	mov	r4,r1
+  1e:	10 71       	add	#16,r1
+  20:	18 fe       	fmov	@r1,fr14
+  22:	04 71       	add	#4,r1
+  24:	18 ff       	fmov	@r1,fr15
+  26:	0c 71       	add	#12,r1
+  28:	18 f1       	fmov	@r1,fr1
+  2a:	24 74       	add	#36,r4
+  2c:	fc f6       	fmov	fr15,fr6
+  2e:	1a ff       	fmov	fr1,@r15
+  30:	48 f1       	fmov	@r4,fr1
+  32:	83 64       	mov	r8,r4
+  34:	ec f7       	fmov	fr14,fr7
+  36:	17 ff       	fmov	fr1,@(r0,r15)
+  38:	dc f4       	fmov	fr13,fr4
+  3a:	0b 49       	jsr	@r9
+  3c:	cc f5       	fmov	fr12,fr5
+  3e:	04 e0       	mov	#4,r0
+  40:	f8 f7       	fmov	@r15,fr7
+  42:	f6 f6       	fmov	@(r0,r15),fr6
+  44:	83 64       	mov	r8,r4
+  46:	fc f4       	fmov	fr15,fr4
+  48:	0b 49       	jsr	@r9
+  4a:	ec f5       	fmov	fr14,fr5
+  4c:	04 e0       	mov	#4,r0
+  4e:	f8 f5       	fmov	@r15,fr5
+  50:	f6 f4       	fmov	@(r0,r15),fr4
+  52:	83 64       	mov	r8,r4
+  54:	dc f6       	fmov	fr13,fr6
+  56:	93 61       	mov	r9,r1
+  58:	cc f7       	fmov	fr12,fr7
+  5a:	08 7f       	add	#8,r15
+  5c:	26 4f       	lds.l	@r15+,pr
+  5e:	f9 ff       	fmov	@r15+,fr15
+  60:	f9 fe       	fmov	@r15+,fr14
+  62:	f9 fd       	fmov	@r15+,fr13
+  64:	f9 fc       	fmov	@r15+,fr12
+  66:	f6 69       	mov.l	@r15+,r9
+  68:	2b 41       	jmp	@r1
+  6a:	f6 68       	mov.l	@r15+,r8
+  6c:	00 00       	.word 0x0000
+	...
+
+Disassembly of section .text.draw_filled_triangle:
+
+00000000 <_draw_filled_triangle>:
+   0:	86 2f       	mov.l	r8,@-r15
+   2:	43 61       	mov	r4,r1
+   4:	96 2f       	mov.l	r9,@-r15
+   6:	5d 65       	extu.w	r5,r5
+   8:	a6 2f       	mov.l	r10,@-r15
+   a:	b6 2f       	mov.l	r11,@-r15
+   c:	cb ff       	fmov	fr12,@-r15
+   e:	19 f4       	fmov	@r1+,fr4
+  10:	18 f5       	fmov	@r1,fr5
+  12:	43 61       	mov	r4,r1
+  14:	10 71       	add	#16,r1
+  16:	18 f2       	fmov	@r1,fr2
+  18:	04 71       	add	#4,r1
+  1a:	18 f3       	fmov	@r1,fr3
+  1c:	24 74       	add	#36,r4
+  1e:	0c 71       	add	#12,r1
+  20:	48 f6       	fmov	@r4,fr6
+  22:	35 f5       	fcmp/gt	fr3,fr5
+  24:	02 8d       	bt.s	2c <_draw_filled_triangle+0x2c>
+  26:	18 f1       	fmov	@r1,fr1
+  28:	fe a0       	bra	228 <_draw_filled_triangle+0x228>
+  2a:	65 f3       	fcmp/gt	fr6,fr3
+  2c:	65 f5       	fcmp/gt	fr6,fr5
+  2e:	02 8d       	bt.s	36 <_draw_filled_triangle+0x36>
+  30:	65 f3       	fcmp/gt	fr6,fr3
+  32:	0b a1       	bra	24c <_draw_filled_triangle+0x24c>
+  34:	6c f7       	fmov	fr6,fr7
+  36:	01 89       	bt	3c <_draw_filled_triangle+0x3c>
+  38:	01 a1       	bra	23e <_draw_filled_triangle+0x23e>
+  3a:	5c f7       	fmov	fr5,fr7
+  3c:	5c f9       	fmov	fr5,fr9
+  3e:	61 f9       	fsub	fr6,fr9
+  40:	8d f7       	fldi0	fr7
+  42:	74 f9       	fcmp/eq	fr7,fr9
+  44:	01 8b       	bf	4a <_draw_filled_triangle+0x4a>
+  46:	e9 a0       	bra	21c <_draw_filled_triangle+0x21c>
+  48:	09 00       	nop	
+  4a:	3c f0       	fmov	fr3,fr0
+  4c:	61 f0       	fsub	fr6,fr0
+  4e:	74 f0       	fcmp/eq	fr7,fr0
+  50:	0a 8d       	bt.s	68 <_draw_filled_triangle+0x68>
+  52:	0c fa       	fmov	fr0,fr10
+  54:	0c f8       	fmov	fr0,fr8
+  56:	02 f8       	fmul	fr0,fr8
+  58:	7d f8       	fsrra	fr8
+  5a:	05 f7       	fcmp/gt	fr0,fr7
+  5c:	01 8b       	bf	62 <_draw_filled_triangle+0x62>
+  5e:	19 a1       	bra	294 <_draw_filled_triangle+0x294>
+  60:	4d f8       	fneg	fr8
+  62:	2c fa       	fmov	fr2,fr10
+  64:	11 fa       	fsub	fr1,fr10
+  66:	82 fa       	fmul	fr8,fr10
+  68:	4c f7       	fmov	fr4,fr7
+  6a:	11 f7       	fsub	fr1,fr7
+  6c:	9c f8       	fmov	fr9,fr8
+  6e:	92 f8       	fmul	fr9,fr8
+  70:	7d f8       	fsrra	fr8
+  72:	8d fb       	fldi0	fr11
+  74:	95 fb       	fcmp/gt	fr9,fr11
+  76:	01 8b       	bf	7c <_draw_filled_triangle+0x7c>
+  78:	f9 a0       	bra	26e <_draw_filled_triangle+0x26e>
+  7a:	4d f8       	fneg	fr8
+  7c:	82 f7       	fmul	fr8,fr7
+  7e:	8d f8       	fldi0	fr8
+  80:	85 f0       	fcmp/gt	fr8,fr0
+  82:	61 8f       	bf.s	148 <_draw_filled_triangle+0x148>
+  84:	3d f6       	ftrc	fr6,fpul
+  86:	2d f8       	float	fpul,fr8
+  88:	85 f6       	fcmp/gt	fr8,fr6
+  8a:	03 8f       	bf.s	94 <_draw_filled_triangle+0x94>
+  8c:	3d f8       	ftrc	fr8,fpul
+  8e:	ff a0       	bra	290 <_draw_filled_triangle+0x290>
+  90:	9d f6       	fldi1	fr6
+  92:	3d f8       	ftrc	fr8,fpul
+  94:	8d f8       	fldi0	fr8
+  96:	5a 03       	sts	fpul,r3
+  98:	35 f8       	fcmp/gt	fr3,fr8
+  9a:	3d f3       	ftrc	fr3,fpul
+  9c:	02 8f       	bf.s	a4 <_draw_filled_triangle+0xa4>
+  9e:	2d f6       	float	fpul,fr6
+  a0:	9d f8       	fldi1	fr8
+  a2:	81 f6       	fsub	fr8,fr6
+  a4:	7d d7       	mov.l	29c <_draw_filled_triangle+0x29c>,r7	! 0 <_draw_filled_triangle>
+  a6:	3d f6       	ftrc	fr6,fpul
+  a8:	5a 01       	sts	fpul,r1
+  aa:	11 43       	cmp/pz	r3
+  ac:	72 67       	mov.l	@r7,r7
+  ae:	2a 32       	subc	r2,r2
+  b0:	17 37       	cmp/gt	r1,r7
+  b2:	02 8d       	bt.s	ba <_draw_filled_triangle+0xba>
+  b4:	39 22       	and	r3,r2
+  b6:	73 61       	mov	r7,r1
+  b8:	ff 71       	add	#-1,r1
+  ba:	17 32       	cmp/gt	r1,r2
+  bc:	02 8f       	bf.s	c4 <_draw_filled_triangle+0xc4>
+  be:	23 67       	mov	r2,r7
+  c0:	dd a0       	bra	27e <_draw_filled_triangle+0x27e>
+  c2:	7e f1       	fmac	fr0,fr7,fr1
+  c4:	38 37       	sub	r3,r7
+  c6:	5a 47       	lds	r7,fpul
+  c8:	2d f8       	float	fpul,fr8
+  ca:	8d f6       	fldi0	fr6
+  cc:	64 f8       	fcmp/eq	fr6,fr8
+  ce:	04 8d       	bt.s	da <_draw_filled_triangle+0xda>
+  d0:	1c f6       	fmov	fr1,fr6
+  d2:	ac f0       	fmov	fr10,fr0
+  d4:	8e f6       	fmac	fr0,fr8,fr6
+  d6:	8c f0       	fmov	fr8,fr0
+  d8:	7e f1       	fmac	fr0,fr7,fr1
+  da:	71 d3       	mov.l	2a0 <_draw_filled_triangle+0x2a0>,r3	! 0 <_draw_filled_triangle>
+  dc:	28 31       	sub	r2,r1
+  de:	01 71       	add	#1,r1
+  e0:	8d fb       	fldi0	fr11
+  e2:	32 66       	mov.l	@r3,r6
+  e4:	9d fc       	fldi1	fr12
+  e6:	67 02       	mul.l	r6,r2
+  e8:	1a 07       	sts	macl,r7
+  ea:	09 00       	nop	
+  ec:	15 f6       	fcmp/gt	fr1,fr6
+  ee:	01 8b       	bf	f4 <_draw_filled_triangle+0xf4>
+  f0:	d2 a0       	bra	298 <_draw_filled_triangle+0x298>
+  f2:	6c f8       	fmov	fr6,fr8
+  f4:	1c f8       	fmov	fr1,fr8
+  f6:	6c f0       	fmov	fr6,fr0
+  f8:	8c f9       	fmov	fr8,fr9
+  fa:	01 f9       	fsub	fr0,fr9
+  fc:	a0 f6       	fadd	fr10,fr6
+  fe:	70 f1       	fadd	fr7,fr1
+ 100:	b5 f9       	fcmp/gt	fr11,fr9
+ 102:	1d 8f       	bf.s	140 <_draw_filled_triangle+0x140>
+ 104:	3d f0       	ftrc	fr0,fpul
+ 106:	05 fb       	fcmp/gt	fr0,fr11
+ 108:	2d f9       	float	fpul,fr9
+ 10a:	00 8b       	bf	10e <_draw_filled_triangle+0x10e>
+ 10c:	c1 f9       	fsub	fr12,fr9
+ 10e:	3d f8       	ftrc	fr8,fpul
+ 110:	2d f0       	float	fpul,fr0
+ 112:	05 f8       	fcmp/gt	fr0,fr8
+ 114:	00 8b       	bf	118 <_draw_filled_triangle+0x118>
+ 116:	c0 f0       	fadd	fr12,fr0
+ 118:	3d f0       	ftrc	fr0,fpul
+ 11a:	5a 02       	sts	fpul,r2
+ 11c:	11 42       	cmp/pz	r2
+ 11e:	0f 8f       	bf.s	140 <_draw_filled_triangle+0x140>
+ 120:	3d f9       	ftrc	fr9,fpul
+ 122:	5a 03       	sts	fpul,r3
+ 124:	37 36       	cmp/gt	r3,r6
+ 126:	0b 8f       	bf.s	140 <_draw_filled_triangle+0x140>
+ 128:	11 43       	cmp/pz	r3
+ 12a:	4a 34       	subc	r4,r4
+ 12c:	27 36       	cmp/gt	r2,r6
+ 12e:	02 8d       	bt.s	136 <_draw_filled_triangle+0x136>
+ 130:	39 24       	and	r3,r4
+ 132:	63 62       	mov	r6,r2
+ 134:	ff 72       	add	#-1,r2
+ 136:	27 34       	cmp/gt	r2,r4
+ 138:	02 89       	bt	140 <_draw_filled_triangle+0x140>
+ 13a:	2e a1       	bra	39a <_draw_filled_triangle+0x39a>
+ 13c:	43 63       	mov	r4,r3
+ 13e:	09 00       	nop	
+ 140:	10 41       	dt	r1
+ 142:	09 00       	nop	
+ 144:	d2 8f       	bf.s	ec <_draw_filled_triangle+0xec>
+ 146:	6c 37       	add	r6,r7
+ 148:	5c f0       	fmov	fr5,fr0
+ 14a:	31 f0       	fsub	fr3,fr0
+ 14c:	8d f8       	fldi0	fr8
+ 14e:	84 f0       	fcmp/eq	fr8,fr0
+ 150:	64 89       	bt	21c <_draw_filled_triangle+0x21c>
+ 152:	0c f6       	fmov	fr0,fr6
+ 154:	02 f6       	fmul	fr0,fr6
+ 156:	7d f6       	fsrra	fr6
+ 158:	05 f8       	fcmp/gt	fr0,fr8
+ 15a:	01 8b       	bf	160 <_draw_filled_triangle+0x160>
+ 15c:	95 a1       	bra	48a <_draw_filled_triangle+0x48a>
+ 15e:	4d f6       	fneg	fr6
+ 160:	3d f3       	ftrc	fr3,fpul
+ 162:	2d f0       	float	fpul,fr0
+ 164:	05 f3       	fcmp/gt	fr0,fr3
+ 166:	03 8f       	bf.s	170 <_draw_filled_triangle+0x170>
+ 168:	3d f0       	ftrc	fr0,fpul
+ 16a:	9d f3       	fldi1	fr3
+ 16c:	30 f0       	fadd	fr3,fr0
+ 16e:	3d f0       	ftrc	fr0,fpul
+ 170:	8d f0       	fldi0	fr0
+ 172:	5a 03       	sts	fpul,r3
+ 174:	55 f0       	fcmp/gt	fr5,fr0
+ 176:	3d f5       	ftrc	fr5,fpul
+ 178:	02 8f       	bf.s	180 <_draw_filled_triangle+0x180>
+ 17a:	2d f3       	float	fpul,fr3
+ 17c:	9d f5       	fldi1	fr5
+ 17e:	51 f3       	fsub	fr5,fr3
+ 180:	46 d7       	mov.l	29c <_draw_filled_triangle+0x29c>,r7	! 0 <_draw_filled_triangle>
+ 182:	3d f3       	ftrc	fr3,fpul
+ 184:	5a 01       	sts	fpul,r1
+ 186:	11 43       	cmp/pz	r3
+ 188:	72 67       	mov.l	@r7,r7
+ 18a:	2a 32       	subc	r2,r2
+ 18c:	17 37       	cmp/gt	r1,r7
+ 18e:	02 8d       	bt.s	196 <_draw_filled_triangle+0x196>
+ 190:	39 22       	and	r3,r2
+ 192:	73 61       	mov	r7,r1
+ 194:	ff 71       	add	#-1,r1
+ 196:	17 32       	cmp/gt	r1,r2
+ 198:	40 8d       	bt.s	21c <_draw_filled_triangle+0x21c>
+ 19a:	8d f3       	fldi0	fr3
+ 19c:	23 67       	mov	r2,r7
+ 19e:	38 37       	sub	r3,r7
+ 1a0:	5a 47       	lds	r7,fpul
+ 1a2:	21 f4       	fsub	fr2,fr4
+ 1a4:	2d f0       	float	fpul,fr0
+ 1a6:	4c f8       	fmov	fr4,fr8
+ 1a8:	62 f8       	fmul	fr6,fr8
+ 1aa:	34 f0       	fcmp/eq	fr3,fr0
+ 1ac:	01 89       	bt	1b2 <_draw_filled_triangle+0x1b2>
+ 1ae:	8e f2       	fmac	fr0,fr8,fr2
+ 1b0:	7e f1       	fmac	fr0,fr7,fr1
+ 1b2:	3b d3       	mov.l	2a0 <_draw_filled_triangle+0x2a0>,r3	! 0 <_draw_filled_triangle>
+ 1b4:	28 31       	sub	r2,r1
+ 1b6:	01 71       	add	#1,r1
+ 1b8:	8d f6       	fldi0	fr6
+ 1ba:	32 66       	mov.l	@r3,r6
+ 1bc:	9d f0       	fldi1	fr0
+ 1be:	67 02       	mul.l	r6,r2
+ 1c0:	1a 07       	sts	macl,r7
+ 1c2:	09 00       	nop	
+ 1c4:	15 f2       	fcmp/gt	fr1,fr2
+ 1c6:	50 8d       	bt.s	26a <_draw_filled_triangle+0x26a>
+ 1c8:	2c f3       	fmov	fr2,fr3
+ 1ca:	1c f3       	fmov	fr1,fr3
+ 1cc:	2c f4       	fmov	fr2,fr4
+ 1ce:	3c f5       	fmov	fr3,fr5
+ 1d0:	41 f5       	fsub	fr4,fr5
+ 1d2:	80 f2       	fadd	fr8,fr2
+ 1d4:	70 f1       	fadd	fr7,fr1
+ 1d6:	65 f5       	fcmp/gt	fr6,fr5
+ 1d8:	1c 8b       	bf	214 <_draw_filled_triangle+0x214>
+ 1da:	3d f4       	ftrc	fr4,fpul
+ 1dc:	45 f6       	fcmp/gt	fr4,fr6
+ 1de:	2d f5       	float	fpul,fr5
+ 1e0:	00 8b       	bf	1e4 <_draw_filled_triangle+0x1e4>
+ 1e2:	01 f5       	fsub	fr0,fr5
+ 1e4:	3d f3       	ftrc	fr3,fpul
+ 1e6:	2d f4       	float	fpul,fr4
+ 1e8:	45 f3       	fcmp/gt	fr4,fr3
+ 1ea:	00 8b       	bf	1ee <_draw_filled_triangle+0x1ee>
+ 1ec:	00 f4       	fadd	fr0,fr4
+ 1ee:	3d f4       	ftrc	fr4,fpul
+ 1f0:	5a 02       	sts	fpul,r2
+ 1f2:	11 42       	cmp/pz	r2
+ 1f4:	0e 8b       	bf	214 <_draw_filled_triangle+0x214>
+ 1f6:	3d f5       	ftrc	fr5,fpul
+ 1f8:	5a 03       	sts	fpul,r3
+ 1fa:	37 36       	cmp/gt	r3,r6
+ 1fc:	0a 8f       	bf.s	214 <_draw_filled_triangle+0x214>
+ 1fe:	11 43       	cmp/pz	r3
+ 200:	4a 34       	subc	r4,r4
+ 202:	27 36       	cmp/gt	r2,r6
+ 204:	02 8d       	bt.s	20c <_draw_filled_triangle+0x20c>
+ 206:	39 24       	and	r3,r4
+ 208:	63 62       	mov	r6,r2
+ 20a:	ff 72       	add	#-1,r2
+ 20c:	43 32       	cmp/ge	r4,r2
+ 20e:	49 8d       	bt.s	2a4 <_draw_filled_triangle+0x2a4>
+ 210:	23 68       	mov	r2,r8
+ 212:	09 00       	nop	
+ 214:	10 41       	dt	r1
+ 216:	09 00       	nop	
+ 218:	d4 8f       	bf.s	1c4 <_draw_filled_triangle+0x1c4>
+ 21a:	6c 37       	add	r6,r7
+ 21c:	f9 fc       	fmov	@r15+,fr12
+ 21e:	f6 6b       	mov.l	@r15+,r11
+ 220:	f6 6a       	mov.l	@r15+,r10
+ 222:	f6 69       	mov.l	@r15+,r9
+ 224:	0b 00       	rts	
+ 226:	f6 68       	mov.l	@r15+,r8
+ 228:	19 8f       	bf.s	25e <_draw_filled_triangle+0x25e>
+ 22a:	6c f7       	fmov	fr6,fr7
+ 22c:	3c f7       	fmov	fr3,fr7
+ 22e:	5c f3       	fmov	fr5,fr3
+ 230:	65 f3       	fcmp/gt	fr6,fr3
+ 232:	7c f5       	fmov	fr7,fr5
+ 234:	2c f7       	fmov	fr2,fr7
+ 236:	4c f2       	fmov	fr4,fr2
+ 238:	0f 8d       	bt.s	25a <_draw_filled_triangle+0x25a>
+ 23a:	7c f4       	fmov	fr7,fr4
+ 23c:	5c f7       	fmov	fr5,fr7
+ 23e:	6c f5       	fmov	fr6,fr5
+ 240:	7c f6       	fmov	fr7,fr6
+ 242:	4c f7       	fmov	fr4,fr7
+ 244:	1c f4       	fmov	fr1,fr4
+ 246:	7c f1       	fmov	fr7,fr1
+ 248:	6c f7       	fmov	fr6,fr7
+ 24a:	09 00       	nop	
+ 24c:	3c f6       	fmov	fr3,fr6
+ 24e:	5c f3       	fmov	fr5,fr3
+ 250:	7c f5       	fmov	fr7,fr5
+ 252:	1c f7       	fmov	fr1,fr7
+ 254:	2c f1       	fmov	fr2,fr1
+ 256:	4c f2       	fmov	fr4,fr2
+ 258:	7c f4       	fmov	fr7,fr4
+ 25a:	f0 ae       	bra	3e <_draw_filled_triangle+0x3e>
+ 25c:	5c f9       	fmov	fr5,fr9
+ 25e:	5c f6       	fmov	fr5,fr6
+ 260:	7c f5       	fmov	fr7,fr5
+ 262:	1c f7       	fmov	fr1,fr7
+ 264:	4c f1       	fmov	fr4,fr1
+ 266:	e9 ae       	bra	3c <_draw_filled_triangle+0x3c>
+ 268:	7c f4       	fmov	fr7,fr4
+ 26a:	b0 af       	bra	1ce <_draw_filled_triangle+0x1ce>
+ 26c:	1c f4       	fmov	fr1,fr4
+ 26e:	82 f7       	fmul	fr8,fr7
+ 270:	8d f8       	fldi0	fr8
+ 272:	85 f0       	fcmp/gt	fr8,fr0
+ 274:	01 8b       	bf	27a <_draw_filled_triangle+0x27a>
+ 276:	06 af       	bra	86 <_draw_filled_triangle+0x86>
+ 278:	3d f6       	ftrc	fr6,fpul
+ 27a:	66 af       	bra	14a <_draw_filled_triangle+0x14a>
+ 27c:	5c f0       	fmov	fr5,fr0
+ 27e:	5c f0       	fmov	fr5,fr0
+ 280:	31 f0       	fsub	fr3,fr0
+ 282:	8d f8       	fldi0	fr8
+ 284:	84 f0       	fcmp/eq	fr8,fr0
+ 286:	01 89       	bt	28c <_draw_filled_triangle+0x28c>
+ 288:	64 af       	bra	154 <_draw_filled_triangle+0x154>
+ 28a:	0c f6       	fmov	fr0,fr6
+ 28c:	c6 af       	bra	21c <_draw_filled_triangle+0x21c>
+ 28e:	09 00       	nop	
+ 290:	ff ae       	bra	92 <_draw_filled_triangle+0x92>
+ 292:	60 f8       	fadd	fr6,fr8
+ 294:	e6 ae       	bra	64 <_draw_filled_triangle+0x64>
+ 296:	2c fa       	fmov	fr2,fr10
+ 298:	2e af       	bra	f8 <_draw_filled_triangle+0xf8>
+ 29a:	1c f0       	fmov	fr1,fr0
+	...
+ 2a4:	8c d0       	mov.l	4d8 <_draw_filled_triangle+0x4d8>,r0	! 0 <_draw_filled_triangle>
+ 2a6:	43 63       	mov	r4,r3
+ 2a8:	7c 33       	add	r7,r3
+ 2aa:	02 69       	mov.l	@r0,r9
+ 2ac:	3c 33       	add	r3,r3
+ 2ae:	48 38       	sub	r4,r8
+ 2b0:	f8 e2       	mov	#-8,r2
+ 2b2:	3c 39       	add	r3,r9
+ 2b4:	83 63       	mov	r8,r3
+ 2b6:	01 73       	add	#1,r3
+ 2b8:	28 23       	tst	r2,r3
+ 2ba:	33 64       	mov	r3,r4
+ 2bc:	25 8d       	bt.s	30a <_draw_filled_triangle+0x30a>
+ 2be:	29 24       	and	r2,r4
+ 2c0:	07 e2       	mov	#7,r2
+ 2c2:	43 6b       	mov	r4,r11
+ 2c4:	ff 7b       	add	#-1,r11
+ 2c6:	26 3b       	cmp/hi	r2,r11
+ 2c8:	04 8f       	bf.s	2d4 <_draw_filled_triangle+0x2d4>
+ 2ca:	93 60       	mov	r9,r0
+ 2cc:	03 c8       	tst	#3,r0
+ 2ce:	01 8b       	bf	2d4 <_draw_filled_triangle+0x2d4>
+ 2d0:	dd a0       	bra	48e <_draw_filled_triangle+0x48e>
+ 2d2:	b3 6a       	mov	r11,r10
+ 2d4:	b3 6a       	mov	r11,r10
+ 2d6:	ac 3a       	add	r10,r10
+ 2d8:	09 4a       	shlr2	r10
+ 2da:	93 62       	mov	r9,r2
+ 2dc:	09 4a       	shlr2	r10
+ 2de:	01 7a       	add	#1,r10
+ 2e0:	53 60       	mov	r5,r0
+ 2e2:	09 00       	nop	
+ 2e4:	51 22       	mov.w	r5,@r2
+ 2e6:	21 81       	mov.w	r0,@(2,r2)
+ 2e8:	10 4a       	dt	r10
+ 2ea:	22 81       	mov.w	r0,@(4,r2)
+ 2ec:	23 81       	mov.w	r0,@(6,r2)
+ 2ee:	24 81       	mov.w	r0,@(8,r2)
+ 2f0:	25 81       	mov.w	r0,@(10,r2)
+ 2f2:	26 81       	mov.w	r0,@(12,r2)
+ 2f4:	27 81       	mov.w	r0,@(14,r2)
+ 2f6:	f5 8f       	bf.s	2e4 <_draw_filled_triangle+0x2e4>
+ 2f8:	10 72       	add	#16,r2
+ 2fa:	09 4b       	shlr2	r11
+ 2fc:	01 4b       	shlr	r11
+ 2fe:	01 7b       	add	#1,r11
+ 300:	47 33       	cmp/gt	r4,r3
+ 302:	08 4b       	shll2	r11
+ 304:	08 4b       	shll2	r11
+ 306:	46 8f       	bf.s	396 <_draw_filled_triangle+0x396>
+ 308:	bc 39       	add	r11,r9
+ 30a:	43 38       	cmp/ge	r4,r8
+ 30c:	83 6a       	mov	r8,r10
+ 30e:	01 eb       	mov	#1,r11
+ 310:	02 8f       	bf.s	318 <_draw_filled_triangle+0x318>
+ 312:	48 3a       	sub	r4,r10
+ 314:	a3 6b       	mov	r10,r11
+ 316:	01 7b       	add	#1,r11
+ 318:	ff e2       	mov	#-1,r2
+ 31a:	93 60       	mov	r9,r0
+ 31c:	02 c8       	tst	#2,r0
+ 31e:	2a 62       	negc	r2,r2
+ 320:	87 34       	cmp/gt	r8,r4
+ 322:	21 89       	bt	368 <_draw_filled_triangle+0x368>
+ 324:	05 e3       	mov	#5,r3
+ 326:	36 3a       	cmp/hi	r3,r10
+ 328:	1e 8f       	bf.s	368 <_draw_filled_triangle+0x368>
+ 32a:	28 22       	tst	r2,r2
+ 32c:	03 8d       	bt.s	336 <_draw_filled_triangle+0x336>
+ 32e:	93 6a       	mov	r9,r10
+ 330:	02 7a       	add	#2,r10
+ 332:	51 29       	mov.w	r5,@r9
+ 334:	01 74       	add	#1,r4
+ 336:	b3 60       	mov	r11,r0
+ 338:	28 30       	sub	r2,r0
+ 33a:	2c 32       	add	r2,r2
+ 33c:	53 63       	mov	r5,r3
+ 33e:	2c 39       	add	r2,r9
+ 340:	03 62       	mov	r0,r2
+ 342:	01 42       	shlr	r2
+ 344:	08 42       	shll2	r2
+ 346:	fc 72       	add	#-4,r2
+ 348:	28 43       	shll16	r3
+ 34a:	09 42       	shlr2	r2
+ 34c:	5b 23       	or	r5,r3
+ 34e:	01 72       	add	#1,r2
+ 350:	32 29       	mov.l	r3,@r9
+ 352:	10 42       	dt	r2
+ 354:	fc 8f       	bf.s	350 <_draw_filled_triangle+0x350>
+ 356:	04 79       	add	#4,r9
+ 358:	01 c8       	tst	#1,r0
+ 35a:	1c 89       	bt	396 <_draw_filled_triangle+0x396>
+ 35c:	fe e2       	mov	#-2,r2
+ 35e:	09 22       	and	r0,r2
+ 360:	23 69       	mov	r2,r9
+ 362:	9c 39       	add	r9,r9
+ 364:	ac 39       	add	r10,r9
+ 366:	2c 34       	add	r2,r4
+ 368:	51 29       	mov.w	r5,@r9
+ 36a:	47 38       	cmp/gt	r4,r8
+ 36c:	43 62       	mov	r4,r2
+ 36e:	12 8f       	bf.s	396 <_draw_filled_triangle+0x396>
+ 370:	01 72       	add	#1,r2
+ 372:	53 60       	mov	r5,r0
+ 374:	27 38       	cmp/gt	r2,r8
+ 376:	91 81       	mov.w	r0,@(2,r9)
+ 378:	43 63       	mov	r4,r3
+ 37a:	0c 8f       	bf.s	396 <_draw_filled_triangle+0x396>
+ 37c:	02 73       	add	#2,r3
+ 37e:	92 81       	mov.w	r0,@(4,r9)
+ 380:	37 38       	cmp/gt	r3,r8
+ 382:	08 8f       	bf.s	396 <_draw_filled_triangle+0x396>
+ 384:	02 72       	add	#2,r2
+ 386:	93 81       	mov.w	r0,@(6,r9)
+ 388:	27 38       	cmp/gt	r2,r8
+ 38a:	04 8f       	bf.s	396 <_draw_filled_triangle+0x396>
+ 38c:	04 74       	add	#4,r4
+ 38e:	94 81       	mov.w	r0,@(8,r9)
+ 390:	47 38       	cmp/gt	r4,r8
+ 392:	00 8b       	bf	396 <_draw_filled_triangle+0x396>
+ 394:	95 81       	mov.w	r0,@(10,r9)
+ 396:	3f af       	bra	218 <_draw_filled_triangle+0x218>
+ 398:	10 41       	dt	r1
+ 39a:	4f d0       	mov.l	4d8 <_draw_filled_triangle+0x4d8>,r0	! 0 <_draw_filled_triangle>
+ 39c:	7c 33       	add	r7,r3
+ 39e:	23 68       	mov	r2,r8
+ 3a0:	02 69       	mov.l	@r0,r9
+ 3a2:	3c 33       	add	r3,r3
+ 3a4:	48 38       	sub	r4,r8
+ 3a6:	f8 e2       	mov	#-8,r2
+ 3a8:	3c 39       	add	r3,r9
+ 3aa:	83 63       	mov	r8,r3
+ 3ac:	01 73       	add	#1,r3
+ 3ae:	28 23       	tst	r2,r3
+ 3b0:	33 64       	mov	r3,r4
+ 3b2:	24 8d       	bt.s	3fe <_draw_filled_triangle+0x3fe>
+ 3b4:	29 24       	and	r2,r4
+ 3b6:	07 e2       	mov	#7,r2
+ 3b8:	43 6b       	mov	r4,r11
+ 3ba:	ff 7b       	add	#-1,r11
+ 3bc:	26 3b       	cmp/hi	r2,r11
+ 3be:	04 8f       	bf.s	3ca <_draw_filled_triangle+0x3ca>
+ 3c0:	93 60       	mov	r9,r0
+ 3c2:	03 c8       	tst	#3,r0
+ 3c4:	01 8b       	bf	3ca <_draw_filled_triangle+0x3ca>
+ 3c6:	75 a0       	bra	4b4 <_draw_filled_triangle+0x4b4>
+ 3c8:	b3 6a       	mov	r11,r10
+ 3ca:	b3 6a       	mov	r11,r10
+ 3cc:	ac 3a       	add	r10,r10
+ 3ce:	09 4a       	shlr2	r10
+ 3d0:	93 62       	mov	r9,r2
+ 3d2:	09 4a       	shlr2	r10
+ 3d4:	01 7a       	add	#1,r10
+ 3d6:	53 60       	mov	r5,r0
+ 3d8:	51 22       	mov.w	r5,@r2
+ 3da:	21 81       	mov.w	r0,@(2,r2)
+ 3dc:	10 4a       	dt	r10
+ 3de:	22 81       	mov.w	r0,@(4,r2)
+ 3e0:	23 81       	mov.w	r0,@(6,r2)
+ 3e2:	24 81       	mov.w	r0,@(8,r2)
+ 3e4:	25 81       	mov.w	r0,@(10,r2)
+ 3e6:	26 81       	mov.w	r0,@(12,r2)
+ 3e8:	27 81       	mov.w	r0,@(14,r2)
+ 3ea:	f5 8f       	bf.s	3d8 <_draw_filled_triangle+0x3d8>
+ 3ec:	10 72       	add	#16,r2
+ 3ee:	09 4b       	shlr2	r11
+ 3f0:	01 4b       	shlr	r11
+ 3f2:	01 7b       	add	#1,r11
+ 3f4:	47 33       	cmp/gt	r4,r3
+ 3f6:	08 4b       	shll2	r11
+ 3f8:	08 4b       	shll2	r11
+ 3fa:	44 8f       	bf.s	486 <_draw_filled_triangle+0x486>
+ 3fc:	bc 39       	add	r11,r9
+ 3fe:	43 38       	cmp/ge	r4,r8
+ 400:	83 6a       	mov	r8,r10
+ 402:	01 eb       	mov	#1,r11
+ 404:	53 8d       	bt.s	4ae <_draw_filled_triangle+0x4ae>
+ 406:	48 3a       	sub	r4,r10
+ 408:	ff e2       	mov	#-1,r2
+ 40a:	93 60       	mov	r9,r0
+ 40c:	02 c8       	tst	#2,r0
+ 40e:	2a 62       	negc	r2,r2
+ 410:	87 34       	cmp/gt	r8,r4
+ 412:	21 89       	bt	458 <_draw_filled_triangle+0x458>
+ 414:	05 e3       	mov	#5,r3
+ 416:	36 3a       	cmp/hi	r3,r10
+ 418:	1e 8f       	bf.s	458 <_draw_filled_triangle+0x458>
+ 41a:	28 22       	tst	r2,r2
+ 41c:	03 8d       	bt.s	426 <_draw_filled_triangle+0x426>
+ 41e:	93 6a       	mov	r9,r10
+ 420:	02 7a       	add	#2,r10
+ 422:	51 29       	mov.w	r5,@r9
+ 424:	01 74       	add	#1,r4
+ 426:	b3 60       	mov	r11,r0
+ 428:	28 30       	sub	r2,r0
+ 42a:	2c 32       	add	r2,r2
+ 42c:	53 63       	mov	r5,r3
+ 42e:	2c 39       	add	r2,r9
+ 430:	03 62       	mov	r0,r2
+ 432:	01 42       	shlr	r2
+ 434:	08 42       	shll2	r2
+ 436:	fc 72       	add	#-4,r2
+ 438:	28 43       	shll16	r3
+ 43a:	09 42       	shlr2	r2
+ 43c:	5b 23       	or	r5,r3
+ 43e:	01 72       	add	#1,r2
+ 440:	32 29       	mov.l	r3,@r9
+ 442:	10 42       	dt	r2
+ 444:	fc 8f       	bf.s	440 <_draw_filled_triangle+0x440>
+ 446:	04 79       	add	#4,r9
+ 448:	01 c8       	tst	#1,r0
+ 44a:	1c 8d       	bt.s	486 <_draw_filled_triangle+0x486>
+ 44c:	fe e2       	mov	#-2,r2
+ 44e:	09 22       	and	r0,r2
+ 450:	23 69       	mov	r2,r9
+ 452:	9c 39       	add	r9,r9
+ 454:	ac 39       	add	r10,r9
+ 456:	2c 34       	add	r2,r4
+ 458:	51 29       	mov.w	r5,@r9
+ 45a:	47 38       	cmp/gt	r4,r8
+ 45c:	43 62       	mov	r4,r2
+ 45e:	12 8f       	bf.s	486 <_draw_filled_triangle+0x486>
+ 460:	01 72       	add	#1,r2
+ 462:	53 60       	mov	r5,r0
+ 464:	27 38       	cmp/gt	r2,r8
+ 466:	91 81       	mov.w	r0,@(2,r9)
+ 468:	43 63       	mov	r4,r3
+ 46a:	0c 8f       	bf.s	486 <_draw_filled_triangle+0x486>
+ 46c:	02 73       	add	#2,r3
+ 46e:	92 81       	mov.w	r0,@(4,r9)
+ 470:	37 38       	cmp/gt	r3,r8
+ 472:	08 8f       	bf.s	486 <_draw_filled_triangle+0x486>
+ 474:	02 72       	add	#2,r2
+ 476:	93 81       	mov.w	r0,@(6,r9)
+ 478:	27 38       	cmp/gt	r2,r8
+ 47a:	04 8f       	bf.s	486 <_draw_filled_triangle+0x486>
+ 47c:	04 74       	add	#4,r4
+ 47e:	94 81       	mov.w	r0,@(8,r9)
+ 480:	47 38       	cmp/gt	r4,r8
+ 482:	00 8b       	bf	486 <_draw_filled_triangle+0x486>
+ 484:	95 81       	mov.w	r0,@(10,r9)
+ 486:	5d ae       	bra	144 <_draw_filled_triangle+0x144>
+ 488:	10 41       	dt	r1
+ 48a:	6a ae       	bra	162 <_draw_filled_triangle+0x162>
+ 48c:	3d f3       	ftrc	fr3,fpul
+ 48e:	09 4a       	shlr2	r10
+ 490:	01 4a       	shlr	r10
+ 492:	53 60       	mov	r5,r0
+ 494:	28 40       	shll16	r0
+ 496:	93 62       	mov	r9,r2
+ 498:	5b 20       	or	r5,r0
+ 49a:	01 7a       	add	#1,r10
+ 49c:	02 22       	mov.l	r0,@r2
+ 49e:	10 4a       	dt	r10
+ 4a0:	01 12       	mov.l	r0,@(4,r2)
+ 4a2:	02 12       	mov.l	r0,@(8,r2)
+ 4a4:	03 12       	mov.l	r0,@(12,r2)
+ 4a6:	f9 8f       	bf.s	49c <_draw_filled_triangle+0x49c>
+ 4a8:	10 72       	add	#16,r2
+ 4aa:	27 af       	bra	2fc <_draw_filled_triangle+0x2fc>
+ 4ac:	09 4b       	shlr2	r11
+ 4ae:	a3 6b       	mov	r10,r11
+ 4b0:	aa af       	bra	408 <_draw_filled_triangle+0x408>
+ 4b2:	01 7b       	add	#1,r11
+ 4b4:	09 4a       	shlr2	r10
+ 4b6:	01 4a       	shlr	r10
+ 4b8:	53 60       	mov	r5,r0
+ 4ba:	28 40       	shll16	r0
+ 4bc:	93 62       	mov	r9,r2
+ 4be:	5b 20       	or	r5,r0
+ 4c0:	01 7a       	add	#1,r10
+ 4c2:	09 00       	nop	
+ 4c4:	02 22       	mov.l	r0,@r2
+ 4c6:	10 4a       	dt	r10
+ 4c8:	01 12       	mov.l	r0,@(4,r2)
+ 4ca:	02 12       	mov.l	r0,@(8,r2)
+ 4cc:	03 12       	mov.l	r0,@(12,r2)
+ 4ce:	f9 8f       	bf.s	4c4 <_draw_filled_triangle+0x4c4>
+ 4d0:	10 72       	add	#16,r2
+ 4d2:	8d af       	bra	3f0 <_draw_filled_triangle+0x3f0>
+ 4d4:	09 4b       	shlr2	r11
+ 4d6:	09 00       	nop	
+ 4d8:	00 00       	.word 0x0000
+	...
+
+Disassembly of section .text.draw_filled_triangle_wire:
+
+00000000 <_draw_filled_triangle_wire>:
+   0:	86 2f       	mov.l	r8,@-r15
+   2:	43 61       	mov	r4,r1
+   4:	96 2f       	mov.l	r9,@-r15
+   6:	18 e0       	mov	#24,r0
+   8:	a6 2f       	mov.l	r10,@-r15
+   a:	5d 68       	extu.w	r5,r8
+   c:	b6 2f       	mov.l	r11,@-r15
+   e:	c6 2f       	mov.l	r12,@-r15
+  10:	d6 2f       	mov.l	r13,@-r15
+  12:	e6 2f       	mov.l	r14,@-r15
+  14:	cb ff       	fmov	fr12,@-r15
+  16:	db ff       	fmov	fr13,@-r15
+  18:	eb ff       	fmov	fr14,@-r15
+  1a:	fb ff       	fmov	fr15,@-r15
+  1c:	22 4f       	sts.l	pr,@-r15
+  1e:	19 f1       	fmov	@r1+,fr1
+  20:	c4 7f       	add	#-60,r15
+  22:	17 ff       	fmov	fr1,@(r0,r15)
+  24:	1c e0       	mov	#28,r0
+  26:	18 f1       	fmov	@r1,fr1
+  28:	43 61       	mov	r4,r1
+  2a:	10 71       	add	#16,r1
+  2c:	17 ff       	fmov	fr1,@(r0,r15)
+  2e:	2c e0       	mov	#44,r0
+  30:	18 f1       	fmov	@r1,fr1
+  32:	04 71       	add	#4,r1
+  34:	24 74       	add	#36,r4
+  36:	17 ff       	fmov	fr1,@(r0,r15)
+  38:	30 e0       	mov	#48,r0
+  3a:	18 f1       	fmov	@r1,fr1
+  3c:	0c 71       	add	#12,r1
+  3e:	17 ff       	fmov	fr1,@(r0,r15)
+  40:	34 e0       	mov	#52,r0
+  42:	18 f1       	fmov	@r1,fr1
+  44:	17 ff       	fmov	fr1,@(r0,r15)
+  46:	38 e0       	mov	#56,r0
+  48:	48 f1       	fmov	@r4,fr1
+  4a:	17 ff       	fmov	fr1,@(r0,r15)
+  4c:	18 e0       	mov	#24,r0
+  4e:	f6 f4       	fmov	@(r0,r15),fr4
+  50:	2c e0       	mov	#44,r0
+  52:	f6 f2       	fmov	@(r0,r15),fr2
+  54:	25 f4       	fcmp/gt	fr2,fr4
+  56:	00 8b       	bf	5a <_draw_filled_triangle_wire+0x5a>
+  58:	2c f4       	fmov	fr2,fr4
+  5a:	34 e0       	mov	#52,r0
+  5c:	f6 f1       	fmov	@(r0,r15),fr1
+  5e:	15 f4       	fcmp/gt	fr1,fr4
+  60:	00 8b       	bf	64 <_draw_filled_triangle_wire+0x64>
+  62:	1c f4       	fmov	fr1,fr4
+  64:	1c e0       	mov	#28,r0
+  66:	f6 f3       	fmov	@(r0,r15),fr3
+  68:	30 e0       	mov	#48,r0
+  6a:	f6 f2       	fmov	@(r0,r15),fr2
+  6c:	25 f3       	fcmp/gt	fr2,fr3
+  6e:	00 8b       	bf	72 <_draw_filled_triangle_wire+0x72>
+  70:	2c f3       	fmov	fr2,fr3
+  72:	38 e0       	mov	#56,r0
+  74:	f6 f1       	fmov	@(r0,r15),fr1
+  76:	15 f3       	fcmp/gt	fr1,fr3
+  78:	00 8b       	bf	7c <_draw_filled_triangle_wire+0x7c>
+  7a:	1c f3       	fmov	fr1,fr3
+  7c:	18 e0       	mov	#24,r0
+  7e:	f6 f2       	fmov	@(r0,r15),fr2
+  80:	2c e0       	mov	#44,r0
+  82:	f6 f1       	fmov	@(r0,r15),fr1
+  84:	25 f1       	fcmp/gt	fr2,fr1
+  86:	00 8b       	bf	8a <_draw_filled_triangle_wire+0x8a>
+  88:	1c f2       	fmov	fr1,fr2
+  8a:	34 e0       	mov	#52,r0
+  8c:	f6 f1       	fmov	@(r0,r15),fr1
+  8e:	25 f1       	fcmp/gt	fr2,fr1
+  90:	00 8b       	bf	94 <_draw_filled_triangle_wire+0x94>
+  92:	1c f2       	fmov	fr1,fr2
+  94:	1c e0       	mov	#28,r0
+  96:	f6 f1       	fmov	@(r0,r15),fr1
+  98:	30 e0       	mov	#48,r0
+  9a:	f6 f5       	fmov	@(r0,r15),fr5
+  9c:	15 f5       	fcmp/gt	fr1,fr5
+  9e:	00 8b       	bf	a2 <_draw_filled_triangle_wire+0xa2>
+  a0:	5c f1       	fmov	fr5,fr1
+  a2:	38 e0       	mov	#56,r0
+  a4:	f6 f5       	fmov	@(r0,r15),fr5
+  a6:	15 f5       	fcmp/gt	fr1,fr5
+  a8:	00 8b       	bf	ac <_draw_filled_triangle_wire+0xac>
+  aa:	5c f1       	fmov	fr5,fr1
+  ac:	3d f4       	ftrc	fr4,fpul
+  ae:	8d f6       	fldi0	fr6
+  b0:	45 f6       	fcmp/gt	fr4,fr6
+  b2:	02 8f       	bf.s	ba <_draw_filled_triangle_wire+0xba>
+  b4:	2d f5       	float	fpul,fr5
+  b6:	9d f4       	fldi1	fr4
+  b8:	41 f5       	fsub	fr4,fr5
+  ba:	3d f5       	ftrc	fr5,fpul
+  bc:	8d f5       	fldi0	fr5
+  be:	5a 0a       	sts	fpul,r10
+  c0:	35 f5       	fcmp/gt	fr3,fr5
+  c2:	3d f3       	ftrc	fr3,fpul
+  c4:	02 8f       	bf.s	cc <_draw_filled_triangle_wire+0xcc>
+  c6:	2d f4       	float	fpul,fr4
+  c8:	9d f3       	fldi1	fr3
+  ca:	31 f4       	fsub	fr3,fr4
+  cc:	3d f4       	ftrc	fr4,fpul
+  ce:	5a 0e       	sts	fpul,r14
+  d0:	3d f2       	ftrc	fr2,fpul
+  d2:	2d f3       	float	fpul,fr3
+  d4:	35 f2       	fcmp/gt	fr3,fr2
+  d6:	03 8f       	bf.s	e0 <_draw_filled_triangle_wire+0xe0>
+  d8:	3d f3       	ftrc	fr3,fpul
+  da:	9d f2       	fldi1	fr2
+  dc:	20 f3       	fadd	fr2,fr3
+  de:	3d f3       	ftrc	fr3,fpul
+  e0:	5a 0d       	sts	fpul,r13
+  e2:	3d f1       	ftrc	fr1,fpul
+  e4:	2d f2       	float	fpul,fr2
+  e6:	25 f1       	fcmp/gt	fr2,fr1
+  e8:	02 8f       	bf.s	f0 <_draw_filled_triangle_wire+0xf0>
+  ea:	1c e0       	mov	#28,r0
+  ec:	9d f1       	fldi1	fr1
+  ee:	10 f2       	fadd	fr1,fr2
+  f0:	3d f2       	ftrc	fr2,fpul
+  f2:	f6 f1       	fmov	@(r0,r15),fr1
+  f4:	30 e0       	mov	#48,r0
+  f6:	f6 f2       	fmov	@(r0,r15),fr2
+  f8:	2c e0       	mov	#44,r0
+  fa:	5a 0b       	sts	fpul,r11
+  fc:	21 f1       	fsub	fr2,fr1
+  fe:	5a 4a       	lds	r10,fpul
+ 100:	8d f7       	fldi0	fr7
+ 102:	1a ff       	fmov	fr1,@r15
+ 104:	f6 f1       	fmov	@(r0,r15),fr1
+ 106:	18 e0       	mov	#24,r0
+ 108:	f6 f2       	fmov	@(r0,r15),fr2
+ 10a:	20 e0       	mov	#32,r0
+ 10c:	7c f6       	fmov	fr7,fr6
+ 10e:	21 f1       	fsub	fr2,fr1
+ 110:	7c fb       	fmov	fr7,fr11
+ 112:	7c fa       	fmov	fr7,fr10
+ 114:	17 ff       	fmov	fr1,@(r0,r15)
+ 116:	30 e0       	mov	#48,r0
+ 118:	f6 f1       	fmov	@(r0,r15),fr1
+ 11a:	38 e0       	mov	#56,r0
+ 11c:	f6 f2       	fmov	@(r0,r15),fr2
+ 11e:	04 e0       	mov	#4,r0
+ 120:	21 f1       	fsub	fr2,fr1
+ 122:	17 ff       	fmov	fr1,@(r0,r15)
+ 124:	34 e0       	mov	#52,r0
+ 126:	f6 f1       	fmov	@(r0,r15),fr1
+ 128:	2c e0       	mov	#44,r0
+ 12a:	f6 f2       	fmov	@(r0,r15),fr2
+ 12c:	24 e0       	mov	#36,r0
+ 12e:	21 f1       	fsub	fr2,fr1
+ 130:	17 ff       	fmov	fr1,@(r0,r15)
+ 132:	38 e0       	mov	#56,r0
+ 134:	f6 f1       	fmov	@(r0,r15),fr1
+ 136:	1c e0       	mov	#28,r0
+ 138:	f6 f2       	fmov	@(r0,r15),fr2
+ 13a:	08 e0       	mov	#8,r0
+ 13c:	21 f1       	fsub	fr2,fr1
+ 13e:	17 ff       	fmov	fr1,@(r0,r15)
+ 140:	18 e0       	mov	#24,r0
+ 142:	f6 f1       	fmov	@(r0,r15),fr1
+ 144:	34 e0       	mov	#52,r0
+ 146:	f6 f2       	fmov	@(r0,r15),fr2
+ 148:	28 e0       	mov	#40,r0
+ 14a:	21 f1       	fsub	fr2,fr1
+ 14c:	17 ff       	fmov	fr1,@(r0,r15)
+ 14e:	2d f1       	float	fpul,fr1
+ 150:	5a 4e       	lds	r14,fpul
+ 152:	30 e0       	mov	#48,r0
+ 154:	2d f2       	float	fpul,fr2
+ 156:	f6 f3       	fmov	@(r0,r15),fr3
+ 158:	2c e0       	mov	#44,r0
+ 15a:	1c f8       	fmov	fr1,fr8
+ 15c:	2c f9       	fmov	fr2,fr9
+ 15e:	31 f9       	fsub	fr3,fr9
+ 160:	f6 f3       	fmov	@(r0,r15),fr3
+ 162:	24 e0       	mov	#36,r0
+ 164:	f6 f5       	fmov	@(r0,r15),fr5
+ 166:	04 e0       	mov	#4,r0
+ 168:	31 f8       	fsub	fr3,fr8
+ 16a:	f6 f4       	fmov	@(r0,r15),fr4
+ 16c:	ed f6       	fipr	fv8,fv4
+ 16e:	0c e0       	mov	#12,r0
+ 170:	2c f9       	fmov	fr2,fr9
+ 172:	77 ff       	fmov	fr7,@(r0,r15)
+ 174:	38 e0       	mov	#56,r0
+ 176:	f6 f3       	fmov	@(r0,r15),fr3
+ 178:	34 e0       	mov	#52,r0
+ 17a:	1c f8       	fmov	fr1,fr8
+ 17c:	31 f9       	fsub	fr3,fr9
+ 17e:	f6 f3       	fmov	@(r0,r15),fr3
+ 180:	28 e0       	mov	#40,r0
+ 182:	6c f7       	fmov	fr6,fr7
+ 184:	f6 f5       	fmov	@(r0,r15),fr5
+ 186:	08 e0       	mov	#8,r0
+ 188:	31 f8       	fsub	fr3,fr8
+ 18a:	f6 f4       	fmov	@(r0,r15),fr4
+ 18c:	ed f6       	fipr	fv8,fv4
+ 18e:	10 e0       	mov	#16,r0
+ 190:	2c f9       	fmov	fr2,fr9
+ 192:	77 ff       	fmov	fr7,@(r0,r15)
+ 194:	1c e0       	mov	#28,r0
+ 196:	f6 f3       	fmov	@(r0,r15),fr3
+ 198:	18 e0       	mov	#24,r0
+ 19a:	f6 f2       	fmov	@(r0,r15),fr2
+ 19c:	20 e0       	mov	#32,r0
+ 19e:	1c f8       	fmov	fr1,fr8
+ 1a0:	31 f9       	fsub	fr3,fr9
+ 1a2:	21 f8       	fsub	fr2,fr8
+ 1a4:	f6 f5       	fmov	@(r0,r15),fr5
+ 1a6:	f8 f4       	fmov	@r15,fr4
+ 1a8:	6c f7       	fmov	fr6,fr7
+ 1aa:	ed f6       	fipr	fv8,fv4
+ 1ac:	14 e0       	mov	#20,r0
+ 1ae:	b7 3e       	cmp/gt	r11,r14
+ 1b0:	3f 8d       	bt.s	232 <_draw_filled_triangle_wire+0x232>
+ 1b2:	77 ff       	fmov	fr7,@(r0,r15)
+ 1b4:	d7 3a       	cmp/gt	r13,r10
+ 1b6:	35 d9       	mov.l	28c <_draw_filled_triangle_wire+0x28c>,r9	! 0 <_draw_filled_triangle_wire>
+ 1b8:	3c 8d       	bt.s	234 <_draw_filled_triangle_wire+0x234>
+ 1ba:	30 e0       	mov	#48,r0
+ 1bc:	14 e0       	mov	#20,r0
+ 1be:	09 00       	nop	
+ 1c0:	a3 6c       	mov	r10,r12
+ 1c2:	f6 ff       	fmov	@(r0,r15),fr15
+ 1c4:	10 e0       	mov	#16,r0
+ 1c6:	f6 fd       	fmov	@(r0,r15),fr13
+ 1c8:	0c e0       	mov	#12,r0
+ 1ca:	f6 fc       	fmov	@(r0,r15),fr12
+ 1cc:	8d fe       	fldi0	fr14
+ 1ce:	09 00       	nop	
+ 1d0:	c5 fe       	fcmp/gt	fr12,fr14
+ 1d2:	ff e1       	mov	#-1,r1
+ 1d4:	1a 62       	negc	r1,r2
+ 1d6:	d5 fe       	fcmp/gt	fr13,fr14
+ 1d8:	1a 61       	negc	r1,r1
+ 1da:	18 22       	tst	r1,r2
+ 1dc:	06 8d       	bt.s	1ec <_draw_filled_triangle_wire+0x1ec>
+ 1de:	f5 fe       	fcmp/gt	fr15,fr14
+ 1e0:	05 8d       	bt.s	1ee <_draw_filled_triangle_wire+0x1ee>
+ 1e2:	04 e0       	mov	#4,r0
+ 1e4:	83 66       	mov	r8,r6
+ 1e6:	e3 65       	mov	r14,r5
+ 1e8:	0b 49       	jsr	@r9
+ 1ea:	c3 64       	mov	r12,r4
+ 1ec:	04 e0       	mov	#4,r0
+ 1ee:	f8 f2       	fmov	@r15,fr2
+ 1f0:	f6 f1       	fmov	@(r0,r15),fr1
+ 1f2:	08 e0       	mov	#8,r0
+ 1f4:	01 7c       	add	#1,r12
+ 1f6:	20 ff       	fadd	fr2,fr15
+ 1f8:	10 fc       	fadd	fr1,fr12
+ 1fa:	f6 f1       	fmov	@(r0,r15),fr1
+ 1fc:	c3 3d       	cmp/ge	r12,r13
+ 1fe:	e7 8d       	bt.s	1d0 <_draw_filled_triangle_wire+0x1d0>
+ 200:	10 fd       	fadd	fr1,fr13
+ 202:	0c e0       	mov	#12,r0
+ 204:	f6 f1       	fmov	@(r0,r15),fr1
+ 206:	24 e0       	mov	#36,r0
+ 208:	f6 f2       	fmov	@(r0,r15),fr2
+ 20a:	0c e0       	mov	#12,r0
+ 20c:	01 7e       	add	#1,r14
+ 20e:	20 f1       	fadd	fr2,fr1
+ 210:	e3 3b       	cmp/ge	r14,r11
+ 212:	17 ff       	fmov	fr1,@(r0,r15)
+ 214:	10 e0       	mov	#16,r0
+ 216:	f6 f1       	fmov	@(r0,r15),fr1
+ 218:	28 e0       	mov	#40,r0
+ 21a:	f6 f2       	fmov	@(r0,r15),fr2
+ 21c:	10 e0       	mov	#16,r0
+ 21e:	20 f1       	fadd	fr2,fr1
+ 220:	17 ff       	fmov	fr1,@(r0,r15)
+ 222:	14 e0       	mov	#20,r0
+ 224:	f6 f1       	fmov	@(r0,r15),fr1
+ 226:	20 e0       	mov	#32,r0
+ 228:	f6 f2       	fmov	@(r0,r15),fr2
+ 22a:	14 e0       	mov	#20,r0
+ 22c:	20 f1       	fadd	fr2,fr1
+ 22e:	c7 8d       	bt.s	1c0 <_draw_filled_triangle_wire+0x1c0>
+ 230:	17 ff       	fmov	fr1,@(r0,r15)
+ 232:	30 e0       	mov	#48,r0
+ 234:	16 d8       	mov.l	290 <_draw_filled_triangle_wire+0x290>,r8	! 0 <_draw_filled_triangle_wire>
+ 236:	f6 f6       	fmov	@(r0,r15),fr6
+ 238:	2c e0       	mov	#44,r0
+ 23a:	f6 f7       	fmov	@(r0,r15),fr7
+ 23c:	1c e0       	mov	#28,r0
+ 23e:	f6 f4       	fmov	@(r0,r15),fr4
+ 240:	18 e0       	mov	#24,r0
+ 242:	14 d4       	mov.l	294 <_draw_filled_triangle_wire+0x294>,r4	! ffff
+ 244:	0b 48       	jsr	@r8
+ 246:	f6 f5       	fmov	@(r0,r15),fr5
+ 248:	38 e0       	mov	#56,r0
+ 24a:	12 d4       	mov.l	294 <_draw_filled_triangle_wire+0x294>,r4	! ffff
+ 24c:	f6 f6       	fmov	@(r0,r15),fr6
+ 24e:	34 e0       	mov	#52,r0
+ 250:	f6 f7       	fmov	@(r0,r15),fr7
+ 252:	30 e0       	mov	#48,r0
+ 254:	f6 f4       	fmov	@(r0,r15),fr4
+ 256:	2c e0       	mov	#44,r0
+ 258:	0b 48       	jsr	@r8
+ 25a:	f6 f5       	fmov	@(r0,r15),fr5
+ 25c:	1c e0       	mov	#28,r0
+ 25e:	0d d4       	mov.l	294 <_draw_filled_triangle_wire+0x294>,r4	! ffff
+ 260:	f6 f6       	fmov	@(r0,r15),fr6
+ 262:	18 e0       	mov	#24,r0
+ 264:	f6 f7       	fmov	@(r0,r15),fr7
+ 266:	38 e0       	mov	#56,r0
+ 268:	f6 f4       	fmov	@(r0,r15),fr4
+ 26a:	34 e0       	mov	#52,r0
+ 26c:	f6 f5       	fmov	@(r0,r15),fr5
+ 26e:	83 62       	mov	r8,r2
+ 270:	3c 7f       	add	#60,r15
+ 272:	26 4f       	lds.l	@r15+,pr
+ 274:	f9 ff       	fmov	@r15+,fr15
+ 276:	f9 fe       	fmov	@r15+,fr14
+ 278:	f9 fd       	fmov	@r15+,fr13
+ 27a:	f9 fc       	fmov	@r15+,fr12
+ 27c:	f6 6e       	mov.l	@r15+,r14
+ 27e:	f6 6d       	mov.l	@r15+,r13
+ 280:	f6 6c       	mov.l	@r15+,r12
+ 282:	f6 6b       	mov.l	@r15+,r11
+ 284:	f6 6a       	mov.l	@r15+,r10
+ 286:	f6 69       	mov.l	@r15+,r9
+ 288:	2b 42       	jmp	@r2
+ 28a:	f6 68       	mov.l	@r15+,r8
+	...
+ 294:	ff ff       	.word 0xffff
+	...
+
+Disassembly of section .text.draw_textured_triangle_scanline:
+
+00000000 <_draw_textured_triangle_scanline>:
+   0:	86 2f       	mov.l	r8,@-r15
+   2:	43 61       	mov	r4,r1
+   4:	96 2f       	mov.l	r9,@-r15
+   6:	3c e0       	mov	#60,r0
+   8:	a6 2f       	mov.l	r10,@-r15
+   a:	b6 2f       	mov.l	r11,@-r15
+   c:	c6 2f       	mov.l	r12,@-r15
+   e:	d6 2f       	mov.l	r13,@-r15
+  10:	e6 2f       	mov.l	r14,@-r15
+  12:	cb ff       	fmov	fr12,@-r15
+  14:	db ff       	fmov	fr13,@-r15
+  16:	eb ff       	fmov	fr14,@-r15
+  18:	fb ff       	fmov	fr15,@-r15
+  1a:	22 4f       	sts.l	pr,@-r15
+  1c:	19 f0       	fmov	@r1+,fr0
+  1e:	ac 7f       	add	#-84,r15
+  20:	18 fe       	fmov	@r1,fr14
+  22:	b0 7f       	add	#-80,r15
+  24:	07 ff       	fmov	fr0,@(r0,r15)
+  26:	64 e0       	mov	#100,r0
+  28:	43 61       	mov	r4,r1
+  2a:	08 71       	add	#8,r1
+  2c:	12 68       	mov.l	@r1,r8
+  2e:	08 71       	add	#8,r1
+  30:	18 f0       	fmov	@r1,fr0
+  32:	04 71       	add	#4,r1
+  34:	68 74       	add	#104,r4
+  36:	07 ff       	fmov	fr0,@(r0,r15)
+  38:	2c e0       	mov	#44,r0
+  3a:	18 fc       	fmov	@r1,fr12
+  3c:	04 71       	add	#4,r1
+  3e:	18 f0       	fmov	@r1,fr0
+  40:	08 71       	add	#8,r1
+  42:	c5 fe       	fcmp/gt	fr12,fr14
+  44:	07 ff       	fmov	fr0,@(r0,r15)
+  46:	5c e0       	mov	#92,r0
+  48:	18 f0       	fmov	@r1,fr0
+  4a:	04 71       	add	#4,r1
+  4c:	18 ff       	fmov	@r1,fr15
+  4e:	04 71       	add	#4,r1
+  50:	07 ff       	fmov	fr0,@(r0,r15)
+  52:	60 e0       	mov	#96,r0
+  54:	18 f0       	fmov	@r1,fr0
+  56:	2c 71       	add	#44,r1
+  58:	18 fd       	fmov	@r1,fr13
+  5a:	04 71       	add	#4,r1
+  5c:	07 ff       	fmov	fr0,@(r0,r15)
+  5e:	38 e0       	mov	#56,r0
+  60:	18 f0       	fmov	@r1,fr0
+  62:	04 71       	add	#4,r1
+  64:	07 ff       	fmov	fr0,@(r0,r15)
+  66:	30 e0       	mov	#48,r0
+  68:	18 f0       	fmov	@r1,fr0
+  6a:	04 71       	add	#4,r1
+  6c:	07 ff       	fmov	fr0,@(r0,r15)
+  6e:	34 e0       	mov	#52,r0
+  70:	18 f0       	fmov	@r1,fr0
+  72:	04 71       	add	#4,r1
+  74:	07 ff       	fmov	fr0,@(r0,r15)
+  76:	28 e0       	mov	#40,r0
+  78:	18 f0       	fmov	@r1,fr0
+  7a:	07 ff       	fmov	fr0,@(r0,r15)
+  7c:	58 e0       	mov	#88,r0
+  7e:	48 f0       	fmov	@r4,fr0
+  80:	1a 8d       	bt.s	b8 <_draw_textured_triangle_scanline+0xb8>
+  82:	07 ff       	fmov	fr0,@(r0,r15)
+  84:	38 e1       	mov	#56,r1
+  86:	fc 31       	add	r15,r1
+  88:	18 f0       	fmov	@r1,fr0
+  8a:	34 e0       	mov	#52,r0
+  8c:	f6 f1       	fmov	@(r0,r15),fr1
+  8e:	07 ff       	fmov	fr0,@(r0,r15)
+  90:	30 e0       	mov	#48,r0
+  92:	1a f1       	fmov	fr1,@r1
+  94:	3c e1       	mov	#60,r1
+  96:	f6 f1       	fmov	@(r0,r15),fr1
+  98:	fc 31       	add	r15,r1
+  9a:	d7 ff       	fmov	fr13,@(r0,r15)
+  9c:	2c e0       	mov	#44,r0
+  9e:	1c fd       	fmov	fr1,fr13
+  a0:	f6 f1       	fmov	@(r0,r15),fr1
+  a2:	86 0f       	mov.l	r8,@(r0,r15)
+  a4:	64 e0       	mov	#100,r0
+  a6:	1d f1       	flds	fr1,fpul
+  a8:	cc f1       	fmov	fr12,fr1
+  aa:	18 f0       	fmov	@r1,fr0
+  ac:	ec fc       	fmov	fr14,fr12
+  ae:	5a 08       	sts	fpul,r8
+  b0:	1c fe       	fmov	fr1,fr14
+  b2:	f6 f1       	fmov	@(r0,r15),fr1
+  b4:	07 ff       	fmov	fr0,@(r0,r15)
+  b6:	1a f1       	fmov	fr1,@r1
+  b8:	f5 fe       	fcmp/gt	fr15,fr14
+  ba:	1b 8d       	bt.s	f4 <_draw_textured_triangle_scanline+0xf4>
+  bc:	f5 fc       	fcmp/gt	fr15,fr12
+  be:	38 e1       	mov	#56,r1
+  c0:	fc 31       	add	r15,r1
+  c2:	18 f0       	fmov	@r1,fr0
+  c4:	58 e0       	mov	#88,r0
+  c6:	f6 f1       	fmov	@(r0,r15),fr1
+  c8:	07 ff       	fmov	fr0,@(r0,r15)
+  ca:	28 e0       	mov	#40,r0
+  cc:	1a f1       	fmov	fr1,@r1
+  ce:	3c e1       	mov	#60,r1
+  d0:	f6 f1       	fmov	@(r0,r15),fr1
+  d2:	fc 31       	add	r15,r1
+  d4:	d7 ff       	fmov	fr13,@(r0,r15)
+  d6:	60 e0       	mov	#96,r0
+  d8:	1c fd       	fmov	fr1,fr13
+  da:	f6 f1       	fmov	@(r0,r15),fr1
+  dc:	86 0f       	mov.l	r8,@(r0,r15)
+  de:	5c e0       	mov	#92,r0
+  e0:	1d f1       	flds	fr1,fpul
+  e2:	fc f1       	fmov	fr15,fr1
+  e4:	18 f0       	fmov	@r1,fr0
+  e6:	ec ff       	fmov	fr14,fr15
+  e8:	5a 08       	sts	fpul,r8
+  ea:	1c fe       	fmov	fr1,fr14
+  ec:	f6 f1       	fmov	@(r0,r15),fr1
+  ee:	07 ff       	fmov	fr0,@(r0,r15)
+  f0:	1a f1       	fmov	fr1,@r1
+  f2:	f5 fc       	fcmp/gt	fr15,fr12
+  f4:	20 8d       	bt.s	138 <_draw_textured_triangle_scanline+0x138>
+  f6:	ec f1       	fmov	fr14,fr1
+  f8:	58 e0       	mov	#88,r0
+  fa:	34 e1       	mov	#52,r1
+  fc:	f6 f1       	fmov	@(r0,r15),fr1
+  fe:	fc 31       	add	r15,r1
+ 100:	18 f0       	fmov	@r1,fr0
+ 102:	1a f1       	fmov	fr1,@r1
+ 104:	30 e1       	mov	#48,r1
+ 106:	07 ff       	fmov	fr0,@(r0,r15)
+ 108:	fc 31       	add	r15,r1
+ 10a:	28 e0       	mov	#40,r0
+ 10c:	18 f0       	fmov	@r1,fr0
+ 10e:	f6 f1       	fmov	@(r0,r15),fr1
+ 110:	07 ff       	fmov	fr0,@(r0,r15)
+ 112:	60 e0       	mov	#96,r0
+ 114:	1a f1       	fmov	fr1,@r1
+ 116:	2c e1       	mov	#44,r1
+ 118:	f6 f1       	fmov	@(r0,r15),fr1
+ 11a:	fc 31       	add	r15,r1
+ 11c:	18 f0       	fmov	@r1,fr0
+ 11e:	1a f1       	fmov	fr1,@r1
+ 120:	64 e1       	mov	#100,r1
+ 122:	07 ff       	fmov	fr0,@(r0,r15)
+ 124:	fc 31       	add	r15,r1
+ 126:	fc f1       	fmov	fr15,fr1
+ 128:	5c e0       	mov	#92,r0
+ 12a:	18 f0       	fmov	@r1,fr0
+ 12c:	cc ff       	fmov	fr12,fr15
+ 12e:	1c fc       	fmov	fr1,fr12
+ 130:	f6 f1       	fmov	@(r0,r15),fr1
+ 132:	07 ff       	fmov	fr0,@(r0,r15)
+ 134:	1a f1       	fmov	fr1,@r1
+ 136:	ec f1       	fmov	fr14,fr1
+ 138:	f1 f1       	fsub	fr15,fr1
+ 13a:	8d f3       	fldi0	fr3
+ 13c:	34 f1       	fcmp/eq	fr3,fr1
+ 13e:	02 8f       	bf.s	146 <_draw_textured_triangle_scanline+0x146>
+ 140:	70 e0       	mov	#112,r0
+ 142:	07 a3       	bra	754 <_draw_textured_triangle_scanline+0x754>
+ 144:	09 00       	nop	
+ 146:	55 51       	mov.l	@(20,r5),r1
+ 148:	1c f2       	fmov	fr1,fr2
+ 14a:	12 f2       	fmul	fr1,fr2
+ 14c:	ff 71       	add	#-1,r1
+ 14e:	5a 41       	lds	r1,fpul
+ 150:	56 51       	mov.l	@(24,r5),r1
+ 152:	2d f0       	float	fpul,fr0
+ 154:	2c f5       	fmov	fr2,fr5
+ 156:	ff 71       	add	#-1,r1
+ 158:	07 ff       	fmov	fr0,@(r0,r15)
+ 15a:	5a 41       	lds	r1,fpul
+ 15c:	74 e0       	mov	#116,r0
+ 15e:	2d f0       	float	fpul,fr0
+ 160:	07 ff       	fmov	fr0,@(r0,r15)
+ 162:	7d f5       	fsrra	fr5
+ 164:	38 e0       	mov	#56,r0
+ 166:	15 f3       	fcmp/gt	fr1,fr3
+ 168:	f6 f4       	fmov	@(r0,r15),fr4
+ 16a:	58 e0       	mov	#88,r0
+ 16c:	f6 f0       	fmov	@(r0,r15),fr0
+ 16e:	02 8f       	bf.s	176 <_draw_textured_triangle_scanline+0x176>
+ 170:	01 f4       	fsub	fr0,fr4
+ 172:	0a a3       	bra	78a <_draw_textured_triangle_scanline+0x78a>
+ 174:	5c e0       	mov	#92,r0
+ 176:	3c e0       	mov	#60,r0
+ 178:	f6 f1       	fmov	@(r0,r15),fr1
+ 17a:	5c e0       	mov	#92,r0
+ 17c:	f6 f0       	fmov	@(r0,r15),fr0
+ 17e:	4c e0       	mov	#76,r0
+ 180:	01 f1       	fsub	fr0,fr1
+ 182:	52 f1       	fmul	fr5,fr1
+ 184:	17 ff       	fmov	fr1,@(r0,r15)
+ 186:	2c f1       	fmov	fr2,fr1
+ 188:	7d f1       	fsrra	fr1
+ 18a:	60 e0       	mov	#96,r0
+ 18c:	5a 48       	lds	r8,fpul
+ 18e:	f6 f0       	fmov	@(r0,r15),fr0
+ 190:	54 e0       	mov	#84,r0
+ 192:	0d f3       	fsts	fpul,fr3
+ 194:	01 f3       	fsub	fr0,fr3
+ 196:	12 f3       	fmul	fr1,fr3
+ 198:	2c f1       	fmov	fr2,fr1
+ 19a:	37 ff       	fmov	fr3,@(r0,r15)
+ 19c:	7d f1       	fsrra	fr1
+ 19e:	28 e0       	mov	#40,r0
+ 1a0:	dc f3       	fmov	fr13,fr3
+ 1a2:	f6 f0       	fmov	@(r0,r15),fr0
+ 1a4:	50 e0       	mov	#80,r0
+ 1a6:	01 f3       	fsub	fr0,fr3
+ 1a8:	12 f3       	fmul	fr1,fr3
+ 1aa:	37 ff       	fmov	fr3,@(r0,r15)
+ 1ac:	7d f2       	fsrra	fr2
+ 1ae:	cc f1       	fmov	fr12,fr1
+ 1b0:	f1 f1       	fsub	fr15,fr1
+ 1b2:	42 f2       	fmul	fr4,fr2
+ 1b4:	8d f3       	fldi0	fr3
+ 1b6:	48 e0       	mov	#72,r0
+ 1b8:	52 6a       	mov.l	@r5,r10
+ 1ba:	34 f1       	fcmp/eq	fr3,fr1
+ 1bc:	27 ff       	fmov	fr2,@(r0,r15)
+ 1be:	57 5b       	mov.l	@(28,r5),r11
+ 1c0:	58 5c       	mov.l	@(32,r5),r12
+ 1c2:	2d 8d       	bt.s	220 <_draw_textured_triangle_scanline+0x220>
+ 1c4:	59 5d       	mov.l	@(36,r5),r13
+ 1c6:	1c f2       	fmov	fr1,fr2
+ 1c8:	12 f2       	fmul	fr1,fr2
+ 1ca:	2c f4       	fmov	fr2,fr4
+ 1cc:	7d f4       	fsrra	fr4
+ 1ce:	15 f3       	fcmp/gt	fr1,fr3
+ 1d0:	01 8b       	bf	1d6 <_draw_textured_triangle_scanline+0x1d6>
+ 1d2:	f6 a2       	bra	7c2 <_draw_textured_triangle_scanline+0x7c2>
+ 1d4:	2c f1       	fmov	fr2,fr1
+ 1d6:	2c f6       	fmov	fr2,fr6
+ 1d8:	7d f6       	fsrra	fr6
+ 1da:	2c f5       	fmov	fr2,fr5
+ 1dc:	7d f5       	fsrra	fr5
+ 1de:	7d f2       	fsrra	fr2
+ 1e0:	35 f1       	fcmp/gt	fr3,fr1
+ 1e2:	1d 8b       	bf	220 <_draw_textured_triangle_scanline+0x220>
+ 1e4:	3d ff       	ftrc	fr15,fpul
+ 1e6:	2d f1       	float	fpul,fr1
+ 1e8:	15 ff       	fcmp/gt	fr1,fr15
+ 1ea:	03 8f       	bf.s	1f4 <_draw_textured_triangle_scanline+0x1f4>
+ 1ec:	3d f1       	ftrc	fr1,fpul
+ 1ee:	ee a2       	bra	7ce <_draw_textured_triangle_scanline+0x7ce>
+ 1f0:	9d f3       	fldi1	fr3
+ 1f2:	3d f1       	ftrc	fr1,fpul
+ 1f4:	8d f3       	fldi0	fr3
+ 1f6:	5a 01       	sts	fpul,r1
+ 1f8:	c5 f3       	fcmp/gt	fr12,fr3
+ 1fa:	3d fc       	ftrc	fr12,fpul
+ 1fc:	02 8f       	bf.s	204 <_draw_textured_triangle_scanline+0x204>
+ 1fe:	2d f1       	float	fpul,fr1
+ 200:	9d f3       	fldi1	fr3
+ 202:	31 f1       	fsub	fr3,fr1
+ 204:	11 41       	cmp/pz	r1
+ 206:	13 6e       	mov	r1,r14
+ 208:	81 d1       	mov.l	410 <_draw_textured_triangle_scanline+0x410>,r1	! 0 <_draw_textured_triangle_scanline>
+ 20a:	3d f1       	ftrc	fr1,fpul
+ 20c:	5a 00       	sts	fpul,r0
+ 20e:	2a 32       	subc	r2,r2
+ 210:	12 61       	mov.l	@r1,r1
+ 212:	07 31       	cmp/gt	r0,r1
+ 214:	02 8d       	bt.s	21c <_draw_textured_triangle_scanline+0x21c>
+ 216:	29 2e       	and	r2,r14
+ 218:	13 60       	mov	r1,r0
+ 21a:	ff 70       	add	#-1,r0
+ 21c:	e3 30       	cmp/ge	r14,r0
+ 21e:	01 89       	bt	224 <_draw_textured_triangle_scanline+0x224>
+ 220:	5e a1       	bra	4e0 <_draw_textured_triangle_scanline+0x4e0>
+ 222:	ec f1       	fmov	fr14,fr1
+ 224:	64 e1       	mov	#100,r1
+ 226:	5a 4e       	lds	r14,fpul
+ 228:	fc 31       	add	r15,r1
+ 22a:	e7 95       	mov.w	3fc <_draw_textured_triangle_scanline+0x3fc>,r5	! a0
+ 22c:	18 f1       	fmov	@r1,fr1
+ 22e:	5c e1       	mov	#92,r1
+ 230:	fc 31       	add	r15,r1
+ 232:	78 d9       	mov.l	414 <_draw_textured_triangle_scanline+0x414>,r9	! 0 <_draw_textured_triangle_scanline>
+ 234:	18 f0       	fmov	@r1,fr0
+ 236:	2c e2       	mov	#44,r2
+ 238:	e1 91       	mov.w	3fe <_draw_textured_triangle_scanline+0x3fe>,r1	! 84
+ 23a:	fc 32       	add	r15,r2
+ 23c:	01 f1       	fsub	fr0,fr1
+ 23e:	fc 35       	add	r15,r5
+ 240:	fc 31       	add	r15,r1
+ 242:	42 f1       	fmul	fr4,fr1
+ 244:	1a f1       	fmov	fr1,@r1
+ 246:	78 e1       	mov	#120,r1
+ 248:	28 f1       	fmov	@r2,fr1
+ 24a:	60 e2       	mov	#96,r2
+ 24c:	fc 32       	add	r15,r2
+ 24e:	28 f0       	fmov	@r2,fr0
+ 250:	30 e2       	mov	#48,r2
+ 252:	fc 31       	add	r15,r1
+ 254:	01 f1       	fsub	fr0,fr1
+ 256:	fc 32       	add	r15,r2
+ 258:	62 f1       	fmul	fr6,fr1
+ 25a:	1a f1       	fmov	fr1,@r1
+ 25c:	28 f1       	fmov	@r2,fr1
+ 25e:	28 e2       	mov	#40,r2
+ 260:	fc 32       	add	r15,r2
+ 262:	cd 91       	mov.w	400 <_draw_textured_triangle_scanline+0x400>,r1	! 80
+ 264:	28 f0       	fmov	@r2,fr0
+ 266:	34 e2       	mov	#52,r2
+ 268:	fc 31       	add	r15,r1
+ 26a:	01 f1       	fsub	fr0,fr1
+ 26c:	fc 32       	add	r15,r2
+ 26e:	52 f1       	fmul	fr5,fr1
+ 270:	1a f1       	fmov	fr1,@r1
+ 272:	7c e1       	mov	#124,r1
+ 274:	28 f1       	fmov	@r2,fr1
+ 276:	58 e2       	mov	#88,r2
+ 278:	fc 32       	add	r15,r2
+ 27a:	28 f0       	fmov	@r2,fr0
+ 27c:	fc 31       	add	r15,r1
+ 27e:	01 f1       	fsub	fr0,fr1
+ 280:	2d f0       	float	fpul,fr0
+ 282:	1d fd       	flds	fr13,fpul
+ 284:	22 f1       	fmul	fr2,fr1
+ 286:	f1 f0       	fsub	fr15,fr0
+ 288:	1a f1       	fmov	fr1,@r1
+ 28a:	5c e1       	mov	#92,r1
+ 28c:	fc 31       	add	r15,r1
+ 28e:	18 f1       	fmov	@r1,fr1
+ 290:	b5 91       	mov.w	3fe <_draw_textured_triangle_scanline+0x3fe>,r1	! 84
+ 292:	fc 31       	add	r15,r1
+ 294:	18 f2       	fmov	@r1,fr2
+ 296:	b4 91       	mov.w	402 <_draw_textured_triangle_scanline+0x402>,r1	! 88
+ 298:	2e f1       	fmac	fr0,fr2,fr1
+ 29a:	fc 31       	add	r15,r1
+ 29c:	1a f1       	fmov	fr1,@r1
+ 29e:	60 e1       	mov	#96,r1
+ 2a0:	fc 31       	add	r15,r1
+ 2a2:	18 f1       	fmov	@r1,fr1
+ 2a4:	78 e1       	mov	#120,r1
+ 2a6:	fc 31       	add	r15,r1
+ 2a8:	18 f2       	fmov	@r1,fr2
+ 2aa:	40 e1       	mov	#64,r1
+ 2ac:	fc 31       	add	r15,r1
+ 2ae:	2e f1       	fmac	fr0,fr2,fr1
+ 2b0:	1a f1       	fmov	fr1,@r1
+ 2b2:	28 e1       	mov	#40,r1
+ 2b4:	fc 31       	add	r15,r1
+ 2b6:	18 f1       	fmov	@r1,fr1
+ 2b8:	a2 91       	mov.w	400 <_draw_textured_triangle_scanline+0x400>,r1	! 80
+ 2ba:	fc 31       	add	r15,r1
+ 2bc:	18 f2       	fmov	@r1,fr2
+ 2be:	44 e1       	mov	#68,r1
+ 2c0:	fc 31       	add	r15,r1
+ 2c2:	2e f1       	fmac	fr0,fr2,fr1
+ 2c4:	1a f1       	fmov	fr1,@r1
+ 2c6:	7c e1       	mov	#124,r1
+ 2c8:	fc 31       	add	r15,r1
+ 2ca:	28 f1       	fmov	@r2,fr1
+ 2cc:	18 f2       	fmov	@r1,fr2
+ 2ce:	68 e1       	mov	#104,r1
+ 2d0:	fc 31       	add	r15,r1
+ 2d2:	2e f1       	fmac	fr0,fr2,fr1
+ 2d4:	1a f1       	fmov	fr1,@r1
+ 2d6:	5c e1       	mov	#92,r1
+ 2d8:	fc 31       	add	r15,r1
+ 2da:	18 f1       	fmov	@r1,fr1
+ 2dc:	4c e1       	mov	#76,r1
+ 2de:	fc 31       	add	r15,r1
+ 2e0:	18 f2       	fmov	@r1,fr2
+ 2e2:	8f 91       	mov.w	404 <_draw_textured_triangle_scanline+0x404>,r1	! 8c
+ 2e4:	2e f1       	fmac	fr0,fr2,fr1
+ 2e6:	fc 31       	add	r15,r1
+ 2e8:	1a f1       	fmov	fr1,@r1
+ 2ea:	60 e1       	mov	#96,r1
+ 2ec:	fc 31       	add	r15,r1
+ 2ee:	18 f1       	fmov	@r1,fr1
+ 2f0:	54 e1       	mov	#84,r1
+ 2f2:	fc 31       	add	r15,r1
+ 2f4:	18 f2       	fmov	@r1,fr2
+ 2f6:	6c e1       	mov	#108,r1
+ 2f8:	fc 31       	add	r15,r1
+ 2fa:	2e f1       	fmac	fr0,fr2,fr1
+ 2fc:	1a f1       	fmov	fr1,@r1
+ 2fe:	28 e1       	mov	#40,r1
+ 300:	fc 31       	add	r15,r1
+ 302:	18 f1       	fmov	@r1,fr1
+ 304:	50 e1       	mov	#80,r1
+ 306:	fc 31       	add	r15,r1
+ 308:	18 f2       	fmov	@r1,fr2
+ 30a:	7c 91       	mov.w	406 <_draw_textured_triangle_scanline+0x406>,r1	! 90
+ 30c:	2e f1       	fmac	fr0,fr2,fr1
+ 30e:	fc 31       	add	r15,r1
+ 310:	1a f1       	fmov	fr1,@r1
+ 312:	48 e1       	mov	#72,r1
+ 314:	fc 31       	add	r15,r1
+ 316:	28 f1       	fmov	@r2,fr1
+ 318:	18 f2       	fmov	@r1,fr2
+ 31a:	75 91       	mov.w	408 <_draw_textured_triangle_scanline+0x408>,r1	! 94
+ 31c:	2e f1       	fmac	fr0,fr2,fr1
+ 31e:	07 1f       	mov.l	r0,@(28,r15)
+ 320:	fc 31       	add	r15,r1
+ 322:	6e 90       	mov.w	402 <_draw_textured_triangle_scanline+0x402>,r0	! 88
+ 324:	1a f1       	fmov	fr1,@r1
+ 326:	70 91       	mov.w	40a <_draw_textured_triangle_scanline+0x40a>,r1	! 98
+ 328:	70 92       	mov.w	40c <_draw_textured_triangle_scanline+0x40c>,r2	! 9c
+ 32a:	fc 31       	add	r15,r1
+ 32c:	ea f5       	fmov	fr14,@r5
+ 32e:	ca f1       	fmov	fr12,@r1
+ 330:	fc 32       	add	r15,r2
+ 332:	f6 fc       	fmov	@(r0,r15),fr12
+ 334:	04 70       	add	#4,r0
+ 336:	f6 fe       	fmov	@(r0,r15),fr14
+ 338:	04 70       	add	#4,r0
+ 33a:	fa f2       	fmov	fr15,@r2
+ 33c:	5a 02       	sts	fpul,r2
+ 33e:	f6 ff       	fmov	@(r0,r15),fr15
+ 340:	1c fd       	fmov	fr1,fr13
+ 342:	e5 fc       	fcmp/gt	fr14,fr12
+ 344:	01 8b       	bf	34a <_draw_textured_triangle_scanline+0x34a>
+ 346:	44 a2       	bra	7d2 <_draw_textured_triangle_scanline+0x7d2>
+ 348:	68 e0       	mov	#104,r0
+ 34a:	68 e0       	mov	#104,r0
+ 34c:	dc fa       	fmov	fr13,fr10
+ 34e:	f6 f8       	fmov	@(r0,r15),fr8
+ 350:	44 e0       	mov	#68,r0
+ 352:	f6 f9       	fmov	@(r0,r15),fr9
+ 354:	6c e0       	mov	#108,r0
+ 356:	f6 f4       	fmov	@(r0,r15),fr4
+ 358:	40 e0       	mov	#64,r0
+ 35a:	f6 f5       	fmov	@(r0,r15),fr5
+ 35c:	fc f7       	fmov	fr15,fr7
+ 35e:	ec f2       	fmov	fr14,fr2
+ 360:	cc f1       	fmov	fr12,fr1
+ 362:	2c f3       	fmov	fr2,fr3
+ 364:	11 f3       	fsub	fr1,fr3
+ 366:	8d f6       	fldi0	fr6
+ 368:	65 f3       	fcmp/gt	fr6,fr3
+ 36a:	01 89       	bt	370 <_draw_textured_triangle_scanline+0x370>
+ 36c:	80 a0       	bra	470 <_draw_textured_triangle_scanline+0x470>
+ 36e:	09 00       	nop	
+ 370:	3d f1       	ftrc	fr1,fpul
+ 372:	15 f6       	fcmp/gt	fr1,fr6
+ 374:	02 8f       	bf.s	37c <_draw_textured_triangle_scanline+0x37c>
+ 376:	2d f0       	float	fpul,fr0
+ 378:	9d f6       	fldi1	fr6
+ 37a:	61 f0       	fsub	fr6,fr0
+ 37c:	3d f2       	ftrc	fr2,fpul
+ 37e:	2d f6       	float	fpul,fr6
+ 380:	65 f2       	fcmp/gt	fr6,fr2
+ 382:	03 8f       	bf.s	38c <_draw_textured_triangle_scanline+0x38c>
+ 384:	3d f6       	ftrc	fr6,fpul
+ 386:	9d f2       	fldi1	fr2
+ 388:	20 f6       	fadd	fr2,fr6
+ 38a:	3d f6       	ftrc	fr6,fpul
+ 38c:	5a 07       	sts	fpul,r7
+ 38e:	11 47       	cmp/pz	r7
+ 390:	6e 8b       	bf	470 <_draw_textured_triangle_scanline+0x470>
+ 392:	3d f0       	ftrc	fr0,fpul
+ 394:	5a 01       	sts	fpul,r1
+ 396:	92 63       	mov.l	@r9,r3
+ 398:	17 33       	cmp/gt	r1,r3
+ 39a:	69 8f       	bf.s	470 <_draw_textured_triangle_scanline+0x470>
+ 39c:	11 41       	cmp/pz	r1
+ 39e:	6a 36       	subc	r6,r6
+ 3a0:	77 33       	cmp/gt	r7,r3
+ 3a2:	02 8d       	bt.s	3aa <_draw_textured_triangle_scanline+0x3aa>
+ 3a4:	19 26       	and	r1,r6
+ 3a6:	33 67       	mov	r3,r7
+ 3a8:	ff 77       	add	#-1,r7
+ 3aa:	63 37       	cmp/ge	r6,r7
+ 3ac:	60 8b       	bf	470 <_draw_textured_triangle_scanline+0x470>
+ 3ae:	32 f3       	fmul	fr3,fr3
+ 3b0:	7d f3       	fsrra	fr3
+ 3b2:	5a 41       	lds	r1,fpul
+ 3b4:	91 f7       	fsub	fr9,fr7
+ 3b6:	2d f2       	float	fpul,fr2
+ 3b8:	70 e0       	mov	#112,r0
+ 3ba:	f6 f0       	fmov	@(r0,r15),fr0
+ 3bc:	63 65       	mov	r6,r5
+ 3be:	18 35       	sub	r1,r5
+ 3c0:	81 fa       	fsub	fr8,fr10
+ 3c2:	5a 45       	lds	r5,fpul
+ 3c4:	02 f7       	fmul	fr0,fr7
+ 3c6:	11 f2       	fsub	fr1,fr2
+ 3c8:	74 e0       	mov	#116,r0
+ 3ca:	2d f1       	float	fpul,fr1
+ 3cc:	f6 f0       	fmov	@(r0,r15),fr0
+ 3ce:	51 f4       	fsub	fr5,fr4
+ 3d0:	70 e0       	mov	#112,r0
+ 3d2:	32 f7       	fmul	fr3,fr7
+ 3d4:	10 d5       	mov.l	418 <_draw_textured_triangle_scanline+0x418>,r5	! 0 <_draw_textured_triangle_scanline>
+ 3d6:	10 f2       	fadd	fr1,fr2
+ 3d8:	10 d4       	mov.l	41c <_draw_textured_triangle_scanline+0x41c>,r4	! 0 <_draw_textured_triangle_scanline>
+ 3da:	02 fa       	fmul	fr0,fr10
+ 3dc:	52 65       	mov.l	@r5,r5
+ 3de:	32 f4       	fmul	fr3,fr4
+ 3e0:	42 64       	mov.l	@r4,r4
+ 3e2:	2c f1       	fmov	fr2,fr1
+ 3e4:	72 f1       	fmul	fr7,fr1
+ 3e6:	32 fa       	fmul	fr3,fr10
+ 3e8:	2c f0       	fmov	fr2,fr0
+ 3ea:	f6 f3       	fmov	@(r0,r15),fr3
+ 3ec:	4e f5       	fmac	fr0,fr4,fr5
+ 3ee:	9c f0       	fmov	fr9,fr0
+ 3f0:	74 e0       	mov	#116,r0
+ 3f2:	3e f1       	fmac	fr0,fr3,fr1
+ 3f4:	9d f0       	fldi1	fr0
+ 3f6:	a2 f2       	fmul	fr10,fr2
+ 3f8:	12 a0       	bra	420 <_draw_textured_triangle_scanline+0x420>
+ 3fa:	f6 f3       	fmov	@(r0,r15),fr3
+ 3fc:	a0 00       	.word 0x00a0
+ 3fe:	84 00       	mov.b	r8,@(r0,r0)
+ 400:	80 00       	.word 0x0080
+ 402:	88 00       	.word 0x0088
+ 404:	8c 00       	mov.b	@(r0,r8),r0
+ 406:	90 00       	.word 0x0090
+ 408:	94 00       	mov.b	r9,@(r0,r0)
+ 40a:	98 00       	.word 0x0098
+ 40c:	9c 00       	mov.b	@(r0,r9),r0
+ 40e:	09 00       	nop	
+	...
+ 420:	81 f0       	fsub	fr8,fr0
+ 422:	68 37       	sub	r6,r7
+ 424:	e7 03       	mul.l	r14,r3
+ 426:	4d f2       	fneg	fr2
+ 428:	01 77       	add	#1,r7
+ 42a:	29 1f       	mov.l	r2,@(36,r15)
+ 42c:	3e f2       	fmac	fr0,fr3,fr2
+ 42e:	84 c7       	mova	640 <_draw_textured_triangle_scanline+0x640>,r0
+ 430:	09 f3       	fmov	@r0+,fr3
+ 432:	1a 01       	sts	macl,r1
+ 434:	32 fa       	fmul	fr3,fr10
+ 436:	b6 1f       	mov.l	r11,@(24,r15)
+ 438:	32 f7       	fmul	fr3,fr7
+ 43a:	d5 1f       	mov.l	r13,@(20,r15)
+ 43c:	32 f2       	fmul	fr3,fr2
+ 43e:	6c 31       	add	r6,r1
+ 440:	3d fa       	ftrc	fr10,fpul
+ 442:	5a 00       	sts	fpul,r0
+ 444:	3d f7       	ftrc	fr7,fpul
+ 446:	13 63       	mov	r1,r3
+ 448:	32 f1       	fmul	fr3,fr1
+ 44a:	08 41       	shll2	r1
+ 44c:	03 1f       	mov.l	r0,@(12,r15)
+ 44e:	1c 34       	add	r1,r4
+ 450:	5a 00       	sts	fpul,r0
+ 452:	3d f2       	ftrc	fr2,fpul
+ 454:	7b d1       	mov.l	644 <_draw_textured_triangle_scanline+0x644>,r1	! 0 <_draw_textured_triangle_scanline>
+ 456:	3c 33       	add	r3,r3
+ 458:	c4 1f       	mov.l	r12,@(16,r15)
+ 45a:	3c 35       	add	r3,r5
+ 45c:	02 1f       	mov.l	r0,@(8,r15)
+ 45e:	a3 66       	mov	r10,r6
+ 460:	5a 00       	sts	fpul,r0
+ 462:	3d f1       	ftrc	fr1,fpul
+ 464:	01 1f       	mov.l	r0,@(4,r15)
+ 466:	5a 00       	sts	fpul,r0
+ 468:	0b 41       	jsr	@r1
+ 46a:	02 2f       	mov.l	r0,@r15
+ 46c:	f9 52       	mov.l	@(36,r15),r2
+ 46e:	09 00       	nop	
+ 470:	e3 90       	mov.w	63a <_draw_textured_triangle_scanline+0x63a>,r0	! 84
+ 472:	01 7e       	add	#1,r14
+ 474:	f6 f0       	fmov	@(r0,r15),fr0
+ 476:	40 e0       	mov	#64,r0
+ 478:	00 fc       	fadd	fr0,fr12
+ 47a:	f6 f0       	fmov	@(r0,r15),fr0
+ 47c:	78 e0       	mov	#120,r0
+ 47e:	f6 f1       	fmov	@(r0,r15),fr1
+ 480:	40 e0       	mov	#64,r0
+ 482:	10 f0       	fadd	fr1,fr0
+ 484:	07 ff       	fmov	fr0,@(r0,r15)
+ 486:	44 e0       	mov	#68,r0
+ 488:	f6 f0       	fmov	@(r0,r15),fr0
+ 48a:	3c 70       	add	#60,r0
+ 48c:	f6 f1       	fmov	@(r0,r15),fr1
+ 48e:	44 e0       	mov	#68,r0
+ 490:	10 f0       	fadd	fr1,fr0
+ 492:	07 ff       	fmov	fr0,@(r0,r15)
+ 494:	68 e0       	mov	#104,r0
+ 496:	f6 f0       	fmov	@(r0,r15),fr0
+ 498:	7c e0       	mov	#124,r0
+ 49a:	f6 f1       	fmov	@(r0,r15),fr1
+ 49c:	68 e0       	mov	#104,r0
+ 49e:	10 f0       	fadd	fr1,fr0
+ 4a0:	07 ff       	fmov	fr0,@(r0,r15)
+ 4a2:	4c e0       	mov	#76,r0
+ 4a4:	f6 f0       	fmov	@(r0,r15),fr0
+ 4a6:	6c e0       	mov	#108,r0
+ 4a8:	00 fe       	fadd	fr0,fr14
+ 4aa:	f6 f0       	fmov	@(r0,r15),fr0
+ 4ac:	54 e0       	mov	#84,r0
+ 4ae:	f6 f1       	fmov	@(r0,r15),fr1
+ 4b0:	6c e0       	mov	#108,r0
+ 4b2:	10 f0       	fadd	fr1,fr0
+ 4b4:	07 ff       	fmov	fr0,@(r0,r15)
+ 4b6:	50 e0       	mov	#80,r0
+ 4b8:	f6 f0       	fmov	@(r0,r15),fr0
+ 4ba:	48 e0       	mov	#72,r0
+ 4bc:	00 ff       	fadd	fr0,fr15
+ 4be:	f6 f0       	fmov	@(r0,r15),fr0
+ 4c0:	f7 50       	mov.l	@(28,r15),r0
+ 4c2:	e3 30       	cmp/ge	r14,r0
+ 4c4:	02 8f       	bf.s	4cc <_draw_textured_triangle_scanline+0x4cc>
+ 4c6:	00 fd       	fadd	fr0,fr13
+ 4c8:	3c af       	bra	344 <_draw_textured_triangle_scanline+0x344>
+ 4ca:	e5 fc       	fcmp/gt	fr14,fr12
+ 4cc:	b6 90       	mov.w	63c <_draw_textured_triangle_scanline+0x63c>,r0	! 98
+ 4ce:	5a 42       	lds	r2,fpul
+ 4d0:	f6 fc       	fmov	@(r0,r15),fr12
+ 4d2:	04 70       	add	#4,r0
+ 4d4:	f6 ff       	fmov	@(r0,r15),fr15
+ 4d6:	04 70       	add	#4,r0
+ 4d8:	f6 fe       	fmov	@(r0,r15),fr14
+ 4da:	0d fd       	fsts	fpul,fr13
+ 4dc:	ec f1       	fmov	fr14,fr1
+ 4de:	09 00       	nop	
+ 4e0:	c1 f1       	fsub	fr12,fr1
+ 4e2:	8d f2       	fldi0	fr2
+ 4e4:	25 f1       	fcmp/gt	fr2,fr1
+ 4e6:	25 8b       	bf	534 <_draw_textured_triangle_scanline+0x534>
+ 4e8:	12 f1       	fmul	fr1,fr1
+ 4ea:	1c f5       	fmov	fr1,fr5
+ 4ec:	7d f5       	fsrra	fr5
+ 4ee:	1c f4       	fmov	fr1,fr4
+ 4f0:	7d f4       	fsrra	fr4
+ 4f2:	1c f3       	fmov	fr1,fr3
+ 4f4:	7d f3       	fsrra	fr3
+ 4f6:	7d f1       	fsrra	fr1
+ 4f8:	3d fc       	ftrc	fr12,fpul
+ 4fa:	2d f2       	float	fpul,fr2
+ 4fc:	25 fc       	fcmp/gt	fr2,fr12
+ 4fe:	03 8f       	bf.s	508 <_draw_textured_triangle_scanline+0x508>
+ 500:	3d f2       	ftrc	fr2,fpul
+ 502:	9d f6       	fldi1	fr6
+ 504:	60 f2       	fadd	fr6,fr2
+ 506:	3d f2       	ftrc	fr2,fpul
+ 508:	8d f6       	fldi0	fr6
+ 50a:	5a 0e       	sts	fpul,r14
+ 50c:	e5 f6       	fcmp/gt	fr14,fr6
+ 50e:	3d fe       	ftrc	fr14,fpul
+ 510:	02 8f       	bf.s	518 <_draw_textured_triangle_scanline+0x518>
+ 512:	2d f2       	float	fpul,fr2
+ 514:	9d f6       	fldi1	fr6
+ 516:	61 f2       	fsub	fr6,fr2
+ 518:	11 4e       	cmp/pz	r14
+ 51a:	3d f2       	ftrc	fr2,fpul
+ 51c:	2a 32       	subc	r2,r2
+ 51e:	5a 09       	sts	fpul,r9
+ 520:	29 2e       	and	r2,r14
+ 522:	49 d2       	mov.l	648 <_draw_textured_triangle_scanline+0x648>,r2	! 0 <_draw_textured_triangle_scanline>
+ 524:	22 62       	mov.l	@r2,r2
+ 526:	97 32       	cmp/gt	r9,r2
+ 528:	03 8d       	bt.s	532 <_draw_textured_triangle_scanline+0x532>
+ 52a:	e3 39       	cmp/ge	r14,r9
+ 52c:	23 69       	mov	r2,r9
+ 52e:	ff 79       	add	#-1,r9
+ 530:	e3 39       	cmp/ge	r14,r9
+ 532:	01 89       	bt	538 <_draw_textured_triangle_scanline+0x538>
+ 534:	0e a1       	bra	754 <_draw_textured_triangle_scanline+0x754>
+ 536:	09 00       	nop	
+ 538:	3c e0       	mov	#60,r0
+ 53a:	5a 48       	lds	r8,fpul
+ 53c:	f6 f2       	fmov	@(r0,r15),fr2
+ 53e:	64 e0       	mov	#100,r0
+ 540:	f6 f0       	fmov	@(r0,r15),fr0
+ 542:	44 e0       	mov	#68,r0
+ 544:	34 e1       	mov	#52,r1
+ 546:	41 d8       	mov.l	64c <_draw_textured_triangle_scanline+0x64c>,r8	! 0 <_draw_textured_triangle_scanline>
+ 548:	01 f2       	fsub	fr0,fr2
+ 54a:	fc 31       	add	r15,r1
+ 54c:	52 f2       	fmul	fr5,fr2
+ 54e:	27 ff       	fmov	fr2,@(r0,r15)
+ 550:	2c e0       	mov	#44,r0
+ 552:	f6 f0       	fmov	@(r0,r15),fr0
+ 554:	40 e0       	mov	#64,r0
+ 556:	0d f2       	fsts	fpul,fr2
+ 558:	01 f2       	fsub	fr0,fr2
+ 55a:	5a 4e       	lds	r14,fpul
+ 55c:	42 f2       	fmul	fr4,fr2
+ 55e:	27 ff       	fmov	fr2,@(r0,r15)
+ 560:	30 e0       	mov	#48,r0
+ 562:	f6 f0       	fmov	@(r0,r15),fr0
+ 564:	3c e0       	mov	#60,r0
+ 566:	01 fd       	fsub	fr0,fr13
+ 568:	18 f0       	fmov	@r1,fr0
+ 56a:	32 fd       	fmul	fr3,fr13
+ 56c:	d7 ff       	fmov	fr13,@(r0,r15)
+ 56e:	38 e0       	mov	#56,r0
+ 570:	f6 f2       	fmov	@(r0,r15),fr2
+ 572:	01 f2       	fsub	fr0,fr2
+ 574:	12 f2       	fmul	fr1,fr2
+ 576:	2d f1       	float	fpul,fr1
+ 578:	27 ff       	fmov	fr2,@(r0,r15)
+ 57a:	64 e0       	mov	#100,r0
+ 57c:	f6 fd       	fmov	@(r0,r15),fr13
+ 57e:	44 e0       	mov	#68,r0
+ 580:	1c f0       	fmov	fr1,fr0
+ 582:	c1 f0       	fsub	fr12,fr0
+ 584:	f6 f2       	fmov	@(r0,r15),fr2
+ 586:	2c e0       	mov	#44,r0
+ 588:	f1 f1       	fsub	fr15,fr1
+ 58a:	2e fd       	fmac	fr0,fr2,fr13
+ 58c:	f6 f2       	fmov	@(r0,r15),fr2
+ 58e:	40 e0       	mov	#64,r0
+ 590:	f6 f3       	fmov	@(r0,r15),fr3
+ 592:	2c e0       	mov	#44,r0
+ 594:	3e f2       	fmac	fr0,fr3,fr2
+ 596:	27 ff       	fmov	fr2,@(r0,r15)
+ 598:	30 e0       	mov	#48,r0
+ 59a:	f6 f2       	fmov	@(r0,r15),fr2
+ 59c:	3c e0       	mov	#60,r0
+ 59e:	f6 f3       	fmov	@(r0,r15),fr3
+ 5a0:	30 e0       	mov	#48,r0
+ 5a2:	3e f2       	fmac	fr0,fr3,fr2
+ 5a4:	27 ff       	fmov	fr2,@(r0,r15)
+ 5a6:	38 e0       	mov	#56,r0
+ 5a8:	f6 f3       	fmov	@(r0,r15),fr3
+ 5aa:	5c e0       	mov	#92,r0
+ 5ac:	18 f2       	fmov	@r1,fr2
+ 5ae:	f6 fc       	fmov	@(r0,r15),fr12
+ 5b0:	4c e0       	mov	#76,r0
+ 5b2:	3e f2       	fmac	fr0,fr3,fr2
+ 5b4:	1c f0       	fmov	fr1,fr0
+ 5b6:	2a f1       	fmov	fr2,@r1
+ 5b8:	f6 f2       	fmov	@(r0,r15),fr2
+ 5ba:	60 e0       	mov	#96,r0
+ 5bc:	f6 ff       	fmov	@(r0,r15),fr15
+ 5be:	54 e0       	mov	#84,r0
+ 5c0:	2e fc       	fmac	fr0,fr2,fr12
+ 5c2:	f6 f2       	fmov	@(r0,r15),fr2
+ 5c4:	28 e0       	mov	#40,r0
+ 5c6:	2e ff       	fmac	fr0,fr2,fr15
+ 5c8:	f6 f2       	fmov	@(r0,r15),fr2
+ 5ca:	50 e0       	mov	#80,r0
+ 5cc:	f6 f3       	fmov	@(r0,r15),fr3
+ 5ce:	28 e0       	mov	#40,r0
+ 5d0:	3e f2       	fmac	fr0,fr3,fr2
+ 5d2:	27 ff       	fmov	fr2,@(r0,r15)
+ 5d4:	58 e0       	mov	#88,r0
+ 5d6:	f6 fe       	fmov	@(r0,r15),fr14
+ 5d8:	48 e0       	mov	#72,r0
+ 5da:	f6 f0       	fmov	@(r0,r15),fr0
+ 5dc:	1e fe       	fmac	fr0,fr1,fr14
+ 5de:	c5 fd       	fcmp/gt	fr12,fr13
+ 5e0:	01 8b       	bf	5e6 <_draw_textured_triangle_scanline+0x5e6>
+ 5e2:	c6 a0       	bra	772 <_draw_textured_triangle_scanline+0x772>
+ 5e4:	34 e0       	mov	#52,r0
+ 5e6:	34 e0       	mov	#52,r0
+ 5e8:	ec f0       	fmov	fr14,fr0
+ 5ea:	f6 f8       	fmov	@(r0,r15),fr8
+ 5ec:	28 e0       	mov	#40,r0
+ 5ee:	f6 f7       	fmov	@(r0,r15),fr7
+ 5f0:	30 e0       	mov	#48,r0
+ 5f2:	f6 f9       	fmov	@(r0,r15),fr9
+ 5f4:	2c e0       	mov	#44,r0
+ 5f6:	f6 f5       	fmov	@(r0,r15),fr5
+ 5f8:	fc f4       	fmov	fr15,fr4
+ 5fa:	cc f2       	fmov	fr12,fr2
+ 5fc:	dc f1       	fmov	fr13,fr1
+ 5fe:	2c f6       	fmov	fr2,fr6
+ 600:	11 f6       	fsub	fr1,fr6
+ 602:	8d f3       	fldi0	fr3
+ 604:	35 f6       	fcmp/gt	fr3,fr6
+ 606:	77 8b       	bf	6f8 <_draw_textured_triangle_scanline+0x6f8>
+ 608:	3d f1       	ftrc	fr1,fpul
+ 60a:	15 f3       	fcmp/gt	fr1,fr3
+ 60c:	02 8f       	bf.s	614 <_draw_textured_triangle_scanline+0x614>
+ 60e:	2d fa       	float	fpul,fr10
+ 610:	9d f3       	fldi1	fr3
+ 612:	31 fa       	fsub	fr3,fr10
+ 614:	3d f2       	ftrc	fr2,fpul
+ 616:	2d f3       	float	fpul,fr3
+ 618:	35 f2       	fcmp/gt	fr3,fr2
+ 61a:	03 8f       	bf.s	624 <_draw_textured_triangle_scanline+0x624>
+ 61c:	3d f3       	ftrc	fr3,fpul
+ 61e:	9d f2       	fldi1	fr2
+ 620:	20 f3       	fadd	fr2,fr3
+ 622:	3d f3       	ftrc	fr3,fpul
+ 624:	5a 07       	sts	fpul,r7
+ 626:	11 47       	cmp/pz	r7
+ 628:	66 8b       	bf	6f8 <_draw_textured_triangle_scanline+0x6f8>
+ 62a:	3d fa       	ftrc	fr10,fpul
+ 62c:	5a 01       	sts	fpul,r1
+ 62e:	82 62       	mov.l	@r8,r2
+ 630:	17 32       	cmp/gt	r1,r2
+ 632:	61 8f       	bf.s	6f8 <_draw_textured_triangle_scanline+0x6f8>
+ 634:	11 41       	cmp/pz	r1
+ 636:	0b a0       	bra	650 <_draw_textured_triangle_scanline+0x650>
+ 638:	3a 33       	subc	r3,r3
+ 63a:	84 00       	mov.b	r8,@(r0,r0)
+ 63c:	98 00       	.word 0x0098
+ 63e:	09 00       	nop	
+ 640:	00 00       	.word 0x0000
+ 642:	80 47       	.word 0x4780
+	...
+ 650:	77 32       	cmp/gt	r7,r2
+ 652:	02 8d       	bt.s	65a <_draw_textured_triangle_scanline+0x65a>
+ 654:	19 23       	and	r1,r3
+ 656:	23 67       	mov	r2,r7
+ 658:	ff 77       	add	#-1,r7
+ 65a:	33 37       	cmp/ge	r3,r7
+ 65c:	4e 8f       	bf.s	6fc <_draw_textured_triangle_scanline+0x6fc>
+ 65e:	44 e0       	mov	#68,r0
+ 660:	62 f6       	fmul	fr6,fr6
+ 662:	7d f6       	fsrra	fr6
+ 664:	70 e0       	mov	#112,r0
+ 666:	5a 41       	lds	r1,fpul
+ 668:	f6 f2       	fmov	@(r0,r15),fr2
+ 66a:	2d f3       	float	fpul,fr3
+ 66c:	91 f7       	fsub	fr9,fr7
+ 66e:	33 66       	mov	r3,r6
+ 670:	18 36       	sub	r1,r6
+ 672:	51 f4       	fsub	fr5,fr4
+ 674:	5a 46       	lds	r6,fpul
+ 676:	11 f3       	fsub	fr1,fr3
+ 678:	22 f7       	fmul	fr2,fr7
+ 67a:	74 e0       	mov	#116,r0
+ 67c:	2d f1       	float	fpul,fr1
+ 67e:	0c f2       	fmov	fr0,fr2
+ 680:	81 f2       	fsub	fr8,fr2
+ 682:	f6 f0       	fmov	@(r0,r15),fr0
+ 684:	62 f7       	fmul	fr6,fr7
+ 686:	70 e0       	mov	#112,r0
+ 688:	30 f1       	fadd	fr3,fr1
+ 68a:	58 d6       	mov.l	7ec <_draw_textured_triangle_scanline+0x7ec>,r6	! 0 <_draw_textured_triangle_scanline>
+ 68c:	02 f2       	fmul	fr0,fr2
+ 68e:	38 37       	sub	r3,r7
+ 690:	62 f4       	fmul	fr6,fr4
+ 692:	7c f3       	fmov	fr7,fr3
+ 694:	12 f3       	fmul	fr1,fr3
+ 696:	62 65       	mov.l	@r6,r5
+ 698:	62 f2       	fmul	fr6,fr2
+ 69a:	f6 f6       	fmov	@(r0,r15),fr6
+ 69c:	4c f0       	fmov	fr4,fr0
+ 69e:	74 e0       	mov	#116,r0
+ 6a0:	1e f5       	fmac	fr0,fr1,fr5
+ 6a2:	9c f0       	fmov	fr9,fr0
+ 6a4:	22 f1       	fmul	fr2,fr1
+ 6a6:	52 d6       	mov.l	7f0 <_draw_textured_triangle_scanline+0x7f0>,r6	! 0 <_draw_textured_triangle_scanline>
+ 6a8:	6e f3       	fmac	fr0,fr6,fr3
+ 6aa:	9d f6       	fldi1	fr6
+ 6ac:	81 f6       	fsub	fr8,fr6
+ 6ae:	f6 f0       	fmov	@(r0,r15),fr0
+ 6b0:	e7 02       	mul.l	r14,r2
+ 6b2:	4d f1       	fneg	fr1
+ 6b4:	01 77       	add	#1,r7
+ 6b6:	62 64       	mov.l	@r6,r4
+ 6b8:	6e f1       	fmac	fr0,fr6,fr1
+ 6ba:	4e c7       	mova	7f4 <_draw_textured_triangle_scanline+0x7f4>,r0
+ 6bc:	09 f6       	fmov	@r0+,fr6
+ 6be:	1a 01       	sts	macl,r1
+ 6c0:	62 f2       	fmul	fr6,fr2
+ 6c2:	b6 1f       	mov.l	r11,@(24,r15)
+ 6c4:	62 f7       	fmul	fr6,fr7
+ 6c6:	d5 1f       	mov.l	r13,@(20,r15)
+ 6c8:	62 f1       	fmul	fr6,fr1
+ 6ca:	3c 31       	add	r3,r1
+ 6cc:	3d f2       	ftrc	fr2,fpul
+ 6ce:	5a 06       	sts	fpul,r6
+ 6d0:	62 f3       	fmul	fr6,fr3
+ 6d2:	13 62       	mov	r1,r2
+ 6d4:	3d f7       	ftrc	fr7,fpul
+ 6d6:	5a 00       	sts	fpul,r0
+ 6d8:	08 41       	shll2	r1
+ 6da:	3d f1       	ftrc	fr1,fpul
+ 6dc:	63 1f       	mov.l	r6,@(12,r15)
+ 6de:	1c 34       	add	r1,r4
+ 6e0:	5a 06       	sts	fpul,r6
+ 6e2:	3d f3       	ftrc	fr3,fpul
+ 6e4:	02 1f       	mov.l	r0,@(8,r15)
+ 6e6:	2c 32       	add	r2,r2
+ 6e8:	5a 00       	sts	fpul,r0
+ 6ea:	2c 35       	add	r2,r5
+ 6ec:	42 d1       	mov.l	7f8 <_draw_textured_triangle_scanline+0x7f8>,r1	! 0 <_draw_textured_triangle_scanline>
+ 6ee:	61 1f       	mov.l	r6,@(4,r15)
+ 6f0:	a3 66       	mov	r10,r6
+ 6f2:	c4 1f       	mov.l	r12,@(16,r15)
+ 6f4:	0b 41       	jsr	@r1
+ 6f6:	02 2f       	mov.l	r0,@r15
+ 6f8:	44 e0       	mov	#68,r0
+ 6fa:	09 00       	nop	
+ 6fc:	f6 f0       	fmov	@(r0,r15),fr0
+ 6fe:	2c e0       	mov	#44,r0
+ 700:	01 7e       	add	#1,r14
+ 702:	00 fd       	fadd	fr0,fr13
+ 704:	f6 f0       	fmov	@(r0,r15),fr0
+ 706:	40 e0       	mov	#64,r0
+ 708:	e3 39       	cmp/ge	r14,r9
+ 70a:	f6 f1       	fmov	@(r0,r15),fr1
+ 70c:	2c e0       	mov	#44,r0
+ 70e:	10 f0       	fadd	fr1,fr0
+ 710:	07 ff       	fmov	fr0,@(r0,r15)
+ 712:	30 e0       	mov	#48,r0
+ 714:	f6 f0       	fmov	@(r0,r15),fr0
+ 716:	3c e0       	mov	#60,r0
+ 718:	f6 f1       	fmov	@(r0,r15),fr1
+ 71a:	30 e0       	mov	#48,r0
+ 71c:	10 f0       	fadd	fr1,fr0
+ 71e:	07 ff       	fmov	fr0,@(r0,r15)
+ 720:	34 e0       	mov	#52,r0
+ 722:	f6 f0       	fmov	@(r0,r15),fr0
+ 724:	38 e0       	mov	#56,r0
+ 726:	f6 f1       	fmov	@(r0,r15),fr1
+ 728:	34 e0       	mov	#52,r0
+ 72a:	10 f0       	fadd	fr1,fr0
+ 72c:	07 ff       	fmov	fr0,@(r0,r15)
+ 72e:	4c e0       	mov	#76,r0
+ 730:	f6 f0       	fmov	@(r0,r15),fr0
+ 732:	54 e0       	mov	#84,r0
+ 734:	00 fc       	fadd	fr0,fr12
+ 736:	f6 f0       	fmov	@(r0,r15),fr0
+ 738:	28 e0       	mov	#40,r0
+ 73a:	00 ff       	fadd	fr0,fr15
+ 73c:	f6 f0       	fmov	@(r0,r15),fr0
+ 73e:	50 e0       	mov	#80,r0
+ 740:	f6 f1       	fmov	@(r0,r15),fr1
+ 742:	28 e0       	mov	#40,r0
+ 744:	10 f0       	fadd	fr1,fr0
+ 746:	07 ff       	fmov	fr0,@(r0,r15)
+ 748:	48 e0       	mov	#72,r0
+ 74a:	f6 f0       	fmov	@(r0,r15),fr0
+ 74c:	02 8f       	bf.s	754 <_draw_textured_triangle_scanline+0x754>
+ 74e:	00 fe       	fadd	fr0,fr14
+ 750:	46 af       	bra	5e0 <_draw_textured_triangle_scanline+0x5e0>
+ 752:	c5 fd       	fcmp/gt	fr12,fr13
+ 754:	50 7f       	add	#80,r15
+ 756:	54 7f       	add	#84,r15
+ 758:	26 4f       	lds.l	@r15+,pr
+ 75a:	f9 ff       	fmov	@r15+,fr15
+ 75c:	f9 fe       	fmov	@r15+,fr14
+ 75e:	f9 fd       	fmov	@r15+,fr13
+ 760:	f9 fc       	fmov	@r15+,fr12
+ 762:	f6 6e       	mov.l	@r15+,r14
+ 764:	f6 6d       	mov.l	@r15+,r13
+ 766:	f6 6c       	mov.l	@r15+,r12
+ 768:	f6 6b       	mov.l	@r15+,r11
+ 76a:	f6 6a       	mov.l	@r15+,r10
+ 76c:	f6 69       	mov.l	@r15+,r9
+ 76e:	0b 00       	rts	
+ 770:	f6 68       	mov.l	@r15+,r8
+ 772:	ec f8       	fmov	fr14,fr8
+ 774:	f6 f0       	fmov	@(r0,r15),fr0
+ 776:	30 e0       	mov	#48,r0
+ 778:	f6 f7       	fmov	@(r0,r15),fr7
+ 77a:	28 e0       	mov	#40,r0
+ 77c:	f6 f9       	fmov	@(r0,r15),fr9
+ 77e:	2c e0       	mov	#44,r0
+ 780:	f6 f4       	fmov	@(r0,r15),fr4
+ 782:	fc f5       	fmov	fr15,fr5
+ 784:	dc f2       	fmov	fr13,fr2
+ 786:	3a af       	bra	5fe <_draw_textured_triangle_scanline+0x5fe>
+ 788:	cc f1       	fmov	fr12,fr1
+ 78a:	f6 f1       	fmov	@(r0,r15),fr1
+ 78c:	3c e0       	mov	#60,r0
+ 78e:	f6 f0       	fmov	@(r0,r15),fr0
+ 790:	4c e0       	mov	#76,r0
+ 792:	01 f1       	fsub	fr0,fr1
+ 794:	52 f1       	fmul	fr5,fr1
+ 796:	17 ff       	fmov	fr1,@(r0,r15)
+ 798:	2c f1       	fmov	fr2,fr1
+ 79a:	7d f1       	fsrra	fr1
+ 79c:	60 e0       	mov	#96,r0
+ 79e:	5a 48       	lds	r8,fpul
+ 7a0:	f6 f3       	fmov	@(r0,r15),fr3
+ 7a2:	54 e0       	mov	#84,r0
+ 7a4:	0d f0       	fsts	fpul,fr0
+ 7a6:	01 f3       	fsub	fr0,fr3
+ 7a8:	12 f3       	fmul	fr1,fr3
+ 7aa:	2c f1       	fmov	fr2,fr1
+ 7ac:	37 ff       	fmov	fr3,@(r0,r15)
+ 7ae:	7d f1       	fsrra	fr1
+ 7b0:	28 e0       	mov	#40,r0
+ 7b2:	f6 f3       	fmov	@(r0,r15),fr3
+ 7b4:	50 e0       	mov	#80,r0
+ 7b6:	d1 f3       	fsub	fr13,fr3
+ 7b8:	12 f3       	fmul	fr1,fr3
+ 7ba:	37 ff       	fmov	fr3,@(r0,r15)
+ 7bc:	7d f2       	fsrra	fr2
+ 7be:	f6 ac       	bra	1ae <_draw_textured_triangle_scanline+0x1ae>
+ 7c0:	4d f2       	fneg	fr2
+ 7c2:	7d f1       	fsrra	fr1
+ 7c4:	2c f1       	fmov	fr2,fr1
+ 7c6:	7d f1       	fsrra	fr1
+ 7c8:	7d f2       	fsrra	fr2
+ 7ca:	89 ae       	bra	4e0 <_draw_textured_triangle_scanline+0x4e0>
+ 7cc:	ec f1       	fmov	fr14,fr1
+ 7ce:	10 ad       	bra	1f2 <_draw_textured_triangle_scanline+0x1f2>
+ 7d0:	30 f1       	fadd	fr3,fr1
+ 7d2:	dc f8       	fmov	fr13,fr8
+ 7d4:	f6 fa       	fmov	@(r0,r15),fr10
+ 7d6:	44 e0       	mov	#68,r0
+ 7d8:	f6 f7       	fmov	@(r0,r15),fr7
+ 7da:	40 e0       	mov	#64,r0
+ 7dc:	f6 f4       	fmov	@(r0,r15),fr4
+ 7de:	6c e0       	mov	#108,r0
+ 7e0:	f6 f5       	fmov	@(r0,r15),fr5
+ 7e2:	fc f9       	fmov	fr15,fr9
+ 7e4:	cc f2       	fmov	fr12,fr2
+ 7e6:	bc ad       	bra	362 <_draw_textured_triangle_scanline+0x362>
+ 7e8:	ec f1       	fmov	fr14,fr1
+ 7ea:	09 00       	nop	
+	...
+ 7f4:	00 00       	.word 0x0000
+ 7f6:	80 47       	.word 0x4780
+ 7f8:	00 00       	.word 0x0000
+	...
+
+Disassembly of section .text.draw_textured_triangle_scanline_fast:
+
+00000000 <_draw_textured_triangle_scanline_fast>:
+   0:	86 2f       	mov.l	r8,@-r15
+   2:	43 61       	mov	r4,r1
+   4:	96 2f       	mov.l	r9,@-r15
+   6:	08 e0       	mov	#8,r0
+   8:	a6 2f       	mov.l	r10,@-r15
+   a:	b6 2f       	mov.l	r11,@-r15
+   c:	c6 2f       	mov.l	r12,@-r15
+   e:	d6 2f       	mov.l	r13,@-r15
+  10:	e6 2f       	mov.l	r14,@-r15
+  12:	cb ff       	fmov	fr12,@-r15
+  14:	db ff       	fmov	fr13,@-r15
+  16:	eb ff       	fmov	fr14,@-r15
+  18:	fb ff       	fmov	fr15,@-r15
+  1a:	19 f0       	fmov	@r1+,fr0
+  1c:	bc 7f       	add	#-68,r15
+  1e:	18 fd       	fmov	@r1,fr13
+  20:	07 ff       	fmov	fr0,@(r0,r15)
+  22:	24 e0       	mov	#36,r0
+  24:	43 61       	mov	r4,r1
+  26:	10 71       	add	#16,r1
+  28:	18 f0       	fmov	@r1,fr0
+  2a:	04 71       	add	#4,r1
+  2c:	18 fc       	fmov	@r1,fr12
+  2e:	0c 71       	add	#12,r1
+  30:	18 f5       	fmov	@r1,fr5
+  32:	04 71       	add	#4,r1
+  34:	18 f1       	fmov	@r1,fr1
+  36:	30 71       	add	#48,r1
+  38:	07 ff       	fmov	fr0,@(r0,r15)
+  3a:	20 e0       	mov	#32,r0
+  3c:	18 f0       	fmov	@r1,fr0
+  3e:	04 71       	add	#4,r1
+  40:	c5 fd       	fcmp/gt	fr12,fr13
+  42:	68 74       	add	#104,r4
+  44:	07 ff       	fmov	fr0,@(r0,r15)
+  46:	28 e0       	mov	#40,r0
+  48:	18 f0       	fmov	@r1,fr0
+  4a:	04 71       	add	#4,r1
+  4c:	48 f7       	fmov	@r4,fr7
+  4e:	07 ff       	fmov	fr0,@(r0,r15)
+  50:	1c e0       	mov	#28,r0
+  52:	18 f0       	fmov	@r1,fr0
+  54:	04 71       	add	#4,r1
+  56:	07 ff       	fmov	fr0,@(r0,r15)
+  58:	18 e0       	mov	#24,r0
+  5a:	18 f0       	fmov	@r1,fr0
+  5c:	04 71       	add	#4,r1
+  5e:	18 f6       	fmov	@r1,fr6
+  60:	18 8d       	bt.s	94 <_draw_textured_triangle_scanline_fast+0x94>
+  62:	07 ff       	fmov	fr0,@(r0,r15)
+  64:	28 e0       	mov	#40,r0
+  66:	0c f2       	fmov	fr0,fr2
+  68:	f6 f0       	fmov	@(r0,r15),fr0
+  6a:	18 e0       	mov	#24,r0
+  6c:	1c e1       	mov	#28,r1
+  6e:	07 ff       	fmov	fr0,@(r0,r15)
+  70:	28 e0       	mov	#40,r0
+  72:	27 ff       	fmov	fr2,@(r0,r15)
+  74:	fc 31       	add	r15,r1
+  76:	20 e0       	mov	#32,r0
+  78:	18 f2       	fmov	@r1,fr2
+  7a:	f6 f0       	fmov	@(r0,r15),fr0
+  7c:	27 ff       	fmov	fr2,@(r0,r15)
+  7e:	24 e0       	mov	#36,r0
+  80:	0a f1       	fmov	fr0,@r1
+  82:	08 e1       	mov	#8,r1
+  84:	cc f2       	fmov	fr12,fr2
+  86:	fc 31       	add	r15,r1
+  88:	18 f0       	fmov	@r1,fr0
+  8a:	dc fc       	fmov	fr13,fr12
+  8c:	2c fd       	fmov	fr2,fr13
+  8e:	f6 f2       	fmov	@(r0,r15),fr2
+  90:	07 ff       	fmov	fr0,@(r0,r15)
+  92:	2a f1       	fmov	fr2,@r1
+  94:	15 fd       	fcmp/gt	fr1,fr13
+  96:	10 8d       	bt.s	ba <_draw_textured_triangle_scanline_fast+0xba>
+  98:	15 fc       	fcmp/gt	fr1,fr12
+  9a:	28 e0       	mov	#40,r0
+  9c:	7c f2       	fmov	fr7,fr2
+  9e:	f6 f7       	fmov	@(r0,r15),fr7
+  a0:	27 ff       	fmov	fr2,@(r0,r15)
+  a2:	20 e0       	mov	#32,r0
+  a4:	6c f2       	fmov	fr6,fr2
+  a6:	f6 f6       	fmov	@(r0,r15),fr6
+  a8:	27 ff       	fmov	fr2,@(r0,r15)
+  aa:	08 e0       	mov	#8,r0
+  ac:	1c f2       	fmov	fr1,fr2
+  ae:	dc f1       	fmov	fr13,fr1
+  b0:	2c fd       	fmov	fr2,fr13
+  b2:	5c f2       	fmov	fr5,fr2
+  b4:	f6 f5       	fmov	@(r0,r15),fr5
+  b6:	27 ff       	fmov	fr2,@(r0,r15)
+  b8:	15 fc       	fcmp/gt	fr1,fr12
+  ba:	10 8d       	bt.s	de <_draw_textured_triangle_scanline_fast+0xde>
+  bc:	dc f2       	fmov	fr13,fr2
+  be:	18 e0       	mov	#24,r0
+  c0:	7c f2       	fmov	fr7,fr2
+  c2:	f6 f7       	fmov	@(r0,r15),fr7
+  c4:	27 ff       	fmov	fr2,@(r0,r15)
+  c6:	1c e0       	mov	#28,r0
+  c8:	6c f2       	fmov	fr6,fr2
+  ca:	f6 f6       	fmov	@(r0,r15),fr6
+  cc:	27 ff       	fmov	fr2,@(r0,r15)
+  ce:	24 e0       	mov	#36,r0
+  d0:	1c f2       	fmov	fr1,fr2
+  d2:	cc f1       	fmov	fr12,fr1
+  d4:	2c fc       	fmov	fr2,fr12
+  d6:	5c f2       	fmov	fr5,fr2
+  d8:	f6 f5       	fmov	@(r0,r15),fr5
+  da:	27 ff       	fmov	fr2,@(r0,r15)
+  dc:	dc f2       	fmov	fr13,fr2
+  de:	11 f2       	fsub	fr1,fr2
+  e0:	8d f3       	fldi0	fr3
+  e2:	34 f2       	fcmp/eq	fr3,fr2
+  e4:	01 8b       	bf	ea <_draw_textured_triangle_scanline_fast+0xea>
+  e6:	4b a1       	bra	380 <_draw_textured_triangle_scanline_fast+0x380>
+  e8:	09 00       	nop	
+  ea:	cc f0       	fmov	fr12,fr0
+  ec:	11 f0       	fsub	fr1,fr0
+  ee:	34 e0       	mov	#52,r0
+  f0:	34 f0       	fcmp/eq	fr3,fr0
+  f2:	0d 8d       	bt.s	110 <_draw_textured_triangle_scanline_fast+0x110>
+  f4:	07 ff       	fmov	fr0,@(r0,r15)
+  f6:	0c f4       	fmov	fr0,fr4
+  f8:	02 f4       	fmul	fr0,fr4
+  fa:	7d f4       	fsrra	fr4
+  fc:	05 f3       	fcmp/gt	fr0,fr3
+  fe:	01 8b       	bf	104 <_draw_textured_triangle_scanline_fast+0x104>
+ 100:	88 a1       	bra	414 <_draw_textured_triangle_scanline_fast+0x414>
+ 102:	4d f4       	fneg	fr4
+ 104:	24 e0       	mov	#36,r0
+ 106:	f6 f3       	fmov	@(r0,r15),fr3
+ 108:	34 e0       	mov	#52,r0
+ 10a:	51 f3       	fsub	fr5,fr3
+ 10c:	42 f3       	fmul	fr4,fr3
+ 10e:	37 ff       	fmov	fr3,@(r0,r15)
+ 110:	08 e0       	mov	#8,r0
+ 112:	2c f3       	fmov	fr2,fr3
+ 114:	22 f3       	fmul	fr2,fr3
+ 116:	f6 f8       	fmov	@(r0,r15),fr8
+ 118:	51 f8       	fsub	fr5,fr8
+ 11a:	3c f4       	fmov	fr3,fr4
+ 11c:	7d f4       	fsrra	fr4
+ 11e:	8d f9       	fldi0	fr9
+ 120:	25 f9       	fcmp/gt	fr2,fr9
+ 122:	02 8f       	bf.s	12a <_draw_textured_triangle_scanline_fast+0x12a>
+ 124:	0c e0       	mov	#12,r0
+ 126:	62 a1       	bra	3ee <_draw_textured_triangle_scanline_fast+0x3ee>
+ 128:	4d f4       	fneg	fr4
+ 12a:	42 f8       	fmul	fr4,fr8
+ 12c:	8d f4       	fldi0	fr4
+ 12e:	44 f0       	fcmp/eq	fr4,fr0
+ 130:	02 8d       	bt.s	138 <_draw_textured_triangle_scanline_fast+0x138>
+ 132:	87 ff       	fmov	fr8,@(r0,r15)
+ 134:	31 a1       	bra	39a <_draw_textured_triangle_scanline_fast+0x39a>
+ 136:	0c f8       	fmov	fr0,fr8
+ 138:	38 e0       	mov	#56,r0
+ 13a:	3c f4       	fmov	fr3,fr4
+ 13c:	07 ff       	fmov	fr0,@(r0,r15)
+ 13e:	3c e0       	mov	#60,r0
+ 140:	07 ff       	fmov	fr0,@(r0,r15)
+ 142:	20 e0       	mov	#32,r0
+ 144:	fc 30       	add	r15,r0
+ 146:	08 fa       	fmov	@r0,fr10
+ 148:	61 fa       	fsub	fr6,fr10
+ 14a:	7d f4       	fsrra	fr4
+ 14c:	28 e1       	mov	#40,r1
+ 14e:	8d f9       	fldi0	fr9
+ 150:	fc 31       	add	r15,r1
+ 152:	25 f9       	fcmp/gt	fr2,fr9
+ 154:	18 f8       	fmov	@r1,fr8
+ 156:	02 8f       	bf.s	15e <_draw_textured_triangle_scanline_fast+0x15e>
+ 158:	71 f8       	fsub	fr7,fr8
+ 15a:	40 a1       	bra	3de <_draw_textured_triangle_scanline_fast+0x3de>
+ 15c:	08 f9       	fmov	@r0,fr9
+ 15e:	a2 f4       	fmul	fr10,fr4
+ 160:	14 e0       	mov	#20,r0
+ 162:	47 ff       	fmov	fr4,@(r0,r15)
+ 164:	7d f3       	fsrra	fr3
+ 166:	55 56       	mov.l	@(20,r5),r6
+ 168:	82 f3       	fmul	fr8,fr3
+ 16a:	10 e0       	mov	#16,r0
+ 16c:	52 61       	mov.l	@r5,r1
+ 16e:	ff 76       	add	#-1,r6
+ 170:	37 ff       	fmov	fr3,@(r0,r15)
+ 172:	5a 46       	lds	r6,fpul
+ 174:	2c e0       	mov	#44,r0
+ 176:	56 56       	mov.l	@(24,r5),r6
+ 178:	2d f2       	float	fpul,fr2
+ 17a:	57 52       	mov.l	@(28,r5),r2
+ 17c:	ff 76       	add	#-1,r6
+ 17e:	27 ff       	fmov	fr2,@(r0,r15)
+ 180:	5a 46       	lds	r6,fpul
+ 182:	30 e0       	mov	#48,r0
+ 184:	2d f2       	float	fpul,fr2
+ 186:	58 53       	mov.l	@(32,r5),r3
+ 188:	59 57       	mov.l	@(36,r5),r7
+ 18a:	27 ff       	fmov	fr2,@(r0,r15)
+ 18c:	8d f2       	fldi0	fr2
+ 18e:	25 f0       	fcmp/gt	fr2,fr0
+ 190:	6f 8f       	bf.s	272 <_draw_textured_triangle_scanline_fast+0x272>
+ 192:	3d f1       	ftrc	fr1,fpul
+ 194:	2d f2       	float	fpul,fr2
+ 196:	25 f1       	fcmp/gt	fr2,fr1
+ 198:	03 8f       	bf.s	1a2 <_draw_textured_triangle_scanline_fast+0x1a2>
+ 19a:	3d f2       	ftrc	fr2,fpul
+ 19c:	9d f3       	fldi1	fr3
+ 19e:	30 f2       	fadd	fr3,fr2
+ 1a0:	3d f2       	ftrc	fr2,fpul
+ 1a2:	8d f3       	fldi0	fr3
+ 1a4:	5a 06       	sts	fpul,r6
+ 1a6:	c5 f3       	fcmp/gt	fr12,fr3
+ 1a8:	3d fc       	ftrc	fr12,fpul
+ 1aa:	02 8f       	bf.s	1b2 <_draw_textured_triangle_scanline_fast+0x1b2>
+ 1ac:	2d f2       	float	fpul,fr2
+ 1ae:	9d f3       	fldi1	fr3
+ 1b0:	31 f2       	fsub	fr3,fr2
+ 1b2:	3d f2       	ftrc	fr2,fpul
+ 1b4:	5a 05       	sts	fpul,r5
+ 1b6:	57 36       	cmp/gt	r5,r6
+ 1b8:	02 8f       	bf.s	1c0 <_draw_textured_triangle_scanline_fast+0x1c0>
+ 1ba:	5a 46       	lds	r6,fpul
+ 1bc:	8a a2       	bra	6d4 <_draw_textured_triangle_scanline_fast+0x6d4>
+ 1be:	0c e0       	mov	#12,r0
+ 1c0:	34 e0       	mov	#52,r0
+ 1c2:	2d f2       	float	fpul,fr2
+ 1c4:	f6 f0       	fmov	@(r0,r15),fr0
+ 1c6:	0c e0       	mov	#12,r0
+ 1c8:	5c fe       	fmov	fr5,fr14
+ 1ca:	93 d4       	mov.l	418 <_draw_textured_triangle_scanline_fast+0x418>,r4	! 0 <_draw_textured_triangle_scanline_fast>
+ 1cc:	53 6a       	mov	r5,r10
+ 1ce:	11 f2       	fsub	fr1,fr2
+ 1d0:	f6 f1       	fmov	@(r0,r15),fr1
+ 1d2:	38 e0       	mov	#56,r0
+ 1d4:	42 64       	mov.l	@r4,r4
+ 1d6:	f6 f3       	fmov	@(r0,r15),fr3
+ 1d8:	3c e0       	mov	#60,r0
+ 1da:	2e fe       	fmac	fr0,fr2,fr14
+ 1dc:	2c f0       	fmov	fr2,fr0
+ 1de:	1e f5       	fmac	fr0,fr1,fr5
+ 1e0:	6c f1       	fmov	fr6,fr1
+ 1e2:	3e f1       	fmac	fr0,fr3,fr1
+ 1e4:	f6 f3       	fmov	@(r0,r15),fr3
+ 1e6:	04 e0       	mov	#4,r0
+ 1e8:	1a ff       	fmov	fr1,@r15
+ 1ea:	68 3a       	sub	r6,r10
+ 1ec:	7c f1       	fmov	fr7,fr1
+ 1ee:	3e f1       	fmac	fr0,fr3,fr1
+ 1f0:	01 75       	add	#1,r5
+ 1f2:	17 ff       	fmov	fr1,@(r0,r15)
+ 1f4:	14 e0       	mov	#20,r0
+ 1f6:	f6 f1       	fmov	@(r0,r15),fr1
+ 1f8:	10 e0       	mov	#16,r0
+ 1fa:	01 7a       	add	#1,r10
+ 1fc:	1e f6       	fmac	fr0,fr1,fr6
+ 1fe:	f6 f1       	fmov	@(r0,r15),fr1
+ 200:	40 e0       	mov	#64,r0
+ 202:	46 0f       	mov.l	r4,@(r0,r15)
+ 204:	1e f7       	fmac	fr0,fr1,fr7
+ 206:	85 d4       	mov.l	41c <_draw_textured_triangle_scanline_fast+0x41c>,r4	! 0 <_draw_textured_triangle_scanline_fast>
+ 208:	42 6c       	mov.l	@r4,r12
+ 20a:	c7 06       	mul.l	r12,r6
+ 20c:	01 76       	add	#1,r6
+ 20e:	57 36       	cmp/gt	r5,r6
+ 210:	02 8f       	bf.s	218 <_draw_textured_triangle_scanline_fast+0x218>
+ 212:	1a 0d       	sts	macl,r13
+ 214:	ae a1       	bra	574 <_draw_textured_triangle_scanline_fast+0x574>
+ 216:	55 fe       	fcmp/gt	fr5,fr14
+ 218:	55 fe       	fcmp/gt	fr5,fr14
+ 21a:	01 8b       	bf	220 <_draw_textured_triangle_scanline_fast+0x220>
+ 21c:	af a1       	bra	57e <_draw_textured_triangle_scanline_fast+0x57e>
+ 21e:	ec fa       	fmov	fr14,fr10
+ 220:	5c fa       	fmov	fr5,fr10
+ 222:	04 e0       	mov	#4,r0
+ 224:	ec f2       	fmov	fr14,fr2
+ 226:	ac f1       	fmov	fr10,fr1
+ 228:	21 f1       	fsub	fr2,fr1
+ 22a:	8d f8       	fldi0	fr8
+ 22c:	f6 f9       	fmov	@(r0,r15),fr9
+ 22e:	85 f1       	fcmp/gt	fr8,fr1
+ 230:	f8 f0       	fmov	@r15,fr0
+ 232:	7c f4       	fmov	fr7,fr4
+ 234:	02 8f       	bf.s	23c <_draw_textured_triangle_scanline_fast+0x23c>
+ 236:	6c f3       	fmov	fr6,fr3
+ 238:	af a1       	bra	59a <_draw_textured_triangle_scanline_fast+0x59a>
+ 23a:	3d f2       	ftrc	fr2,fpul
+ 23c:	34 e0       	mov	#52,r0
+ 23e:	f8 f1       	fmov	@r15,fr1
+ 240:	f6 f0       	fmov	@(r0,r15),fr0
+ 242:	0c e0       	mov	#12,r0
+ 244:	10 4a       	dt	r10
+ 246:	00 fe       	fadd	fr0,fr14
+ 248:	f6 f0       	fmov	@(r0,r15),fr0
+ 24a:	38 e0       	mov	#56,r0
+ 24c:	f6 f2       	fmov	@(r0,r15),fr2
+ 24e:	04 e0       	mov	#4,r0
+ 250:	00 f5       	fadd	fr0,fr5
+ 252:	f6 f0       	fmov	@(r0,r15),fr0
+ 254:	20 f1       	fadd	fr2,fr1
+ 256:	3c e0       	mov	#60,r0
+ 258:	cc 3d       	add	r12,r13
+ 25a:	1a ff       	fmov	fr1,@r15
+ 25c:	f6 f1       	fmov	@(r0,r15),fr1
+ 25e:	04 e0       	mov	#4,r0
+ 260:	10 f0       	fadd	fr1,fr0
+ 262:	07 ff       	fmov	fr0,@(r0,r15)
+ 264:	14 e0       	mov	#20,r0
+ 266:	f6 f0       	fmov	@(r0,r15),fr0
+ 268:	10 e0       	mov	#16,r0
+ 26a:	00 f6       	fadd	fr0,fr6
+ 26c:	f6 f0       	fmov	@(r0,r15),fr0
+ 26e:	d3 8f       	bf.s	218 <_draw_textured_triangle_scanline_fast+0x218>
+ 270:	00 f7       	fadd	fr0,fr7
+ 272:	dc f1       	fmov	fr13,fr1
+ 274:	c1 f1       	fsub	fr12,fr1
+ 276:	8d f3       	fldi0	fr3
+ 278:	34 f1       	fcmp/eq	fr3,fr1
+ 27a:	01 8b       	bf	280 <_draw_textured_triangle_scanline_fast+0x280>
+ 27c:	80 a0       	bra	380 <_draw_textured_triangle_scanline_fast+0x380>
+ 27e:	09 00       	nop	
+ 280:	1c f2       	fmov	fr1,fr2
+ 282:	12 f2       	fmul	fr1,fr2
+ 284:	2c f4       	fmov	fr2,fr4
+ 286:	7d f4       	fsrra	fr4
+ 288:	15 f3       	fcmp/gt	fr1,fr3
+ 28a:	01 8b       	bf	290 <_draw_textured_triangle_scanline_fast+0x290>
+ 28c:	2b a2       	bra	6e6 <_draw_textured_triangle_scanline_fast+0x6e6>
+ 28e:	24 e0       	mov	#36,r0
+ 290:	08 e0       	mov	#8,r0
+ 292:	f6 f1       	fmov	@(r0,r15),fr1
+ 294:	24 e0       	mov	#36,r0
+ 296:	f6 f0       	fmov	@(r0,r15),fr0
+ 298:	08 e0       	mov	#8,r0
+ 29a:	01 f1       	fsub	fr0,fr1
+ 29c:	42 f1       	fmul	fr4,fr1
+ 29e:	17 ff       	fmov	fr1,@(r0,r15)
+ 2a0:	2c f1       	fmov	fr2,fr1
+ 2a2:	7d f1       	fsrra	fr1
+ 2a4:	20 e0       	mov	#32,r0
+ 2a6:	f6 f3       	fmov	@(r0,r15),fr3
+ 2a8:	1c e0       	mov	#28,r0
+ 2aa:	f6 f0       	fmov	@(r0,r15),fr0
+ 2ac:	04 e0       	mov	#4,r0
+ 2ae:	01 f3       	fsub	fr0,fr3
+ 2b0:	12 f3       	fmul	fr1,fr3
+ 2b2:	37 ff       	fmov	fr3,@(r0,r15)
+ 2b4:	7d f2       	fsrra	fr2
+ 2b6:	3d fc       	ftrc	fr12,fpul
+ 2b8:	2d f1       	float	fpul,fr1
+ 2ba:	15 fc       	fcmp/gt	fr1,fr12
+ 2bc:	03 8f       	bf.s	2c6 <_draw_textured_triangle_scanline_fast+0x2c6>
+ 2be:	3d f1       	ftrc	fr1,fpul
+ 2c0:	9d f3       	fldi1	fr3
+ 2c2:	30 f1       	fadd	fr3,fr1
+ 2c4:	3d f1       	ftrc	fr1,fpul
+ 2c6:	8d f3       	fldi0	fr3
+ 2c8:	5a 06       	sts	fpul,r6
+ 2ca:	d5 f3       	fcmp/gt	fr13,fr3
+ 2cc:	3d fd       	ftrc	fr13,fpul
+ 2ce:	02 8f       	bf.s	2d6 <_draw_textured_triangle_scanline_fast+0x2d6>
+ 2d0:	2d f1       	float	fpul,fr1
+ 2d2:	9d f3       	fldi1	fr3
+ 2d4:	31 f1       	fsub	fr3,fr1
+ 2d6:	3d f1       	ftrc	fr1,fpul
+ 2d8:	5a 05       	sts	fpul,r5
+ 2da:	57 36       	cmp/gt	r5,r6
+ 2dc:	50 89       	bt	380 <_draw_textured_triangle_scanline_fast+0x380>
+ 2de:	28 e0       	mov	#40,r0
+ 2e0:	5a 46       	lds	r6,fpul
+ 2e2:	f6 f1       	fmov	@(r0,r15),fr1
+ 2e4:	18 e0       	mov	#24,r0
+ 2e6:	f6 f0       	fmov	@(r0,r15),fr0
+ 2e8:	24 e0       	mov	#36,r0
+ 2ea:	4b d4       	mov.l	418 <_draw_textured_triangle_scanline_fast+0x418>,r4	! 0 <_draw_textured_triangle_scanline_fast>
+ 2ec:	53 6a       	mov	r5,r10
+ 2ee:	01 f1       	fsub	fr0,fr1
+ 2f0:	68 3a       	sub	r6,r10
+ 2f2:	2d f0       	float	fpul,fr0
+ 2f4:	42 64       	mov.l	@r4,r4
+ 2f6:	01 75       	add	#1,r5
+ 2f8:	22 f1       	fmul	fr2,fr1
+ 2fa:	01 7a       	add	#1,r10
+ 2fc:	c1 f0       	fsub	fr12,fr0
+ 2fe:	f6 fc       	fmov	@(r0,r15),fr12
+ 300:	08 e0       	mov	#8,r0
+ 302:	1a ff       	fmov	fr1,@r15
+ 304:	f6 f1       	fmov	@(r0,r15),fr1
+ 306:	1c e0       	mov	#28,r0
+ 308:	f6 fd       	fmov	@(r0,r15),fr13
+ 30a:	04 e0       	mov	#4,r0
+ 30c:	1e fc       	fmac	fr0,fr1,fr12
+ 30e:	f6 f1       	fmov	@(r0,r15),fr1
+ 310:	18 e0       	mov	#24,r0
+ 312:	f6 fe       	fmov	@(r0,r15),fr14
+ 314:	1e fd       	fmac	fr0,fr1,fr13
+ 316:	46 1f       	mov.l	r4,@(24,r15)
+ 318:	0c e0       	mov	#12,r0
+ 31a:	f8 f1       	fmov	@r15,fr1
+ 31c:	3f d4       	mov.l	41c <_draw_textured_triangle_scanline_fast+0x41c>,r4	! 0 <_draw_textured_triangle_scanline_fast>
+ 31e:	1e fe       	fmac	fr0,fr1,fr14
+ 320:	f6 f1       	fmov	@(r0,r15),fr1
+ 322:	42 6e       	mov.l	@r4,r14
+ 324:	14 e0       	mov	#20,r0
+ 326:	1e f5       	fmac	fr0,fr1,fr5
+ 328:	f6 f1       	fmov	@(r0,r15),fr1
+ 32a:	e7 06       	mul.l	r14,r6
+ 32c:	10 e0       	mov	#16,r0
+ 32e:	01 76       	add	#1,r6
+ 330:	1e f6       	fmac	fr0,fr1,fr6
+ 332:	f6 f1       	fmov	@(r0,r15),fr1
+ 334:	57 36       	cmp/gt	r5,r6
+ 336:	1e f7       	fmac	fr0,fr1,fr7
+ 338:	72 8d       	bt.s	420 <_draw_textured_triangle_scanline_fast+0x420>
+ 33a:	1a 0c       	sts	macl,r12
+ 33c:	55 fc       	fcmp/gt	fr5,fr12
+ 33e:	73 8d       	bt.s	428 <_draw_textured_triangle_scanline_fast+0x428>
+ 340:	cc fa       	fmov	fr12,fr10
+ 342:	5c fa       	fmov	fr5,fr10
+ 344:	cc f2       	fmov	fr12,fr2
+ 346:	ac f1       	fmov	fr10,fr1
+ 348:	21 f1       	fsub	fr2,fr1
+ 34a:	8d f8       	fldi0	fr8
+ 34c:	7c f4       	fmov	fr7,fr4
+ 34e:	85 f1       	fcmp/gt	fr8,fr1
+ 350:	ec f9       	fmov	fr14,fr9
+ 352:	6c f3       	fmov	fr6,fr3
+ 354:	72 8d       	bt.s	43c <_draw_textured_triangle_scanline_fast+0x43c>
+ 356:	dc f0       	fmov	fr13,fr0
+ 358:	08 e0       	mov	#8,r0
+ 35a:	f8 f1       	fmov	@r15,fr1
+ 35c:	f6 f0       	fmov	@(r0,r15),fr0
+ 35e:	04 e0       	mov	#4,r0
+ 360:	10 4a       	dt	r10
+ 362:	10 fe       	fadd	fr1,fr14
+ 364:	00 fc       	fadd	fr0,fr12
+ 366:	f6 f0       	fmov	@(r0,r15),fr0
+ 368:	0c e0       	mov	#12,r0
+ 36a:	00 fd       	fadd	fr0,fr13
+ 36c:	f6 f0       	fmov	@(r0,r15),fr0
+ 36e:	14 e0       	mov	#20,r0
+ 370:	00 f5       	fadd	fr0,fr5
+ 372:	f6 f0       	fmov	@(r0,r15),fr0
+ 374:	10 e0       	mov	#16,r0
+ 376:	00 f6       	fadd	fr0,fr6
+ 378:	f6 f0       	fmov	@(r0,r15),fr0
+ 37a:	ec 3c       	add	r14,r12
+ 37c:	de 8f       	bf.s	33c <_draw_textured_triangle_scanline_fast+0x33c>
+ 37e:	00 f7       	fadd	fr0,fr7
+ 380:	44 7f       	add	#68,r15
+ 382:	f9 ff       	fmov	@r15+,fr15
+ 384:	f9 fe       	fmov	@r15+,fr14
+ 386:	f9 fd       	fmov	@r15+,fr13
+ 388:	f9 fc       	fmov	@r15+,fr12
+ 38a:	f6 6e       	mov.l	@r15+,r14
+ 38c:	f6 6d       	mov.l	@r15+,r13
+ 38e:	f6 6c       	mov.l	@r15+,r12
+ 390:	f6 6b       	mov.l	@r15+,r11
+ 392:	f6 6a       	mov.l	@r15+,r10
+ 394:	f6 69       	mov.l	@r15+,r9
+ 396:	0b 00       	rts	
+ 398:	f6 68       	mov.l	@r15+,r8
+ 39a:	02 f8       	fmul	fr0,fr8
+ 39c:	8c f9       	fmov	fr8,fr9
+ 39e:	7d f9       	fsrra	fr9
+ 3a0:	05 f4       	fcmp/gt	fr0,fr4
+ 3a2:	2e 8d       	bt.s	402 <_draw_textured_triangle_scanline_fast+0x402>
+ 3a4:	1c e0       	mov	#28,r0
+ 3a6:	f6 f4       	fmov	@(r0,r15),fr4
+ 3a8:	38 e0       	mov	#56,r0
+ 3aa:	61 f4       	fsub	fr6,fr4
+ 3ac:	92 f4       	fmul	fr9,fr4
+ 3ae:	47 ff       	fmov	fr4,@(r0,r15)
+ 3b0:	7d f8       	fsrra	fr8
+ 3b2:	18 e0       	mov	#24,r0
+ 3b4:	f6 f4       	fmov	@(r0,r15),fr4
+ 3b6:	3c e0       	mov	#60,r0
+ 3b8:	71 f4       	fsub	fr7,fr4
+ 3ba:	82 f4       	fmul	fr8,fr4
+ 3bc:	47 ff       	fmov	fr4,@(r0,r15)
+ 3be:	20 e0       	mov	#32,r0
+ 3c0:	fc 30       	add	r15,r0
+ 3c2:	3c f4       	fmov	fr3,fr4
+ 3c4:	08 fa       	fmov	@r0,fr10
+ 3c6:	61 fa       	fsub	fr6,fr10
+ 3c8:	7d f4       	fsrra	fr4
+ 3ca:	28 e1       	mov	#40,r1
+ 3cc:	8d f9       	fldi0	fr9
+ 3ce:	fc 31       	add	r15,r1
+ 3d0:	25 f9       	fcmp/gt	fr2,fr9
+ 3d2:	18 f8       	fmov	@r1,fr8
+ 3d4:	02 8d       	bt.s	3dc <_draw_textured_triangle_scanline_fast+0x3dc>
+ 3d6:	71 f8       	fsub	fr7,fr8
+ 3d8:	c2 ae       	bra	160 <_draw_textured_triangle_scanline_fast+0x160>
+ 3da:	a2 f4       	fmul	fr10,fr4
+ 3dc:	08 f9       	fmov	@r0,fr9
+ 3de:	14 e0       	mov	#20,r0
+ 3e0:	6c f2       	fmov	fr6,fr2
+ 3e2:	91 f2       	fsub	fr9,fr2
+ 3e4:	42 f2       	fmul	fr4,fr2
+ 3e6:	27 ff       	fmov	fr2,@(r0,r15)
+ 3e8:	7d f3       	fsrra	fr3
+ 3ea:	bc ae       	bra	166 <_draw_textured_triangle_scanline_fast+0x166>
+ 3ec:	4d f3       	fneg	fr3
+ 3ee:	42 f8       	fmul	fr4,fr8
+ 3f0:	8d f4       	fldi0	fr4
+ 3f2:	44 f0       	fcmp/eq	fr4,fr0
+ 3f4:	0c e0       	mov	#12,r0
+ 3f6:	02 8f       	bf.s	3fe <_draw_textured_triangle_scanline_fast+0x3fe>
+ 3f8:	87 ff       	fmov	fr8,@(r0,r15)
+ 3fa:	9e ae       	bra	13a <_draw_textured_triangle_scanline_fast+0x13a>
+ 3fc:	38 e0       	mov	#56,r0
+ 3fe:	cc af       	bra	39a <_draw_textured_triangle_scanline_fast+0x39a>
+ 400:	0c f8       	fmov	fr0,fr8
+ 402:	6c f4       	fmov	fr6,fr4
+ 404:	f6 fa       	fmov	@(r0,r15),fr10
+ 406:	38 e0       	mov	#56,r0
+ 408:	a1 f4       	fsub	fr10,fr4
+ 40a:	92 f4       	fmul	fr9,fr4
+ 40c:	47 ff       	fmov	fr4,@(r0,r15)
+ 40e:	7d f8       	fsrra	fr8
+ 410:	cf af       	bra	3b2 <_draw_textured_triangle_scanline_fast+0x3b2>
+ 412:	4d f8       	fneg	fr8
+ 414:	77 ae       	bra	106 <_draw_textured_triangle_scanline_fast+0x106>
+ 416:	24 e0       	mov	#36,r0
+	...
+ 420:	55 fc       	fcmp/gt	fr5,fr12
+ 422:	8e 8f       	bf.s	342 <_draw_textured_triangle_scanline_fast+0x342>
+ 424:	01 ea       	mov	#1,r10
+ 426:	cc fa       	fmov	fr12,fr10
+ 428:	5c f2       	fmov	fr5,fr2
+ 42a:	ac f1       	fmov	fr10,fr1
+ 42c:	21 f1       	fsub	fr2,fr1
+ 42e:	8d f8       	fldi0	fr8
+ 430:	ec f4       	fmov	fr14,fr4
+ 432:	85 f1       	fcmp/gt	fr8,fr1
+ 434:	7c f9       	fmov	fr7,fr9
+ 436:	dc f3       	fmov	fr13,fr3
+ 438:	8e 8f       	bf.s	358 <_draw_textured_triangle_scanline_fast+0x358>
+ 43a:	6c f0       	fmov	fr6,fr0
+ 43c:	3d f2       	ftrc	fr2,fpul
+ 43e:	8d fb       	fldi0	fr11
+ 440:	25 fb       	fcmp/gt	fr2,fr11
+ 442:	02 8f       	bf.s	44a <_draw_textured_triangle_scanline_fast+0x44a>
+ 444:	2d f8       	float	fpul,fr8
+ 446:	9d fb       	fldi1	fr11
+ 448:	b1 f8       	fsub	fr11,fr8
+ 44a:	3d f8       	ftrc	fr8,fpul
+ 44c:	5a 06       	sts	fpul,r6
+ 44e:	3d fa       	ftrc	fr10,fpul
+ 450:	2d f8       	float	fpul,fr8
+ 452:	85 fa       	fcmp/gt	fr8,fr10
+ 454:	01 8f       	bf.s	45a <_draw_textured_triangle_scanline_fast+0x45a>
+ 456:	9d fa       	fldi1	fr10
+ 458:	a0 f8       	fadd	fr10,fr8
+ 45a:	12 f1       	fmul	fr1,fr1
+ 45c:	7d f1       	fsrra	fr1
+ 45e:	2c e0       	mov	#44,r0
+ 460:	01 f3       	fsub	fr0,fr3
+ 462:	f6 fa       	fmov	@(r0,r15),fr10
+ 464:	91 f4       	fsub	fr9,fr4
+ 466:	30 e0       	mov	#48,r0
+ 468:	5a 46       	lds	r6,fpul
+ 46a:	a2 f3       	fmul	fr10,fr3
+ 46c:	f6 fa       	fmov	@(r0,r15),fr10
+ 46e:	2c e0       	mov	#44,r0
+ 470:	f6 54       	mov.l	@(24,r15),r4
+ 472:	a2 f4       	fmul	fr10,fr4
+ 474:	fc e9       	mov	#-4,r9
+ 476:	2d fa       	float	fpul,fr10
+ 478:	63 65       	mov	r6,r5
+ 47a:	12 f3       	fmul	fr1,fr3
+ 47c:	cc 35       	add	r12,r5
+ 47e:	12 f4       	fmul	fr1,fr4
+ 480:	f6 f1       	fmov	@(r0,r15),fr1
+ 482:	21 fa       	fsub	fr2,fr10
+ 484:	30 e0       	mov	#48,r0
+ 486:	3c f2       	fmov	fr3,fr2
+ 488:	3d f8       	ftrc	fr8,fpul
+ 48a:	5a 0b       	sts	fpul,r11
+ 48c:	5c 35       	add	r5,r5
+ 48e:	a2 f2       	fmul	fr10,fr2
+ 490:	4c fb       	fmov	fr4,fr11
+ 492:	4c 35       	add	r4,r5
+ 494:	4d fb       	fneg	fr11
+ 496:	68 3b       	sub	r6,r11
+ 498:	1e f2       	fmac	fr0,fr1,fr2
+ 49a:	9d f1       	fldi1	fr1
+ 49c:	91 f1       	fsub	fr9,fr1
+ 49e:	f6 f0       	fmov	@(r0,r15),fr0
+ 4a0:	b3 68       	mov	r11,r8
+ 4a2:	01 78       	add	#1,r8
+ 4a4:	89 29       	and	r8,r9
+ 4a6:	02 f1       	fmul	fr0,fr1
+ 4a8:	15 49       	cmp/pl	r9
+ 4aa:	ac f0       	fmov	fr10,fr0
+ 4ac:	02 8d       	bt.s	4b4 <_draw_textured_triangle_scanline_fast+0x4b4>
+ 4ae:	be f1       	fmac	fr0,fr11,fr1
+ 4b0:	2c a1       	bra	70c <_draw_textured_triangle_scanline_fast+0x70c>
+ 4b2:	53 66       	mov	r5,r6
+ 4b4:	93 64       	mov	r9,r4
+ 4b6:	4c 34       	add	r4,r4
+ 4b8:	53 66       	mov	r5,r6
+ 4ba:	4c 36       	add	r4,r6
+ 4bc:	f8 74       	add	#-8,r4
+ 4be:	09 44       	shlr2	r4
+ 4c0:	01 44       	shlr	r4
+ 4c2:	01 74       	add	#1,r4
+ 4c4:	3d f2       	ftrc	fr2,fpul
+ 4c6:	5a 0d       	sts	fpul,r13
+ 4c8:	3d f1       	ftrc	fr1,fpul
+ 4ca:	5a 00       	sts	fpul,r0
+ 4cc:	1c ff       	fmov	fr1,fr15
+ 4ce:	41 ff       	fsub	fr4,fr15
+ 4d0:	39 2d       	and	r3,r13
+ 4d2:	3c fb       	fmov	fr3,fr11
+ 4d4:	79 20       	and	r7,r0
+ 4d6:	20 fb       	fadd	fr2,fr11
+ 4d8:	2d 40       	shld	r2,r0
+ 4da:	3d ff       	ftrc	fr15,fpul
+ 4dc:	dc 30       	add	r13,r0
+ 4de:	fc fa       	fmov	fr15,fr10
+ 4e0:	0c 30       	add	r0,r0
+ 4e2:	41 fa       	fsub	fr4,fr10
+ 4e4:	1d 00       	mov.w	@(r0,r1),r0
+ 4e6:	10 44       	dt	r4
+ 4e8:	3c f9       	fmov	fr3,fr9
+ 4ea:	b0 f9       	fadd	fr11,fr9
+ 4ec:	01 25       	mov.w	r0,@r5
+ 4ee:	5a 00       	sts	fpul,r0
+ 4f0:	3d fb       	ftrc	fr11,fpul
+ 4f2:	5a 0d       	sts	fpul,r13
+ 4f4:	3d fa       	ftrc	fr10,fpul
+ 4f6:	ac f8       	fmov	fr10,fr8
+ 4f8:	41 f8       	fsub	fr4,fr8
+ 4fa:	79 20       	and	r7,r0
+ 4fc:	3c f0       	fmov	fr3,fr0
+ 4fe:	39 2d       	and	r3,r13
+ 500:	90 f0       	fadd	fr9,fr0
+ 502:	2d 40       	shld	r2,r0
+ 504:	3c f2       	fmov	fr3,fr2
+ 506:	dc 30       	add	r13,r0
+ 508:	8c f1       	fmov	fr8,fr1
+ 50a:	0c 30       	add	r0,r0
+ 50c:	00 f2       	fadd	fr0,fr2
+ 50e:	1d 00       	mov.w	@(r0,r1),r0
+ 510:	41 f1       	fsub	fr4,fr1
+ 512:	51 81       	mov.w	r0,@(2,r5)
+ 514:	5a 00       	sts	fpul,r0
+ 516:	3d f9       	ftrc	fr9,fpul
+ 518:	5a 0d       	sts	fpul,r13
+ 51a:	3d f8       	ftrc	fr8,fpul
+ 51c:	79 20       	and	r7,r0
+ 51e:	39 2d       	and	r3,r13
+ 520:	2d 40       	shld	r2,r0
+ 522:	dc 30       	add	r13,r0
+ 524:	0c 30       	add	r0,r0
+ 526:	1d 00       	mov.w	@(r0,r1),r0
+ 528:	52 81       	mov.w	r0,@(4,r5)
+ 52a:	5a 00       	sts	fpul,r0
+ 52c:	3d f0       	ftrc	fr0,fpul
+ 52e:	5a 0d       	sts	fpul,r13
+ 530:	79 20       	and	r7,r0
+ 532:	2d 40       	shld	r2,r0
+ 534:	39 2d       	and	r3,r13
+ 536:	dc 30       	add	r13,r0
+ 538:	0c 30       	add	r0,r0
+ 53a:	1d 00       	mov.w	@(r0,r1),r0
+ 53c:	53 81       	mov.w	r0,@(6,r5)
+ 53e:	c1 8f       	bf.s	4c4 <_draw_textured_triangle_scanline_fast+0x4c4>
+ 540:	08 75       	add	#8,r5
+ 542:	97 38       	cmp/gt	r9,r8
+ 544:	14 8b       	bf	570 <_draw_textured_triangle_scanline_fast+0x570>
+ 546:	b3 65       	mov	r11,r5
+ 548:	98 35       	sub	r9,r5
+ 54a:	01 75       	add	#1,r5
+ 54c:	3d f1       	ftrc	fr1,fpul
+ 54e:	5a 00       	sts	fpul,r0
+ 550:	3d f2       	ftrc	fr2,fpul
+ 552:	5a 04       	sts	fpul,r4
+ 554:	02 76       	add	#2,r6
+ 556:	30 f2       	fadd	fr3,fr2
+ 558:	79 20       	and	r7,r0
+ 55a:	41 f1       	fsub	fr4,fr1
+ 55c:	39 24       	and	r3,r4
+ 55e:	2d 40       	shld	r2,r0
+ 560:	4c 30       	add	r4,r0
+ 562:	63 64       	mov	r6,r4
+ 564:	0c 30       	add	r0,r0
+ 566:	1d 00       	mov.w	@(r0,r1),r0
+ 568:	e0 74       	add	#-32,r4
+ 56a:	10 45       	dt	r5
+ 56c:	ee 8f       	bf.s	54c <_draw_textured_triangle_scanline_fast+0x54c>
+ 56e:	4f 81       	mov.w	r0,@(30,r4)
+ 570:	f3 ae       	bra	35a <_draw_textured_triangle_scanline_fast+0x35a>
+ 572:	08 e0       	mov	#8,r0
+ 574:	02 8d       	bt.s	57c <_draw_textured_triangle_scanline_fast+0x57c>
+ 576:	01 ea       	mov	#1,r10
+ 578:	53 ae       	bra	222 <_draw_textured_triangle_scanline_fast+0x222>
+ 57a:	5c fa       	fmov	fr5,fr10
+ 57c:	ec fa       	fmov	fr14,fr10
+ 57e:	04 e0       	mov	#4,r0
+ 580:	5c f2       	fmov	fr5,fr2
+ 582:	ac f1       	fmov	fr10,fr1
+ 584:	21 f1       	fsub	fr2,fr1
+ 586:	8d f8       	fldi0	fr8
+ 588:	f6 f4       	fmov	@(r0,r15),fr4
+ 58a:	85 f1       	fcmp/gt	fr8,fr1
+ 58c:	f8 f3       	fmov	@r15,fr3
+ 58e:	7c f9       	fmov	fr7,fr9
+ 590:	02 8d       	bt.s	598 <_draw_textured_triangle_scanline_fast+0x598>
+ 592:	6c f0       	fmov	fr6,fr0
+ 594:	53 ae       	bra	23e <_draw_textured_triangle_scanline_fast+0x23e>
+ 596:	34 e0       	mov	#52,r0
+ 598:	3d f2       	ftrc	fr2,fpul
+ 59a:	8d fb       	fldi0	fr11
+ 59c:	25 fb       	fcmp/gt	fr2,fr11
+ 59e:	02 8f       	bf.s	5a6 <_draw_textured_triangle_scanline_fast+0x5a6>
+ 5a0:	2d f8       	float	fpul,fr8
+ 5a2:	9d fb       	fldi1	fr11
+ 5a4:	b1 f8       	fsub	fr11,fr8
+ 5a6:	3d f8       	ftrc	fr8,fpul
+ 5a8:	5a 06       	sts	fpul,r6
+ 5aa:	3d fa       	ftrc	fr10,fpul
+ 5ac:	2d f8       	float	fpul,fr8
+ 5ae:	85 fa       	fcmp/gt	fr8,fr10
+ 5b0:	01 8f       	bf.s	5b6 <_draw_textured_triangle_scanline_fast+0x5b6>
+ 5b2:	9d fa       	fldi1	fr10
+ 5b4:	a0 f8       	fadd	fr10,fr8
+ 5b6:	12 f1       	fmul	fr1,fr1
+ 5b8:	7d f1       	fsrra	fr1
+ 5ba:	2c e0       	mov	#44,r0
+ 5bc:	01 f3       	fsub	fr0,fr3
+ 5be:	f6 fa       	fmov	@(r0,r15),fr10
+ 5c0:	91 f4       	fsub	fr9,fr4
+ 5c2:	30 e0       	mov	#48,r0
+ 5c4:	5a 46       	lds	r6,fpul
+ 5c6:	a2 f3       	fmul	fr10,fr3
+ 5c8:	f6 fa       	fmov	@(r0,r15),fr10
+ 5ca:	2c e0       	mov	#44,r0
+ 5cc:	63 65       	mov	r6,r5
+ 5ce:	a2 f4       	fmul	fr10,fr4
+ 5d0:	fc e9       	mov	#-4,r9
+ 5d2:	2d fa       	float	fpul,fr10
+ 5d4:	dc 35       	add	r13,r5
+ 5d6:	12 f3       	fmul	fr1,fr3
+ 5d8:	5c 35       	add	r5,r5
+ 5da:	12 f4       	fmul	fr1,fr4
+ 5dc:	f6 f1       	fmov	@(r0,r15),fr1
+ 5de:	21 fa       	fsub	fr2,fr10
+ 5e0:	30 e0       	mov	#48,r0
+ 5e2:	3c f2       	fmov	fr3,fr2
+ 5e4:	3d f8       	ftrc	fr8,fpul
+ 5e6:	5a 0b       	sts	fpul,r11
+ 5e8:	a2 f2       	fmul	fr10,fr2
+ 5ea:	4c fb       	fmov	fr4,fr11
+ 5ec:	4d fb       	fneg	fr11
+ 5ee:	68 3b       	sub	r6,r11
+ 5f0:	1e f2       	fmac	fr0,fr1,fr2
+ 5f2:	9d f1       	fldi1	fr1
+ 5f4:	91 f1       	fsub	fr9,fr1
+ 5f6:	f6 f0       	fmov	@(r0,r15),fr0
+ 5f8:	b3 68       	mov	r11,r8
+ 5fa:	40 e0       	mov	#64,r0
+ 5fc:	01 78       	add	#1,r8
+ 5fe:	fe 00       	mov.l	@(r0,r15),r0
+ 600:	02 f1       	fmul	fr0,fr1
+ 602:	89 29       	and	r8,r9
+ 604:	15 49       	cmp/pl	r9
+ 606:	ac f0       	fmov	fr10,fr0
+ 608:	0c 35       	add	r0,r5
+ 60a:	02 8d       	bt.s	612 <_draw_textured_triangle_scanline_fast+0x612>
+ 60c:	be f1       	fmac	fr0,fr11,fr1
+ 60e:	7f a0       	bra	710 <_draw_textured_triangle_scanline_fast+0x710>
+ 610:	53 66       	mov	r5,r6
+ 612:	93 64       	mov	r9,r4
+ 614:	4c 34       	add	r4,r4
+ 616:	53 66       	mov	r5,r6
+ 618:	4c 36       	add	r4,r6
+ 61a:	f8 74       	add	#-8,r4
+ 61c:	09 44       	shlr2	r4
+ 61e:	01 44       	shlr	r4
+ 620:	01 74       	add	#1,r4
+ 622:	09 00       	nop	
+ 624:	3d f2       	ftrc	fr2,fpul
+ 626:	5a 0e       	sts	fpul,r14
+ 628:	3d f1       	ftrc	fr1,fpul
+ 62a:	5a 00       	sts	fpul,r0
+ 62c:	1c ff       	fmov	fr1,fr15
+ 62e:	41 ff       	fsub	fr4,fr15
+ 630:	39 2e       	and	r3,r14
+ 632:	3c fb       	fmov	fr3,fr11
+ 634:	79 20       	and	r7,r0
+ 636:	20 fb       	fadd	fr2,fr11
+ 638:	2d 40       	shld	r2,r0
+ 63a:	3d ff       	ftrc	fr15,fpul
+ 63c:	ec 30       	add	r14,r0
+ 63e:	fc fa       	fmov	fr15,fr10
+ 640:	0c 30       	add	r0,r0
+ 642:	41 fa       	fsub	fr4,fr10
+ 644:	1d 00       	mov.w	@(r0,r1),r0
+ 646:	10 44       	dt	r4
+ 648:	3c f9       	fmov	fr3,fr9
+ 64a:	b0 f9       	fadd	fr11,fr9
+ 64c:	01 25       	mov.w	r0,@r5
+ 64e:	5a 00       	sts	fpul,r0
+ 650:	3d fb       	ftrc	fr11,fpul
+ 652:	5a 0e       	sts	fpul,r14
+ 654:	3d fa       	ftrc	fr10,fpul
+ 656:	ac f8       	fmov	fr10,fr8
+ 658:	41 f8       	fsub	fr4,fr8
+ 65a:	79 20       	and	r7,r0
+ 65c:	3c f0       	fmov	fr3,fr0
+ 65e:	39 2e       	and	r3,r14
+ 660:	90 f0       	fadd	fr9,fr0
+ 662:	2d 40       	shld	r2,r0
+ 664:	3c f2       	fmov	fr3,fr2
+ 666:	ec 30       	add	r14,r0
+ 668:	8c f1       	fmov	fr8,fr1
+ 66a:	0c 30       	add	r0,r0
+ 66c:	00 f2       	fadd	fr0,fr2
+ 66e:	1d 00       	mov.w	@(r0,r1),r0
+ 670:	41 f1       	fsub	fr4,fr1
+ 672:	51 81       	mov.w	r0,@(2,r5)
+ 674:	5a 00       	sts	fpul,r0
+ 676:	3d f9       	ftrc	fr9,fpul
+ 678:	5a 0e       	sts	fpul,r14
+ 67a:	3d f8       	ftrc	fr8,fpul
+ 67c:	79 20       	and	r7,r0
+ 67e:	39 2e       	and	r3,r14
+ 680:	2d 40       	shld	r2,r0
+ 682:	ec 30       	add	r14,r0
+ 684:	0c 30       	add	r0,r0
+ 686:	1d 00       	mov.w	@(r0,r1),r0
+ 688:	52 81       	mov.w	r0,@(4,r5)
+ 68a:	5a 00       	sts	fpul,r0
+ 68c:	3d f0       	ftrc	fr0,fpul
+ 68e:	5a 0e       	sts	fpul,r14
+ 690:	79 20       	and	r7,r0
+ 692:	2d 40       	shld	r2,r0
+ 694:	39 2e       	and	r3,r14
+ 696:	ec 30       	add	r14,r0
+ 698:	0c 30       	add	r0,r0
+ 69a:	1d 00       	mov.w	@(r0,r1),r0
+ 69c:	53 81       	mov.w	r0,@(6,r5)
+ 69e:	c1 8f       	bf.s	624 <_draw_textured_triangle_scanline_fast+0x624>
+ 6a0:	08 75       	add	#8,r5
+ 6a2:	97 38       	cmp/gt	r9,r8
+ 6a4:	14 8b       	bf	6d0 <_draw_textured_triangle_scanline_fast+0x6d0>
+ 6a6:	b3 65       	mov	r11,r5
+ 6a8:	98 35       	sub	r9,r5
+ 6aa:	01 75       	add	#1,r5
+ 6ac:	3d f1       	ftrc	fr1,fpul
+ 6ae:	5a 00       	sts	fpul,r0
+ 6b0:	3d f2       	ftrc	fr2,fpul
+ 6b2:	5a 04       	sts	fpul,r4
+ 6b4:	02 76       	add	#2,r6
+ 6b6:	30 f2       	fadd	fr3,fr2
+ 6b8:	79 20       	and	r7,r0
+ 6ba:	41 f1       	fsub	fr4,fr1
+ 6bc:	39 24       	and	r3,r4
+ 6be:	2d 40       	shld	r2,r0
+ 6c0:	4c 30       	add	r4,r0
+ 6c2:	63 64       	mov	r6,r4
+ 6c4:	0c 30       	add	r0,r0
+ 6c6:	1d 00       	mov.w	@(r0,r1),r0
+ 6c8:	e0 74       	add	#-32,r4
+ 6ca:	10 45       	dt	r5
+ 6cc:	ee 8f       	bf.s	6ac <_draw_textured_triangle_scanline_fast+0x6ac>
+ 6ce:	4f 81       	mov.w	r0,@(30,r4)
+ 6d0:	b5 ad       	bra	23e <_draw_textured_triangle_scanline_fast+0x23e>
+ 6d2:	34 e0       	mov	#52,r0
+ 6d4:	f6 f1       	fmov	@(r0,r15),fr1
+ 6d6:	14 e0       	mov	#20,r0
+ 6d8:	1e f5       	fmac	fr0,fr1,fr5
+ 6da:	f6 f1       	fmov	@(r0,r15),fr1
+ 6dc:	10 e0       	mov	#16,r0
+ 6de:	1e f6       	fmac	fr0,fr1,fr6
+ 6e0:	f6 f1       	fmov	@(r0,r15),fr1
+ 6e2:	c6 ad       	bra	272 <_draw_textured_triangle_scanline_fast+0x272>
+ 6e4:	1e f7       	fmac	fr0,fr1,fr7
+ 6e6:	f6 f1       	fmov	@(r0,r15),fr1
+ 6e8:	08 e0       	mov	#8,r0
+ 6ea:	f6 f0       	fmov	@(r0,r15),fr0
+ 6ec:	01 f1       	fsub	fr0,fr1
+ 6ee:	42 f1       	fmul	fr4,fr1
+ 6f0:	17 ff       	fmov	fr1,@(r0,r15)
+ 6f2:	2c f1       	fmov	fr2,fr1
+ 6f4:	7d f1       	fsrra	fr1
+ 6f6:	1c e0       	mov	#28,r0
+ 6f8:	f6 f3       	fmov	@(r0,r15),fr3
+ 6fa:	20 e0       	mov	#32,r0
+ 6fc:	f6 f0       	fmov	@(r0,r15),fr0
+ 6fe:	04 e0       	mov	#4,r0
+ 700:	01 f3       	fsub	fr0,fr3
+ 702:	12 f3       	fmul	fr1,fr3
+ 704:	37 ff       	fmov	fr3,@(r0,r15)
+ 706:	7d f2       	fsrra	fr2
+ 708:	d5 ad       	bra	2b6 <_draw_textured_triangle_scanline_fast+0x2b6>
+ 70a:	4d f2       	fneg	fr2
+ 70c:	1a af       	bra	544 <_draw_textured_triangle_scanline_fast+0x544>
+ 70e:	97 38       	cmp/gt	r9,r8
+ 710:	c8 af       	bra	6a4 <_draw_textured_triangle_scanline_fast+0x6a4>
+ 712:	97 38       	cmp/gt	r9,r8
+
+Disassembly of section .text.triangle_outside_screen:
+
+00000000 <_triangle_outside_screen>:
+   0:	43 61       	mov	r4,r1
+   2:	10 71       	add	#16,r1
+   4:	48 f1       	fmov	@r4,fr1
+   6:	18 f4       	fmov	@r1,fr4
+   8:	10 71       	add	#16,r1
+   a:	18 f3       	fmov	@r1,fr3
+   c:	15 f4       	fcmp/gt	fr1,fr4
+   e:	1c f2       	fmov	fr1,fr2
+  10:	00 8b       	bf	14 <_triangle_outside_screen+0x14>
+  12:	4c f2       	fmov	fr4,fr2
+  14:	25 f3       	fcmp/gt	fr2,fr3
+  16:	00 8b       	bf	1a <_triangle_outside_screen+0x1a>
+  18:	3c f2       	fmov	fr3,fr2
+  1a:	8d f5       	fldi0	fr5
+  1c:	25 f5       	fcmp/gt	fr2,fr5
+  1e:	1a 8d       	bt.s	56 <_triangle_outside_screen+0x56>
+  20:	01 e0       	mov	#1,r0
+  22:	43 61       	mov	r4,r1
+  24:	04 71       	add	#4,r1
+  26:	18 f2       	fmov	@r1,fr2
+  28:	10 71       	add	#16,r1
+  2a:	18 f6       	fmov	@r1,fr6
+  2c:	45 f1       	fcmp/gt	fr4,fr1
+  2e:	1e d1       	mov.l	a8 <_triangle_outside_screen+0xa8>,r1	! 0 <_triangle_outside_screen>
+  30:	24 74       	add	#36,r4
+  32:	48 f5       	fmov	@r4,fr5
+  34:	12 61       	mov.l	@r1,r1
+  36:	5a 41       	lds	r1,fpul
+  38:	14 8d       	bt.s	64 <_triangle_outside_screen+0x64>
+  3a:	2d f7       	float	fpul,fr7
+  3c:	35 f1       	fcmp/gt	fr3,fr1
+  3e:	0c 8d       	bt.s	5a <_triangle_outside_screen+0x5a>
+  40:	15 f7       	fcmp/gt	fr1,fr7
+  42:	07 8b       	bf	54 <_triangle_outside_screen+0x54>
+  44:	25 f6       	fcmp/gt	fr2,fr6
+  46:	1a 8d       	bt.s	7e <_triangle_outside_screen+0x7e>
+  48:	2c f1       	fmov	fr2,fr1
+  4a:	15 f5       	fcmp/gt	fr1,fr5
+  4c:	10 8d       	bt.s	70 <_triangle_outside_screen+0x70>
+  4e:	8d f3       	fldi0	fr3
+  50:	15 f3       	fcmp/gt	fr1,fr3
+  52:	1a 8b       	bf	8a <_triangle_outside_screen+0x8a>
+  54:	01 e0       	mov	#1,r0
+  56:	0b 00       	rts	
+  58:	09 00       	nop	
+  5a:	3c f1       	fmov	fr3,fr1
+  5c:	15 f7       	fcmp/gt	fr1,fr7
+  5e:	f1 89       	bt	44 <_triangle_outside_screen+0x44>
+  60:	f9 af       	bra	56 <_triangle_outside_screen+0x56>
+  62:	01 e0       	mov	#1,r0
+  64:	4c f1       	fmov	fr4,fr1
+  66:	35 f1       	fcmp/gt	fr3,fr1
+  68:	eb 8f       	bf.s	42 <_triangle_outside_screen+0x42>
+  6a:	15 f7       	fcmp/gt	fr1,fr7
+  6c:	f6 af       	bra	5c <_triangle_outside_screen+0x5c>
+  6e:	3c f1       	fmov	fr3,fr1
+  70:	5c f1       	fmov	fr5,fr1
+  72:	8d f3       	fldi0	fr3
+  74:	15 f3       	fcmp/gt	fr1,fr3
+  76:	ee 8d       	bt.s	56 <_triangle_outside_screen+0x56>
+  78:	01 e0       	mov	#1,r0
+  7a:	06 a0       	bra	8a <_triangle_outside_screen+0x8a>
+  7c:	09 00       	nop	
+  7e:	6c f1       	fmov	fr6,fr1
+  80:	15 f5       	fcmp/gt	fr1,fr5
+  82:	e5 8f       	bf.s	50 <_triangle_outside_screen+0x50>
+  84:	8d f3       	fldi0	fr3
+  86:	f4 af       	bra	72 <_triangle_outside_screen+0x72>
+  88:	5c f1       	fmov	fr5,fr1
+  8a:	08 d1       	mov.l	ac <_triangle_outside_screen+0xac>,r1	! 0 <_triangle_outside_screen>
+  8c:	65 f2       	fcmp/gt	fr6,fr2
+  8e:	12 61       	mov.l	@r1,r1
+  90:	5a 41       	lds	r1,fpul
+  92:	2d f1       	float	fpul,fr1
+  94:	00 8b       	bf	98 <_triangle_outside_screen+0x98>
+  96:	6c f2       	fmov	fr6,fr2
+  98:	55 f2       	fcmp/gt	fr5,fr2
+  9a:	00 8b       	bf	9e <_triangle_outside_screen+0x9e>
+  9c:	5c f2       	fmov	fr5,fr2
+  9e:	25 f1       	fcmp/gt	fr2,fr1
+  a0:	ff e0       	mov	#-1,r0
+  a2:	0b 00       	rts	
+  a4:	0a 60       	negc	r0,r0
+  a6:	09 00       	nop	
+	...
+
+Disassembly of section .text.triangle_fully_inside_screen:
+
+00000000 <_triangle_fully_inside_screen>:
+   0:	43 61       	mov	r4,r1
+   2:	10 71       	add	#16,r1
+   4:	48 f1       	fmov	@r4,fr1
+   6:	18 f4       	fmov	@r1,fr4
+   8:	10 71       	add	#16,r1
+   a:	18 f3       	fmov	@r1,fr3
+   c:	45 f1       	fcmp/gt	fr4,fr1
+   e:	1c f2       	fmov	fr1,fr2
+  10:	00 8b       	bf	14 <_triangle_fully_inside_screen+0x14>
+  12:	4c f2       	fmov	fr4,fr2
+  14:	35 f2       	fcmp/gt	fr3,fr2
+  16:	00 8b       	bf	1a <_triangle_fully_inside_screen+0x1a>
+  18:	3c f2       	fmov	fr3,fr2
+  1a:	8d f5       	fldi0	fr5
+  1c:	25 f5       	fcmp/gt	fr2,fr5
+  1e:	18 8d       	bt.s	52 <_triangle_fully_inside_screen+0x52>
+  20:	43 61       	mov	r4,r1
+  22:	04 71       	add	#4,r1
+  24:	18 f2       	fmov	@r1,fr2
+  26:	10 71       	add	#16,r1
+  28:	18 f6       	fmov	@r1,fr6
+  2a:	15 f4       	fcmp/gt	fr1,fr4
+  2c:	1c d1       	mov.l	a0 <_triangle_fully_inside_screen+0xa0>,r1	! 0 <_triangle_fully_inside_screen>
+  2e:	24 74       	add	#36,r4
+  30:	48 f5       	fmov	@r4,fr5
+  32:	12 61       	mov.l	@r1,r1
+  34:	5a 41       	lds	r1,fpul
+  36:	13 8d       	bt.s	60 <_triangle_fully_inside_screen+0x60>
+  38:	2d f7       	float	fpul,fr7
+  3a:	15 f3       	fcmp/gt	fr1,fr3
+  3c:	0b 8d       	bt.s	56 <_triangle_fully_inside_screen+0x56>
+  3e:	15 f7       	fcmp/gt	fr1,fr7
+  40:	07 8b       	bf	52 <_triangle_fully_inside_screen+0x52>
+  42:	65 f2       	fcmp/gt	fr6,fr2
+  44:	18 8d       	bt.s	78 <_triangle_fully_inside_screen+0x78>
+  46:	2c f1       	fmov	fr2,fr1
+  48:	55 f1       	fcmp/gt	fr5,fr1
+  4a:	0f 8d       	bt.s	6c <_triangle_fully_inside_screen+0x6c>
+  4c:	8d f3       	fldi0	fr3
+  4e:	15 f3       	fcmp/gt	fr1,fr3
+  50:	18 8b       	bf	84 <_triangle_fully_inside_screen+0x84>
+  52:	0b 00       	rts	
+  54:	00 e0       	mov	#0,r0
+  56:	3c f1       	fmov	fr3,fr1
+  58:	15 f7       	fcmp/gt	fr1,fr7
+  5a:	f2 89       	bt	42 <_triangle_fully_inside_screen+0x42>
+  5c:	f9 af       	bra	52 <_triangle_fully_inside_screen+0x52>
+  5e:	09 00       	nop	
+  60:	4c f1       	fmov	fr4,fr1
+  62:	15 f3       	fcmp/gt	fr1,fr3
+  64:	ec 8f       	bf.s	40 <_triangle_fully_inside_screen+0x40>
+  66:	15 f7       	fcmp/gt	fr1,fr7
+  68:	f6 af       	bra	58 <_triangle_fully_inside_screen+0x58>
+  6a:	3c f1       	fmov	fr3,fr1
+  6c:	5c f1       	fmov	fr5,fr1
+  6e:	8d f3       	fldi0	fr3
+  70:	15 f3       	fcmp/gt	fr1,fr3
+  72:	ee 89       	bt	52 <_triangle_fully_inside_screen+0x52>
+  74:	06 a0       	bra	84 <_triangle_fully_inside_screen+0x84>
+  76:	09 00       	nop	
+  78:	6c f1       	fmov	fr6,fr1
+  7a:	55 f1       	fcmp/gt	fr5,fr1
+  7c:	e7 8f       	bf.s	4e <_triangle_fully_inside_screen+0x4e>
+  7e:	8d f3       	fldi0	fr3
+  80:	f5 af       	bra	6e <_triangle_fully_inside_screen+0x6e>
+  82:	5c f1       	fmov	fr5,fr1
+  84:	07 d1       	mov.l	a4 <_triangle_fully_inside_screen+0xa4>,r1	! 0 <_triangle_fully_inside_screen>
+  86:	25 f6       	fcmp/gt	fr2,fr6
+  88:	12 61       	mov.l	@r1,r1
+  8a:	5a 41       	lds	r1,fpul
+  8c:	2d f1       	float	fpul,fr1
+  8e:	00 8b       	bf	92 <_triangle_fully_inside_screen+0x92>
+  90:	6c f2       	fmov	fr6,fr2
+  92:	25 f5       	fcmp/gt	fr2,fr5
+  94:	00 8b       	bf	98 <_triangle_fully_inside_screen+0x98>
+  96:	5c f2       	fmov	fr5,fr2
+  98:	25 f1       	fcmp/gt	fr2,fr1
+  9a:	0b 00       	rts	
+  9c:	29 00       	movt	r0
+  9e:	09 00       	nop	
+	...
+
+Disassembly of section .text.get_triangle_face_normal:
+
+00000000 <_get_triangle_face_normal>:
+   0:	43 61       	mov	r4,r1
+   2:	10 71       	add	#16,r1
+   4:	18 f5       	fmov	@r1,fr5
+   6:	f4 71       	add	#-12,r1
+   8:	18 f2       	fmov	@r1,fr2
+   a:	43 61       	mov	r4,r1
+   c:	14 71       	add	#20,r1
+   e:	48 f4       	fmov	@r4,fr4
+  10:	18 f6       	fmov	@r1,fr6
+  12:	43 61       	mov	r4,r1
+  14:	08 71       	add	#8,r1
+  16:	41 f5       	fsub	fr4,fr5
+  18:	18 f3       	fmov	@r1,fr3
+  1a:	43 61       	mov	r4,r1
+  1c:	18 71       	add	#24,r1
+  1e:	21 f6       	fsub	fr2,fr6
+  20:	18 f7       	fmov	@r1,fr7
+  22:	43 61       	mov	r4,r1
+  24:	20 71       	add	#32,r1
+  26:	23 60       	mov	r2,r0
+  28:	18 f1       	fmov	@r1,fr1
+  2a:	43 61       	mov	r4,r1
+  2c:	24 71       	add	#36,r1
+  2e:	31 f7       	fsub	fr3,fr7
+  30:	41 f1       	fsub	fr4,fr1
+  32:	18 f4       	fmov	@r1,fr4
+  34:	28 74       	add	#40,r4
+  36:	6c f0       	fmov	fr6,fr0
+  38:	21 f4       	fsub	fr2,fr4
+  3a:	48 f2       	fmov	@r4,fr2
+  3c:	23 61       	mov	r2,r1
+  3e:	04 71       	add	#4,r1
+  40:	31 f2       	fsub	fr3,fr2
+  42:	7c f3       	fmov	fr7,fr3
+  44:	42 f3       	fmul	fr4,fr3
+  46:	4d f3       	fneg	fr3
+  48:	2e f3       	fmac	fr0,fr2,fr3
+  4a:	52 f2       	fmul	fr5,fr2
+  4c:	7c f0       	fmov	fr7,fr0
+  4e:	3a f2       	fmov	fr3,@r2
+  50:	4d f2       	fneg	fr2
+  52:	1e f2       	fmac	fr0,fr1,fr2
+  54:	62 f1       	fmul	fr6,fr1
+  56:	5c f0       	fmov	fr5,fr0
+  58:	2a f1       	fmov	fr2,@r1
+  5a:	04 71       	add	#4,r1
+  5c:	4d f1       	fneg	fr1
+  5e:	4e f1       	fmac	fr0,fr4,fr1
+  60:	0b 00       	rts	
+  62:	1a f1       	fmov	fr1,@r1

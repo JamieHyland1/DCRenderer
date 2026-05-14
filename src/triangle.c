@@ -18,7 +18,49 @@ static inline float clamp01(float a) {
     return a < 0.0f ? 0.0f : (a > 1.0f ? 1.0f : a);
 }
 
+typedef int32_t fixed16_t;
 
+#define FIX16_SHIFT 16
+#define FIX16_ONE   (1 << FIX16_SHIFT)
+
+static inline fixed16_t float_to_fix16(float x) {
+    return (fixed16_t)(x * (float)FIX16_ONE);
+}
+
+static inline int fix16_to_int(fixed16_t x) {
+    return x >> FIX16_SHIFT;
+}
+
+static inline __attribute__((always_inline))
+void inner_loop_textured_z_float_uv(
+    float *z_dst,
+    uint16_t *dst,
+    const uint16_t *tex_data,
+    int count,
+    float u,
+    float v,
+    float z,
+    float du_dx,
+    float dv_dx,
+    float dz_dx,
+    int wmask,
+    int hmask,
+    int shift
+) {
+    for (int i = 0; i < count; i++) {
+       float z_old = z_dst[i];
+        if (z > z_old) {
+            int tx = ((int)u) & wmask;
+            int ty = ((int)v) & hmask;
+            z_dst[i] = z;
+            dst[i] = tex_data[(ty << shift) + tx];
+        }
+
+        z += dz_dx;
+        u += du_dx;
+        v -= dv_dx;
+    }
+}
 
 static int dbg_prints_left = 40;
 static int tex_dbg_once = 0;
@@ -319,11 +361,11 @@ void draw_filled_triangle_wire(const triangle_t* tri, uint16_t color) {
     draw_linef(x1, y1, x2, y2, 0xFFFF);
     draw_linef(x2, y2, x0, y0, 0xFFFF);
 }
-// Depreciated but just keeping here for now as its a good before and after test 
-// void draw_textured_triangle(const triangle_t *tri) {
-//     uint16_t *tex_data = (uint16_t *)tri->texture->img.data;
-//     const int tex_w = tri->texture->img.w;
-//     const int tex_h = tri->texture->img.h;
+//Depreciated but just keeping here for now as its a good before and after test 
+// void draw_textured_triangle(const triangle_t *tri, const texture_t *text) {
+//     const uint16_t *tex_data = (const uint16_t *)text->img.data;
+//     const int tex_w = text->cw;
+//     const int tex_h = text->ch;
 
 //     // Vertex positions (screen space)
 //     const float x0 = tri->points[0].x, y0 = tri->points[0].y, w0 = tri->points[0].w, z0 = tri->points[0].z;
@@ -455,324 +497,215 @@ static inline int clampi(int x, int lo, int hi) {
     return x;
 }
 
-void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t* text)
+// Determine once: is the long edge (top->bottom) on the left or right?
+// At y_mid, where does the long edge land?
+static inline void draw_span(
+    float xL, float xR,
+    float zL, float zR,
+    float uL, float uR,
+    float vL, float vR,
+    float u_scale, float v_scale,
+    int sample_h, int y,
+    const uint16_t *tex_data,
+    int wmask, int hmask, int shift
+) {
+    float span_width = xR - xL;
+    if (span_width <= 0.0f) return;
+
+    int xs0 = (int)shz_floorf(xL);
+    int xe0 = (int)shz_ceilf(xR);
+
+    if (xe0 < 0 || xs0 >= WINDOW_WIDTH) return;
+
+    int xs = xs0 < 0            ? 0              : xs0;
+    int xe = xe0 > WINDOW_WIDTH - 1 ? WINDOW_WIDTH - 1 : xe0;
+
+    if (xs > xe) return;
+
+    float inv_span = shz_invf(span_width);
+
+    float dz_dx = (zR - zL) * inv_span;
+    float du_dx = (uR - uL) * inv_span * u_scale;
+    float dv_dx = (vR - vL) * inv_span * v_scale;
+
+    // Merged dx + clip into single offset from xL to first drawn pixel
+    float offset = (float)xs - xL;
+
+    float z = zL          + offset * dz_dx;
+    float u = uL * u_scale + offset * du_dx;
+    float v = (float)(sample_h - 1) - (vL * v_scale + offset * dv_dx);
+
+    uint16_t *dst = buffer   + y * WINDOW_WIDTH + xs;
+    float    *z_dst = z_buffer + y * WINDOW_WIDTH + xs;
+
+    inner_loop_textured_z_float_uv(
+        z_dst, dst, tex_data,
+        xe - xs + 1,
+        u, v, z,
+        du_dx, dv_dx, dz_dx,
+        wmask, hmask, shift
+    );
+}
+
+void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *text)
 {
-
     const uint16_t *tex_data = (const uint16_t *)text->img.data;
+    const int sample_w = text->cw;
+    const int sample_h = text->ch;
+    const int shift    = text->w_shift;
+    const int wmask    = text->w_mask;
+    const int hmask    = text->h_mask;
 
-    const int tex_h = text->img.h;      // padded storage height
-    const int sample_w = text->cw;      // real content width
-    const int sample_h = text->ch;      // real content height
-
-    const int shift = text->w_shift;
-
-    // Vertex positions
-    float x_top    = tri->points[0].x, y_top    = tri->points[0].y;
-    float x_mid    = tri->points[1].x, y_mid    = tri->points[1].y;
-    float x_bottom = tri->points[2].x, y_bottom = tri->points[2].y;
+    float x_top    = tri->points[0].x, y_top    = tri->points[0].y, z_top    = tri->points[0].z;
+    float x_mid    = tri->points[1].x, y_mid    = tri->points[1].y, z_mid    = tri->points[1].z;
+    float x_bottom = tri->points[2].x, y_bottom = tri->points[2].y, z_bottom = tri->points[2].z;
 
     float u_top    = tri->texcoords[0].u, v_top    = tri->texcoords[0].v;
     float u_mid    = tri->texcoords[1].u, v_mid    = tri->texcoords[1].v;
     float u_bottom = tri->texcoords[2].u, v_bottom = tri->texcoords[2].v;
 
-    // Sort vertices by Y (top -> mid -> bottom), also swap texcoords
-    if (y_top > y_mid) {
-        float t;
-        t = y_top; y_top = y_mid; y_mid = t;
-        t = x_top; x_top = x_mid; x_mid = t;
-        t = u_top; u_top = u_mid; u_mid = t;
-        t = v_top; v_top = v_mid; v_mid = t;
-    }
-    if (y_mid > y_bottom) {
-        float t;
-        t = y_mid; y_mid = y_bottom; y_bottom = t;
-        t = x_mid; x_mid = x_bottom; x_bottom = t;
-        t = u_mid; u_mid = u_bottom; u_bottom = t;
-        t = v_mid; v_mid = v_bottom; v_bottom = t;
-    }
-    if (y_top > y_mid) {
-        float t;
-        t = y_top; y_top = y_mid; y_mid = t;
-        t = x_top; x_top = x_mid; x_mid = t;
-        t = u_top; u_top = u_mid; u_mid = t;
-        t = v_top; v_top = v_mid; v_mid = t;
-    }
+    // Sort by Y (bubble sort 3 elements)
+    #define SWAP_VERTS(a, b) do { \
+        float _t;                                                \
+        _t=y_##a; y_##a=y_##b; y_##b=_t;                       \
+        _t=x_##a; x_##a=x_##b; x_##b=_t;                       \
+        _t=z_##a; z_##a=z_##b; z_##b=_t;                       \
+        _t=u_##a; u_##a=u_##b; u_##b=_t;                       \
+        _t=v_##a; v_##a=v_##b; v_##b=_t;                       \
+    } while(0)
 
-    float height_top_to_mid    = y_mid - y_top;
-    float height_top_to_bottom = y_bottom - y_top;
-    float height_mid_to_bottom = y_bottom - y_mid;
+    if (y_top    > y_mid)    SWAP_VERTS(top, mid);
+    if (y_mid    > y_bottom) SWAP_VERTS(mid, bottom);
+    if (y_top    > y_mid)    SWAP_VERTS(top, mid);
+
+    #undef SWAP_VERTS
+
+    const float height_top_to_bottom = y_bottom - y_top;
+    const float height_top_to_mid    = y_mid    - y_top;
+    const float height_mid_to_bottom = y_bottom - y_mid;
 
     if (height_top_to_bottom == 0.0f) return;
 
-    // Precompute edge slopes (per Y)
-    float slope_top_to_mid      = (height_top_to_mid != 0.0f) ? shz_divf((x_mid - x_top), height_top_to_mid) : 0.0f;
-    float slope_top_to_bottom   = shz_divf((x_bottom - x_top), height_top_to_bottom);
-
-    float slope_u_top_to_mid    = (height_top_to_mid != 0.0f) ? shz_divf((u_mid - u_top), height_top_to_mid) : 0.0f;
-    float slope_v_top_to_mid    = (height_top_to_mid != 0.0f) ? shz_divf((v_mid - v_top), height_top_to_mid) : 0.0f;
-
-    float slope_u_top_to_bottom = shz_divf((u_bottom - u_top), height_top_to_bottom);
-    float slope_v_top_to_bottom = shz_divf((v_bottom - v_top), height_top_to_bottom);
-
-    // Current edge values
-    float x_left  = x_top;
-    float x_right = x_top;
-    float u_left  = u_top;
-    float v_left  = v_top;
-    float u_right = u_top;
-    float v_right = v_top;
-
-    // Scale UVs into real content texel space, not padded storage space
     const float u_scale = (float)(sample_w - 1);
     const float v_scale = (float)(sample_h - 1);
 
-    // --------------------------
-    // Upper part: from top -> mid
-    // --------------------------
-    if (height_top_to_mid > 0.0f) {
-        int y0_raw = (int)shz_ceilf(y_top);
-        int y1_raw = (int)shz_floorf(y_mid);
+    // Long edge slopes (top -> bottom)
+    float inv_long = shz_divf(1.0f, height_top_to_bottom);
+    const float slope_x_long = (x_bottom - x_top) * inv_long;
+    const float slope_z_long = (z_bottom - z_top) * inv_long;
+    const float slope_u_long = (u_bottom - u_top) * inv_long;
+    const float slope_v_long = (v_bottom - v_top) * inv_long;
 
-        int y0 = y0_raw;
-        int y1 = y1_raw;
+    // Determine left/right ONCE: where does long edge land at y_mid?
+    // If x_mid < x_long_at_mid, mid vertex is on the LEFT
+    const float x_long_at_mid = x_top + slope_x_long * height_top_to_mid;
+    const int mid_is_left = (x_mid <= x_long_at_mid);
+
+    // ------------------------------------------------------------
+    // Upper half: top -> mid
+    // ------------------------------------------------------------
+    if (height_top_to_mid > 0.0f) {
+        float inv_short = shz_divf(1.0f, height_top_to_mid);
+        const float slope_x_short = (x_mid - x_top) * inv_short;
+        const float slope_z_short = (z_mid - z_top) * inv_short;
+        const float slope_u_short = (u_mid - u_top) * inv_short;
+        const float slope_v_short = (v_mid - v_top) * inv_short;
+
+        int y0 = (int)shz_ceilf(y_top);
+        int y1 = (int)shz_floorf(y_mid);
         if (y0 < 0) y0 = 0;
         if (y1 > WINDOW_HEIGHT - 1) y1 = WINDOW_HEIGHT - 1;
 
         if (y0 <= y1) {
-            float dy = (float)(y0 - y0_raw);
-            if (dy != 0.0f) {
-                x_left  += slope_top_to_mid      * dy;
-                x_right += slope_top_to_bottom   * dy;
-                u_left  += slope_u_top_to_mid    * dy;
-                v_left  += slope_v_top_to_mid    * dy;
-                u_right += slope_u_top_to_bottom * dy;
-                v_right += slope_v_top_to_bottom * dy;
-            }
+            float dy = (float)y0 - y_top;
+
+            float x_short = x_top + slope_x_short * dy;
+            float z_short = z_top + slope_z_short * dy;
+            float u_short = u_top + slope_u_short * dy;
+            float v_short = v_top + slope_v_short * dy;
+
+            float x_long  = x_top + slope_x_long  * dy;
+            float z_long  = z_top + slope_z_long   * dy;
+            float u_long  = u_top + slope_u_long   * dy;
+            float v_long  = v_top + slope_v_long   * dy;
 
             for (int y = y0; y <= y1; y++) {
-                float xL = x_left, xR = x_right;
-                float uL = u_left, uR = u_right;
-                float vL = v_left, vR = v_right;
+                if (mid_is_left)
+                    draw_span(x_short, x_long,
+                              z_short, z_long,
+                              u_short, u_long,
+                              v_short, v_long,
+                              u_scale, v_scale, sample_h, y,
+                              tex_data, wmask, hmask, shift);
+                else
+                    draw_span(x_long,  x_short,
+                              z_long,  z_short,
+                              u_long,  u_short,
+                              v_long,  v_short,
+                              u_scale, v_scale, sample_h, y,
+                              tex_data, wmask, hmask, shift);
 
-                if (xL > xR) {
-                    float t;
-                    t = xL; xL = xR; xR = t;
-                    t = uL; uL = uR; uR = t;
-                    t = vL; vL = vR; vR = t;
-                }
-
-                float span_width = xR - xL;
-                if (span_width <= 0.0f) {
-                    x_left  += slope_top_to_mid;
-                    x_right += slope_top_to_bottom;
-                    u_left  += slope_u_top_to_mid;
-                    v_left  += slope_v_top_to_mid;
-                    u_right += slope_u_top_to_bottom;
-                    v_right += slope_v_top_to_bottom;
-                    continue;
-                }
-
-                int x_start = (int)shz_floorf(xL);
-                int x_end   = (int)shz_ceilf(xR);
-
-                float inv_span = shz_invf(span_width);
-                float du_dx = (uR - uL) * inv_span * u_scale;
-                float dv_dx = (vR - vL) * inv_span * v_scale;
-
-                float dx = (float)x_start - xL;
-                float u = (uL * u_scale) + dx * du_dx;
-                float v = (float)(sample_h - 1) - ((vL * v_scale) + dx * dv_dx);
-
-                int xs0 = x_start;
-                int xe0 = x_end;
-
-                if (!(xe0 < 0 || xs0 >= WINDOW_WIDTH)) {
-                    int xs = xs0;
-                    int xe = xe0;
-                    if (xs < 0) xs = 0;
-                    if (xe > WINDOW_WIDTH - 1) xe = WINDOW_WIDTH - 1;
-
-                    if (xs <= xe) {
-                        float clip = (float)(xs - xs0);
-                        u += clip * du_dx;
-                        v -= clip * dv_dx;
-
-                        uint16_t *dst = buffer + y * WINDOW_WIDTH + xs;
-                        int count = (xe - xs + 1);
-                        int n2 = count & ~1;
-
-                        const int wmask = text->w_mask;
-                        const int hmask = text->h_mask;
-
-                        for (int i = 0; i < n2; i += 2) {
-                            int tx0 = ((int)u) & wmask;
-                            int ty0 = ((int)v) & hmask;
-                            u += du_dx;
-                            v -= dv_dx;
-
-                            int tx1 = ((int)u) & wmask;
-                            int ty1 = ((int)v) & hmask;
-                            u += du_dx;
-                            v -= dv_dx;
-
-                            dst[0] = tex_data[(ty0 << shift) + tx0];
-                            dst[1] = tex_data[(ty1 << shift) + tx1];
-                            dst += 2;
-                        }
-
-                        for (int i = n2; i < count; i++) {
-                            int tx = ((int)u) & wmask;
-                            int ty = ((int)v) & hmask;
-                            *dst++ = tex_data[(ty << shift) + tx];
-                            u += du_dx;
-                            v -= dv_dx;
-                        }
-                    }
-                }
-
-                x_left  += slope_top_to_mid;
-                x_right += slope_top_to_bottom;
-                u_left  += slope_u_top_to_mid;
-                v_left  += slope_v_top_to_mid;
-                u_right += slope_u_top_to_bottom;
-                v_right += slope_v_top_to_bottom;
+                x_short += slope_x_short; z_short += slope_z_short;
+                u_short += slope_u_short; v_short += slope_v_short;
+                x_long  += slope_x_long;  z_long  += slope_z_long;
+                u_long  += slope_u_long;  v_long  += slope_v_long;
             }
-        } else {
-            x_right += slope_top_to_bottom   * height_top_to_mid;
-            u_right += slope_u_top_to_bottom * height_top_to_mid;
-            v_right += slope_v_top_to_bottom * height_top_to_mid;
         }
     }
 
-    // ----------------------------
-    // Lower part: from mid -> bottom
-    // ----------------------------
-    if (height_mid_to_bottom == 0.0f) return;
+    // ------------------------------------------------------------
+    // Lower half: mid -> bottom
+    // ------------------------------------------------------------
+    if (height_mid_to_bottom <= 0.0f) return;
 
-    float slope_x_left   = shz_divf((x_bottom - x_mid), height_mid_to_bottom);
-    float slope_u_left   = shz_divf((u_bottom - u_mid), height_mid_to_bottom);
-    float slope_v_left   = shz_divf((v_bottom - v_mid), height_mid_to_bottom);
+    float inv_short = shz_divf(1.0f, height_mid_to_bottom);
+    const float slope_x_short = (x_bottom - x_mid) * inv_short;
+    const float slope_z_short = (z_bottom - z_mid) * inv_short;
+    const float slope_u_short = (u_bottom - u_mid) * inv_short;
+    const float slope_v_short = (v_bottom - v_mid) * inv_short;
 
-    float slope_x_right  = slope_top_to_bottom;
-    float slope_u_right  = slope_u_top_to_bottom;
-    float slope_v_right  = slope_v_top_to_bottom;
-
-    x_left = x_mid;
-    u_left = u_mid;
-    v_left = v_mid;
-
-    int y0_raw = (int)shz_ceilf(y_mid);
-    int y1_raw = (int)shz_floorf(y_bottom);
-
-    int y0 = y0_raw;
-    int y1 = y1_raw;
+    int y0 = (int)shz_ceilf(y_mid);
+    int y1 = (int)shz_floorf(y_bottom);
     if (y0 < 0) y0 = 0;
     if (y1 > WINDOW_HEIGHT - 1) y1 = WINDOW_HEIGHT - 1;
-
     if (y0 > y1) return;
 
-    float dy = (float)(y0 - y0_raw);
-    if (dy != 0.0f) {
-        x_left  += slope_x_left  * dy;
-        u_left  += slope_u_left  * dy;
-        v_left  += slope_v_left  * dy;
+    float dy_short = (float)y0 - y_mid;
+    float dy_long  = (float)y0 - y_top;
 
-        x_right += slope_x_right * dy;
-        u_right += slope_u_right * dy;
-        v_right += slope_v_right * dy;
-    }
+    float x_short = x_mid + slope_x_short * dy_short;
+    float z_short = z_mid + slope_z_short * dy_short;
+    float u_short = u_mid + slope_u_short * dy_short;
+    float v_short = v_mid + slope_v_short * dy_short;
+
+    float x_long  = x_top + slope_x_long  * dy_long;
+    float z_long  = z_top + slope_z_long   * dy_long;
+    float u_long  = u_top + slope_u_long   * dy_long;
+    float v_long  = v_top + slope_v_long   * dy_long;
 
     for (int y = y0; y <= y1; y++) {
-        float xL = x_left, xR = x_right;
-        float uL = u_left, uR = u_right;
-        float vL = v_left, vR = v_right;
+        if (mid_is_left)
+            draw_span(x_short, x_long,
+                      z_short, z_long,
+                      u_short, u_long,
+                      v_short, v_long,
+                      u_scale, v_scale, sample_h, y,
+                      tex_data, wmask, hmask, shift);
+        else
+            draw_span(x_long,  x_short,
+                      z_long,  z_short,
+                      u_long,  u_short,
+                      v_long,  v_short,
+                      u_scale, v_scale, sample_h, y,
+                      tex_data, wmask, hmask, shift);
 
-        if (xL > xR) {
-            float t;
-            t = xL; xL = xR; xR = t;
-            t = uL; uL = uR; uR = t;
-            t = vL; vL = vR; vR = t;
-        }
-
-        float span_width = xR - xL;
-        if (span_width <= 0.0f) {
-            x_left  += slope_x_left;
-            u_left  += slope_u_left;
-            v_left  += slope_v_left;
-
-            x_right += slope_x_right;
-            u_right += slope_u_right;
-            v_right += slope_v_right;
-            continue;
-        }
-
-        int x_start = (int)shz_floorf(xL);
-        int x_end   = (int)shz_ceilf(xR);
-
-        float inv_span = shz_invf(span_width);
-        float du_dx = (uR - uL) * inv_span * u_scale;
-        float dv_dx = (vR - vL) * inv_span * v_scale;
-
-        float dx0 = (float)x_start - xL;
-        float u = (uL * u_scale) + dx0 * du_dx;
-        float v = (float)(tex_h - 1) - ((vL * v_scale) + dx0 * dv_dx);
-
-        int xs0 = x_start;
-        int xe0 = x_end;
-
-        if (!(xe0 < 0 || xs0 >= WINDOW_WIDTH)) {
-            int xs = xs0;
-            int xe = xe0;
-            if (xs < 0) xs = 0;
-            if (xe > WINDOW_WIDTH - 1) xe = WINDOW_WIDTH - 1;
-
-            if (xs <= xe) {
-                float clip = (float)(xs - xs0);
-                u += clip * du_dx;
-                v -= clip * dv_dx;
-
-                uint16_t *dst = buffer + y * WINDOW_WIDTH + xs;
-                int count = (xe - xs + 1);
-                int n2 = count & ~1;
-
-                const int wmask = text->w_mask;
-                const int hmask = text->h_mask;
-
-                for (int i = 0; i < n2; i += 2) {
-                    int tx0 = ((int)u) & wmask;
-                    int ty0 = ((int)v) & hmask;
-                    u += du_dx;
-                    v -= dv_dx;
-
-                    int tx1 = ((int)u) & wmask;
-                    int ty1 = ((int)v) & hmask;
-                    u += du_dx;
-                    v -= dv_dx;
-
-                    dst[0] = tex_data[(ty0 << shift) + tx0];
-                    dst[1] = tex_data[(ty1 << shift) + tx1];
-                    dst += 2;
-                }
-
-                for (int i = n2; i < count; i++) {
-                    int tx = ((int)u) & wmask;
-                    int ty = ((int)v) & hmask;
-                    *dst++ = tex_data[(ty << shift) + tx];
-                    u += du_dx;
-                    v -= dv_dx;
-                }
-            }
-        }
-
-        x_left  += slope_x_left;
-        u_left  += slope_u_left;
-        v_left  += slope_v_left;
-
-        x_right += slope_x_right;
-        u_right += slope_u_right;
-        v_right += slope_v_right;
+        x_short += slope_x_short; z_short += slope_z_short;
+        u_short += slope_u_short; v_short += slope_v_short;
+        x_long  += slope_x_long;  z_long  += slope_z_long;
+        u_long  += slope_u_long;  v_long  += slope_v_long;
     }
 }
+
 void draw_textured_triangle_scanline_fast(const triangle_t *tri, const texture_t *text)
 {
     const uint16_t *tex_data = (const uint16_t *)text->img.data;
@@ -1076,6 +1009,7 @@ void draw_textured_triangle_scanline_fast(const triangle_t *tri, const texture_t
     return (min_x >= 0.0f && max_x < (float)WINDOW_WIDTH &&
             min_y >= 0.0f && max_y < (float)WINDOW_HEIGHT);
 }
+
 
 
 inline shz_vec3_t get_triangle_face_normal(shz_vec4_t vertices[3]){

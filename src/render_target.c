@@ -23,17 +23,29 @@ static void *buffer_base = NULL;
 static void *background_base = NULL;
 
 
-bool initialize_window(void){
+bool initialize_window(void) {
     int count = WINDOW_WIDTH * WINDOW_HEIGHT;
-    z_buffer    = (float*)aligned_alloc(32, sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
-    z_template  = (float *)aligned_alloc(32, sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
 
-    for (size_t i = 0; i < count; i++) {
-        z_buffer[i] = 1.0f;
+    z_buffer   = (float *)aligned_alloc(32, sizeof(float) * count);
+    z_template = (float *)aligned_alloc(32, sizeof(float) * count);
+
+    if (!z_buffer || !z_template) return false;
+
+    // Both set to same value — frame 0 identical to all subsequent frames
+    for (int i = 0; i < count; i++) {
         z_template[i] = 0.0f;
     }
+    shz_sq_memcpy32(z_buffer, z_template, sizeof(float) * count);
 
     return true;
+}
+
+void clear_z_buffer(void) {
+    shz_sq_memcpy32(z_buffer, z_template, sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
+}
+
+void draw_background_image(void) {
+    shz_sq_memcpy32(buffer, background_texture, buffer_size);
 }
 
 void destroy_window(void){
@@ -139,19 +151,8 @@ void update_zbuffer(int x, int y, float value){
     z_buffer[(640 * y) + x] = value;
 }
 
-void clear_z_buffer(){
-    memcpy(z_buffer, z_template, sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
-}
 
-void draw_background_image(){
-    // uint64_t start_time = perf_cntr_timer_ns();   
-    memcpy(buffer, background_texture, buffer_size);
-    // sq_cpy((void *)((uint8_t *)buffer), (const void *)((uint8_t *)background_texture), 640 * 480 * sizeof(uint16_t));
-    // uint64_t end_time = perf_cntr_timer_ns();
-    // uint64_t elapsed_time = end_time - start_time;
-    // printf("Background draw time: %llu ns\n", elapsed_time);
 
-}
 
 void load_background_image(const char* path){
     kos_img_t img;
