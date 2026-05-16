@@ -55,22 +55,28 @@ void inner_loop_textured_z_float_uv(
     int hmask,
     int shift
 ) {
+    // Prefetch first cache lines
+    __builtin_prefetch(z_dst, 1);  // write prefetch
+    __builtin_prefetch(dst, 1);
+    
     for (int i = 0; i < count; i++) {
-       float z_old = z_dst[i];
-
-        if (z < z_old) {
+        float z_old = z_dst[i];
+        
+        if (z > z_old) {
+            // Compute texel address while z-test passes
             int tx = ((int)u) & wmask;
             int ty = ((int)v) & hmask;
+            uint16_t texel = tex_data[(ty << shift) + tx];
+            
             z_dst[i] = z;
-            dst[i] = tex_data[(ty << shift) + tx];
+            dst[i] = texel;
         }
-
+        
         z += dz_dx;
         u += du_dx;
         v -= dv_dx;
     }
 }
-
 static int dbg_prints_left = 40;
 static int tex_dbg_once = 0;
 
@@ -584,7 +590,7 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
 
     // Sort by Y (bubble sort 3 elements)
     #define SWAP_VERTS(a, b) do { \
-        float _t;                                                \
+        float _t;                                              \
         _t=y_##a; y_##a=y_##b; y_##b=_t;                       \
         _t=x_##a; x_##a=x_##b; x_##b=_t;                       \
         _t=z_##a; z_##a=z_##b; z_##b=_t;                       \
@@ -615,7 +621,6 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
     const float slope_v_long = (v_bottom - v_top) * inv_long;
 
     // Determine left/right ONCE: where does long edge land at y_mid?
-    // If x_mid < x_long_at_mid, mid vertex is on the LEFT
     const float x_long_at_mid = x_top + slope_x_long * height_top_to_mid;
     const int mid_is_left = (x_mid <= x_long_at_mid);
 
@@ -623,11 +628,11 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
     // Upper half: top -> mid
     // ------------------------------------------------------------
     if (height_top_to_mid > 0.0f) {
-        float inv_short = shz_divf(1.0f, height_top_to_mid);
-        const float slope_x_short = (x_mid - x_top) * inv_short;
-        const float slope_z_short = (z_mid - z_top) * inv_short;
-        const float slope_u_short = (u_mid - u_top) * inv_short;
-        const float slope_v_short = (v_mid - v_top) * inv_short;
+        float inv_short_u = shz_divf(1.0f, height_top_to_mid);
+        const float slope_x_short = (x_mid - x_top) * inv_short_u;
+        const float slope_z_short = (z_mid - z_top) * inv_short_u;
+        const float slope_u_short = (u_mid - u_top) * inv_short_u;
+        const float slope_v_short = (v_mid - v_top) * inv_short_u;
 
         int y0 = (int)shz_ceilf(y_top);
         int y1 = (int)shz_floorf(y_mid);
@@ -635,9 +640,8 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
         if (y0 < 0) y0 = 0;
         if (y1 > WINDOW_HEIGHT - 1) y1 = WINDOW_HEIGHT - 1;
 
-    
         if (y0 < tile_offset_y) y0 = tile_offset_y;
-        if (y1 > tile_offset_y + TILE_X - 1) y1 = tile_offset_y + TILE_X - 1;
+        if (y1 > tile_offset_y + TILE_Y - 1) y1 = tile_offset_y + TILE_Y - 1;
 
         if (y0 <= y1) {
             float dy = (float)y0 - y_top;
@@ -648,21 +652,27 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
             float v_short = v_top + slope_v_short * dy;
 
             float x_long  = x_top + slope_x_long  * dy;
-            float z_long  = z_top + slope_z_long   * dy;
-            float u_long  = u_top + slope_u_long   * dy;
-            float v_long  = v_top + slope_v_long   * dy;
+            float z_long  = z_top + slope_z_long  * dy;
+            float u_long  = u_top + slope_u_long  * dy;
+            float v_long  = v_top + slope_v_long  * dy;
 
-
-            for (int y = y0; y <= y1; y++) {
-                
-                if (mid_is_left)
+            // Hoist mid_is_left out of the loop
+            if (mid_is_left) {
+                for (int y = y0; y <= y1; y++) {
                     draw_span(x_short, x_long,
                               z_short, z_long,
                               u_short, u_long,
                               v_short, v_long,
                               u_scale, v_scale, sample_h, y,
                               tex_data, wmask, hmask, shift);
-                else
+
+                    x_short += slope_x_short; z_short += slope_z_short;
+                    u_short += slope_u_short; v_short += slope_v_short;
+                    x_long  += slope_x_long;  z_long  += slope_z_long;
+                    u_long  += slope_u_long;  v_long  += slope_v_long;
+                }
+            } else {
+                for (int y = y0; y <= y1; y++) {
                     draw_span(x_long,  x_short,
                               z_long,  z_short,
                               u_long,  u_short,
@@ -670,10 +680,11 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
                               u_scale, v_scale, sample_h, y,
                               tex_data, wmask, hmask, shift);
 
-                x_short += slope_x_short; z_short += slope_z_short;
-                u_short += slope_u_short; v_short += slope_v_short;
-                x_long  += slope_x_long;  z_long  += slope_z_long;
-                u_long  += slope_u_long;  v_long  += slope_v_long;
+                    x_short += slope_x_short; z_short += slope_z_short;
+                    u_short += slope_u_short; v_short += slope_v_short;
+                    x_long  += slope_x_long;  z_long  += slope_z_long;
+                    u_long  += slope_u_long;  v_long  += slope_v_long;
+                }
             }
         }
     }
@@ -693,8 +704,8 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
     int y1 = (int)shz_floorf(y_bottom);
     if (y0 < 0) y0 = 0;
     if (y1 > WINDOW_HEIGHT - 1) y1 = WINDOW_HEIGHT - 1;
-            if (y0 < tile_offset_y) y0 = tile_offset_y;
-        if (y1 > tile_offset_y + TILE_X - 1) y1 = tile_offset_y + TILE_X - 1;
+    if (y0 < tile_offset_y) y0 = tile_offset_y;
+    if (y1 > tile_offset_y + TILE_Y - 1) y1 = tile_offset_y + TILE_Y - 1;
     if (y0 > y1) return;
 
     float dy_short = (float)y0 - y_mid;
@@ -706,19 +717,27 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
     float v_short = v_mid + slope_v_short * dy_short;
 
     float x_long  = x_top + slope_x_long  * dy_long;
-    float z_long  = z_top + slope_z_long   * dy_long;
-    float u_long  = u_top + slope_u_long   * dy_long;
-    float v_long  = v_top + slope_v_long   * dy_long;
+    float z_long  = z_top + slope_z_long  * dy_long;
+    float u_long  = u_top + slope_u_long  * dy_long;
+    float v_long  = v_top + slope_v_long  * dy_long;
 
-    for (int y = y0; y <= y1; y++) {
-        if (mid_is_left)
+    // Hoist mid_is_left out of the loop
+    if (mid_is_left) {
+        for (int y = y0; y <= y1; y++) {
             draw_span(x_short, x_long,
                       z_short, z_long,
                       u_short, u_long,
                       v_short, v_long,
                       u_scale, v_scale, sample_h, y,
                       tex_data, wmask, hmask, shift);
-        else
+
+            x_short += slope_x_short; z_short += slope_z_short;
+            u_short += slope_u_short; v_short += slope_v_short;
+            x_long  += slope_x_long;  z_long  += slope_z_long;
+            u_long  += slope_u_long;  v_long  += slope_v_long;
+        }
+    } else {
+        for (int y = y0; y <= y1; y++) {
             draw_span(x_long,  x_short,
                       z_long,  z_short,
                       u_long,  u_short,
@@ -726,10 +745,11 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
                       u_scale, v_scale, sample_h, y,
                       tex_data, wmask, hmask, shift);
 
-        x_short += slope_x_short; z_short += slope_z_short;
-        u_short += slope_u_short; v_short += slope_v_short;
-        x_long  += slope_x_long;  z_long  += slope_z_long;
-        u_long  += slope_u_long;  v_long  += slope_v_long;
+            x_short += slope_x_short; z_short += slope_z_short;
+            u_short += slope_u_short; v_short += slope_v_short;
+            x_long  += slope_x_long;  z_long  += slope_z_long;
+            u_long  += slope_u_long;  v_long  += slope_v_long;
+        }
     }
 }
 

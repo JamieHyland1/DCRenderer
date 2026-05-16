@@ -41,31 +41,16 @@ void setup_tiles(){
 }
 
 static inline void generate_triangle_bounds(triangle_t *tri) {
-    float min_x = tri->points[0].x;
-    float max_x = tri->points[0].x;
-
-    float min_y = tri->points[0].y;
-    float max_y = tri->points[0].y;
-
-    for (int i = 1; i < 3; i++) {
-        float x = tri->points[i].x;
-        float y = tri->points[i].y;
-
-        if (x < min_x) min_x = x;
-        if (x > max_x) max_x = x;
-        if (y < min_y) min_y = y;
-        if (y > max_y) max_y = y;
-    }
+    float x0 = tri->points[0].x, x1 = tri->points[1].x, x2 = tri->points[2].x;
+    float y0 = tri->points[0].y, y1 = tri->points[1].y, y2 = tri->points[2].y;
+    
+    float min_x = fminf(x0, fminf(x1, x2));
+    float max_x = fmaxf(x0, fmaxf(x1, x2));
+    float min_y = fminf(y0, fminf(y1, y2));
+    float max_y = fmaxf(y0, fmaxf(y1, y2));
 
     tri->x1 = (int)floorf(min_x);
     tri->y1 = (int)floorf(min_y);
-
-    /*
-        x2/y2 are exclusive bounds.
-
-        So if x1 = 10 and x2 = 21,
-        the covered pixel range is x = 10..20.
-    */
     tri->x2 = (int)ceilf(max_x) + 1;
     tri->y2 = (int)ceilf(max_y) + 1;
 }
@@ -92,10 +77,9 @@ void bin_triangles(int num_triangles_to_render){
         for(int ty = ty0; ty <= ty1; ty++){
             for(int tx = tx0; tx <= tx1; tx++){
                 int j = ty * x_tiles + tx;
-                tile_t *tile = &tiles[j];           // fix 2: pointer, not copy
-                bool in_bin = is_triangle_in_bin(tile, tri);
-                if(in_bin && tile->tile_tri_count < MAX_TRIANGLES_PER_TILE){
-                    tile->triangles[tile->tile_tri_count] = tri;  // fix 3: store pointer to actual element
+                tile_t *tile = &tiles[j];          
+                if(tile->tile_tri_count < MAX_TRIANGLES_PER_TILE){
+                    tile->triangles[tile->tile_tri_count] = tri;
                     tile->tile_tri_count++;
                 }
             }
@@ -107,88 +91,62 @@ void draw_tiles(int draw_mode){
     for(int i = num_tiles-1; i >= 0; i--){
         tile_t* tile = &tiles[i];
         int num_triangles_to_render = tile->tile_tri_count;
-        if(num_triangles_to_render > 0){
+        if(num_triangles_to_render == 0) continue;
 
-            for (int row = 0; row < TILE_Y; row++) {
-                memcpy(
+        // Instead of two separate loops, combine them:
+        for (int row = 0; row < TILE_Y; row++) {
+            shz_memcpy32(
                 tile_buffer + row * TILE_X,
                 tile->start_pos + row * WINDOW_WIDTH,
                 sizeof(uint16_t) * TILE_X
-                );
-            }
+            );
+            shz_memcpy32(
+                tile_z_buffer + row * TILE_X,
+                tile->z_start_pos + row * WINDOW_WIDTH,
+                sizeof(float) * TILE_X
+            );
+        }
 
-            for (int row = 0; row < TILE_Y; row++) {
-                memcpy(
-                    tile_z_buffer + row * TILE_X,
-                    tile->z_start_pos + row * WINDOW_WIDTH,
-                    sizeof(float) * TILE_X
-                );
-            }
+        tile_offset_x = tile->x1;
+        tile_offset_y = tile->y1;
 
-            draw_line(tile->x1, tile->y1, tile->x2, tile->y1, 0xFFFF);
-            draw_line(tile->x1, tile->y1, tile->x1, tile->y2, 0xFFFF);
-            draw_line(tile->x2, tile->y1, tile->x2, tile->y2, 0xFFFF);
-            draw_line(tile->x1, tile->y2, tile->x2, tile->y2, 0xFFFF);
-
-            tile_offset_x = tile->x1;
-            tile_offset_y = tile->y1;
-
-            for (int j = 0; j < num_triangles_to_render; j++)
-            {
-                triangle_t* tri = tile->triangles[j];
-                switch (draw_mode) {
-                    case DRAW_WIRE:
-                        draw_triangle(tri, 0xFFFF);
-                        break;
-
-                    case DRAW_FILL_TRIANGLE:
-                        draw_filled_triangle(tri, 0xF800);
-                        break;
-
-                    case DRAW_FILL_TRIANGLE_WIRE:
-                        draw_filled_triangle_wire(tri, 0xF800);
-                        break;
-
-                    case DRAW_TEXTURED:
-                        start_time = perf_cntr_timer_ns();
-                        /* draw_textured_triangle(&tri); */
-                        end_time = perf_cntr_timer_ns();
-                        break;
-
-                    case DRAW_TEXTURED_SCANLINE: {
-                        const texture_t *texture = get_texture(tri->id);
-                        // if (triangle_fully_inside_screen(&tri)) {
-                        draw_textured_triangle_scanline(tri, texture);
-                        // } else {
-                        //     draw_textured_triangle_scanline_fast(&tri, texture);
-                        // }
-                        break;
-                    }
-
-                    default:
-                        break;
+        for (int j = 0; j < num_triangles_to_render; j++)
+        {
+            triangle_t* tri = tile->triangles[j];
+            switch (draw_mode) {
+                case DRAW_WIRE:
+                    draw_triangle(tri, 0xFFFF);
+                    break;
+                case DRAW_FILL_TRIANGLE:
+                    draw_filled_triangle(tri, 0xF800);
+                    break;
+                case DRAW_FILL_TRIANGLE_WIRE:
+                    draw_filled_triangle_wire(tri, 0xF800);
+                    break;
+                case DRAW_TEXTURED_SCANLINE: {
+                    const texture_t *texture = get_texture(tri->id);
+                    draw_textured_triangle_scanline(tri, texture);
+                    break;
                 }
+                default:
+                    break;
             }
-            // push the tile buffers to the main buffer
-            tile->tile_tri_count = 0;
-            for (int row = 0; row < TILE_Y; row++) {
-                shz_memcpy32(
-                    tile->start_pos + row * WINDOW_WIDTH,
-                    tile_buffer + row * TILE_X,
-                    sizeof(uint16_t) * TILE_X
-                );
+        }
 
-                shz_memcpy32(
-                    tile->z_start_pos + row * WINDOW_WIDTH,
-                    tile_z_buffer  + row * TILE_X,
-                    sizeof(float) * TILE_X
-                );
+        // Write back to main buffer (write - use shz_sq_memcpy32)
+        tile->tile_tri_count = 0;
+        for (int row = 0; row < TILE_Y; row++) {
+            shz_sq_memcpy32(
+                tile->start_pos + row * WINDOW_WIDTH,
+                tile_buffer + row * TILE_X,
+                sizeof(uint16_t) * TILE_X
+            );
 
-            }
-            for (int i = 0; i < TILE_X * TILE_Y; i++) {
-                tile_z_buffer[i] = 1.0f;
-            }
-
+            shz_sq_memcpy32(
+                tile->z_start_pos + row * WINDOW_WIDTH,
+                tile_z_buffer + row * TILE_X,
+                sizeof(float) * TILE_X
+            );
         }
     }
 }

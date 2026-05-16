@@ -7,10 +7,10 @@
 #include <math.h>
 #include <kos.h>
 
-#define MAX_TRIANGLES_PER_TILE 100
+#define MAX_TRIANGLES_PER_TILE 300
 
 #define TILE_X 64
-#define TILE_Y 32
+#define TILE_Y 64
 
 typedef struct{
   int x1;
