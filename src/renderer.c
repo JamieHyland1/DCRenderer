@@ -6,7 +6,7 @@
 #include "shz_matrix.h"
 #include <dc/sq.h>
 #include "shz_xmtrx.h"
-#include "shz_fpscr.h"
+
 #include "../include/core.h"
 #include <dc/perfctr.h>
 #include <dc/video.h>
@@ -47,7 +47,7 @@ bool setup(void)
     background_texture = (uint16_t *)aligned_alloc(32, buffer_size);
     z_buffer = (float *)aligned_alloc(32, sizeof(float) * WINDOW_WIDTH * WINDOW_HEIGHT);
 
-    load_background_image("rd/yokohama.png");
+    load_background_image("rd/background2.png");
 
     init_light((shz_vec3_t){{{0.0f, 0.0f, -1.0f}}});
 
@@ -63,7 +63,7 @@ bool setup(void)
     float fov_x = atanf(tanf(fov_y / 2) * aspect_x) * 2;
     float cot_fovy_2 = 1.0f / tanf(fov_y / 2.0f);
     float znear = 0.1f;
-    float zfar = 1000.0f;
+    float zfar = 200.0f;
 
     mat_identity();
     mat_perspective(aspect_ratio, 1.0f, cot_fovy_2, znear, zfar);
@@ -74,8 +74,8 @@ bool setup(void)
     setup_plan_eq();
 
     // scale          position         rotation
-    int skybox_id = load_assets("rd/Skybox.obj", "rd/SpeedHighway.png");
-    (void)skybox_id;
+    // int skybox_id = load_assets("rd/Skybox.obj", "rd/SpeedHighway.png");
+    // (void)skybox_id;
 
     int cube_id = load_assets("rd/cube.obj", "rd/cube.png");
 
@@ -323,12 +323,13 @@ int main(int argc, char *args[])
         num_triangles_to_render = 0;
 
         update();
-       
+      
         bin_triangles(num_triangles_to_render);
         uint64_t start = perf_cntr_timer_ns();
 
         draw_tiles(draw_mode);
         render_total_ns += (perf_cntr_timer_ns() - start);
+        clear_z_buffer();
 
         /* render(); */
     #ifdef DEBUG

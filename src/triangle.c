@@ -8,7 +8,7 @@ int tile_offset_x = 0;
 int tile_offset_y = 0;
 
 static inline int tile_pixel_index(int local_x, int local_y) {
-    return local_y * 32 + local_x;
+    return local_y * TILE_X + local_x;
 }
 
 inline float edge_func(float x0, float y0, float x1, float y1, float x, float y) {
@@ -57,7 +57,8 @@ void inner_loop_textured_z_float_uv(
 ) {
     for (int i = 0; i < count; i++) {
        float z_old = z_dst[i];
-        if (z > z_old) {
+
+        if (z < z_old) {
             int tx = ((int)u) & wmask;
             int ty = ((int)v) & hmask;
             z_dst[i] = z;
@@ -537,7 +538,7 @@ static inline void draw_span(
     float dv_dx = (vR - vL) * inv_span * v_scale;
 
     if (xs < tile_offset_x) xs = tile_offset_x;
-    if (xe > tile_offset_x + 32 - 1) xe = tile_offset_x + 32 - 1;
+    if (xe > tile_offset_x + TILE_X - 1) xe = tile_offset_x + TILE_X - 1;
     
 
     if (xs > xe) return;
@@ -553,7 +554,7 @@ static inline void draw_span(
 
 
     uint16_t *dst = tile_buffer + tile_pixel_index(xs - tile_offset_x, y - tile_offset_y);
-    float *z_dst = tile_z_buffer + tile_pixel_index(xs - tile_offset_x, y - tile_offset_y);
+    float *z_dst  = tile_z_buffer + tile_pixel_index(xs - tile_offset_x, y - tile_offset_y);
     
     inner_loop_textured_z_float_uv(
         z_dst, dst, tex_data,
@@ -636,7 +637,7 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
 
     
         if (y0 < tile_offset_y) y0 = tile_offset_y;
-        if (y1 > tile_offset_y + 32 - 1) y1 = tile_offset_y + 32 - 1;
+        if (y1 > tile_offset_y + TILE_X - 1) y1 = tile_offset_y + TILE_X - 1;
 
         if (y0 <= y1) {
             float dy = (float)y0 - y_top;
@@ -693,7 +694,7 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
     if (y0 < 0) y0 = 0;
     if (y1 > WINDOW_HEIGHT - 1) y1 = WINDOW_HEIGHT - 1;
             if (y0 < tile_offset_y) y0 = tile_offset_y;
-        if (y1 > tile_offset_y + 32 - 1) y1 = tile_offset_y + 32 - 1;
+        if (y1 > tile_offset_y + TILE_X - 1) y1 = tile_offset_y + TILE_X - 1;
     if (y0 > y1) return;
 
     float dy_short = (float)y0 - y_mid;

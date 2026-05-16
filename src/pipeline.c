@@ -4,7 +4,7 @@
 #include "shz_trig.h"
 #include "shz_matrix.h"
 #include "shz_xmtrx.h"
-#include "shz_fpscr.h"
+
 
 #define CACHE_ALIGN __attribute__((aligned(32)))
 #define FACE_BLOCK_SIZE 32

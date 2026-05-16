@@ -5,8 +5,6 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define TILE_X 32
-#define TILE_Y 32
 
 tile_t* tiles;
 uint16_t* tile_buffer;
@@ -36,7 +34,7 @@ void setup_tiles(){
             int y2 = y1 + TILE_Y;
             tile_t tile = {x1, y1, x2, y2, 0, {0}};
             tile.start_pos = buffer + (y * TILE_Y) * WINDOW_WIDTH + (x * TILE_X);
-            tile.z_start_pos = z_buffer + (y * TILE_Y + x) * TILE_X;
+            tile.z_start_pos = z_buffer + (y * TILE_Y) * WINDOW_WIDTH + (x * TILE_X);
             tiles[y * x_tiles + x] = tile;
         }
     } 
@@ -106,7 +104,7 @@ void bin_triangles(int num_triangles_to_render){
 }
 
 void draw_tiles(int draw_mode){
-    for(int i = 0; i < num_tiles; i++){
+    for(int i = num_tiles-1; i >= 0; i--){
         tile_t* tile = &tiles[i];
         int num_triangles_to_render = tile->tile_tri_count;
         if(num_triangles_to_render > 0){
@@ -116,6 +114,14 @@ void draw_tiles(int draw_mode){
                 tile_buffer + row * TILE_X,
                 tile->start_pos + row * WINDOW_WIDTH,
                 sizeof(uint16_t) * TILE_X
+                );
+            }
+
+            for (int row = 0; row < TILE_Y; row++) {
+                memcpy(
+                    tile_z_buffer + row * TILE_X,
+                    tile->z_start_pos + row * WINDOW_WIDTH,
+                    sizeof(float) * TILE_X
                 );
             }
 
@@ -179,8 +185,9 @@ void draw_tiles(int draw_mode){
                 );
 
             }
-            memset(tile_buffer, 0, tile_buffer_size);
-            memset(tile_z_buffer, 0.0, sizeof(float) * TILE_X * TILE_Y);
+            for (int i = 0; i < TILE_X * TILE_Y; i++) {
+                tile_z_buffer[i] = 1.0f;
+            }
 
         }
     }
