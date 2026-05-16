@@ -13,19 +13,20 @@
 #include "renderer.h"
 #include "input.h"
 #include "profile.h"
-    
+#include "tile.h"
+
 enum cull_method
 {
     CULL_NONE,
     CULL_BACKFACE
 };
 
-enum render_method
+enum draw_method
 {
-    RENDER_WIRE,
-    RENDER_FILL_TRIANGLE,
-    RENDER_FILL_TRIANGLE_WIRE,
-    RENDER_TEXTURED,
-    RENDER_TEXTURED_SCANLINE
+    DRAW_WIRE,
+    DRAW_FILL_TRIANGLE,
+    DRAW_FILL_TRIANGLE_WIRE,
+    DRAW_TEXTURED,
+    DRAW_TEXTURED_SCANLINE
 };
 #endif

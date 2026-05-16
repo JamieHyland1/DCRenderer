@@ -30,7 +30,7 @@ TEST_SRCS := \
     $(SRCDIR)/texture.c \
     $(SRCDIR)/vector.c \
     $(SRCDIR)/utils.c \
-    $(SRCDIR)/render_target.c \
+    $(SRCDIR)/DRAW_target.c \
     $(SRCDIR)/skybox.c \
     $(SRCDIR)/pipeline.c \
     $(SRCDIR)/object.c \

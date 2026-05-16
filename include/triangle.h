@@ -27,7 +27,14 @@ typedef struct {
     tex2_t texcoords[3];
     int id;
     float orientation_from_light;
+    int x1;
+    int y1;
+    int x2;
+    int y2;
 }triangle_t;
+
+extern int tile_offset_x;
+extern int tile_offset_y;
 
 void draw_triangle(const triangle_t* tri, uint16_t color);
 void draw_filled_triangle(const triangle_t* tri, uint16_t color);

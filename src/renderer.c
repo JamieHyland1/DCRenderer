@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include "shz_trig.h"
 #include "shz_matrix.h"
+#include <dc/sq.h>
 #include "shz_xmtrx.h"
 #include "shz_fpscr.h"
 #include "../include/core.h"
@@ -14,7 +15,7 @@ bool isRunning = false;
 
 int frame_count = 0;
 int previous_frame_time = 0;
-bool render_z_buffer = false;
+bool draw_z_buffer = false;
 int skybox_tris_rendererd = 0;
 
 uint64_t triangle_time = 0;
@@ -22,7 +23,7 @@ uint64_t total_cycles = 0;
 uint64_t elapsed_time = 0;
 int64_t dcache_freeze = 0;
 
-enum render_method render_mode;
+enum draw_method draw_mode;
 
 void load_background_image(const char *path);
 int get_num_objects(void);
@@ -50,7 +51,7 @@ bool setup(void)
 
     init_light((shz_vec3_t){{{0.0f, 0.0f, -1.0f}}});
 
-    render_mode = RENDER_TEXTURED_SCANLINE;
+    draw_mode = DRAW_TEXTURED_SCANLINE;
     cull_mode = CULL_BACKFACE;
 
     // Initialize projection matrix
@@ -84,7 +85,7 @@ bool setup(void)
     printf("size of object_t: %d bytes\n", sizeof(object_t));
     set_camera_pos((shz_vec3_t){{{21.60f, 0.6f, 116.70f}}}); // TESTING POSITION
     //set_camera_pos((shz_vec3_t){{{24.20f, 10.6f, 114.70f}}}); // BENCHMARK POSITION
-
+    setup_tiles();
     return true;
 }
 
@@ -103,28 +104,52 @@ void update(void)
     shz_xmtrx_store_4x4((shz_mat4x4_t *)&v_mat);
 
     int num_objects = get_num_objects();
+
     int rows = 10;
     int cols = num_objects / 10;
+    if(num_objects % 10 == 0){
+        for (int object_index = 0; object_index < cols; object_index++) {
+            float z = object_index * 5.5f;
 
-    for (int object_index = 0; object_index < cols; object_index++) {
-        float z = object_index * 5.5f;
+            for (int i = 0; i < rows; i++) {
+                object_t obj;
+                int index = (object_index * rows) + i;
 
-        for (int i = 0; i < rows; i++) {
+                if (get_object(index, &obj)) {
+                    float x = i * 5.5f;
+                    mesh_t *mesh = get_mesh(obj.id);
+                    if (mesh) {
+                        shz_vec3_t pos = vec3_new(x, obj.translation.y, z);
+                        shz_vec3_t rot = get_obj_rotation(index);
+                        rot.y += 0.01;
+                        update_obj_rotation(index, &rot);
+                        update_obj_translation(index, &pos);
+                    }
+                    process_graphics_pipeline_blocked(&obj);
+                }
+            }
+        }
+    }else{
+        for(int i = 0; i < num_objects; i++){
             object_t obj;
-            int index = (object_index * rows) + i;
+            int index = i;
 
             if (get_object(index, &obj)) {
                 float x = i * 5.5f;
                 mesh_t *mesh = get_mesh(obj.id);
                 if (mesh) {
-                    shz_vec3_t pos = vec3_new(x, obj.translation.y, z);
+                    shz_vec3_t pos = vec3_new(x, obj.translation.y, obj.translation.z);
                     shz_vec3_t rot = get_obj_rotation(index);
-                    rot.y += 0.1;
+                    rot.y += 0.01;
+                    rot.z += 0.02;
+                    rot.x -= 0.02;
+                    
                     update_obj_rotation(index, &rot);
                     update_obj_translation(index, &pos);
                 }
                 process_graphics_pipeline_blocked(&obj);
             }
+            
         }
     }
 
@@ -146,15 +171,15 @@ void process_input(void)
 
         if (PRESSED(CONT_A))
         {
-            render_z_buffer = !render_z_buffer;
+            draw_z_buffer = !draw_z_buffer;
         }
         if (PRESSED(CONT_B))
         {
-            render_mode++;
+            draw_mode++;
         }
         if (PRESSED(CONT_X))
         {
-            render_mode--;
+            draw_mode--;
         }
         if (PRESSED(CONT_Y))
         {
@@ -201,13 +226,13 @@ void process_input(void)
             set_camera_pos(pos);
         }
 
-        if (render_mode < 0)
+        if (draw_mode < 0)
         {
-            render_mode = 5;
+            draw_mode = 5;
         }
-        else if (render_mode > 5)
+        else if (draw_mode > 5)
         {
-            render_mode = 0;
+            draw_mode = 0;
         }
 
         prev_buttons = buttons;
@@ -226,30 +251,30 @@ void render(void)
         triangle_t tri = skybox_triangles_to_render[i];
         draw_textured_triangle_scanline(&tri);
     } */
-
+    // printf("Number of triangles to render: %d", num_triangles_to_render);
     for (int i = 0; i < num_triangles_to_render; i++)
     {
         triangle_t tri = triangles_to_render[i];
-        switch (render_mode) {
-            case RENDER_WIRE:
+        switch (draw_mode) {
+            case DRAW_WIRE:
                 draw_triangle(&tri, 0xFFFF);
                 break;
 
-            case RENDER_FILL_TRIANGLE:
+            case DRAW_FILL_TRIANGLE:
                 draw_filled_triangle(&tri, 0xF800);
                 break;
 
-            case RENDER_FILL_TRIANGLE_WIRE:
+            case DRAW_FILL_TRIANGLE_WIRE:
                 draw_filled_triangle_wire(&tri, 0xF800);
                 break;
 
-            case RENDER_TEXTURED:
+            case DRAW_TEXTURED:
                 start_time = perf_cntr_timer_ns();
                 /* draw_textured_triangle(&tri); */
                 end_time = perf_cntr_timer_ns();
                 break;
 
-            case RENDER_TEXTURED_SCANLINE: {
+            case DRAW_TEXTURED_SCANLINE: {
                 const texture_t *texture = get_texture(tri.id);
                // PROFILE_PERF_START(PROF_EVENT_DCACHE_FREEZE);
                 // if (triangle_fully_inside_screen(&tri)) {
@@ -268,15 +293,15 @@ void render(void)
         }
     }
 
-    if (render_z_buffer == true) {
+    if (draw_z_buffer == true) {
         draw_z_buffer_to_screen();
     }
 
     skybox_tris_rendererd = num_triangles_to_render;
-    //draw_info(render_mode, num_triangles_to_render, frame_count);
+    draw_info(draw_mode, num_triangles_to_render, frame_count);
     num_triangles_to_render = 0;
 
-    render_total_ns += (perf_cntr_timer_ns() - start);
+    
 }
 static uint64_t app_start_ns = 0;
 static uint64_t app_end_ns = 0;
@@ -291,14 +316,25 @@ int main(int argc, char *args[])
 
     while (isRunning)
     {
+         vid_flip(-1);
         
         draw_background_image();
         process_input();
+        num_triangles_to_render = 0;
+
         update();
-        render();
+       
+        bin_triangles(num_triangles_to_render);
+        uint64_t start = perf_cntr_timer_ns();
+
+        draw_tiles(draw_mode);
+        render_total_ns += (perf_cntr_timer_ns() - start);
+
+        /* render(); */
     #ifdef DEBUG
         uint64_t copy_start = perf_cntr_timer_ns();
     #endif
+
 
         sq_lock((void *)((uint8_t *)vram_s));
             shz_sq_memcpy32(SQ_MASK_DEST((void *)((uint8_t *)vram_s)),
@@ -317,7 +353,7 @@ int main(int argc, char *args[])
         if (frame_count == 1000) isRunning = false;
     #endif
 
-    vid_flip(vid_mode->fb_count);
+   
 
     }
     #ifdef DEBUG

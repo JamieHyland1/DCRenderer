@@ -239,7 +239,7 @@ void draw_z_buffer_to_screen(void) {
     }
 }
 
-void draw_info(int render_mode, int num_triangles_to_render, int frame_count) {
+void draw_info(int draw_mode, int num_triangles_to_render, int frame_count) {
     minifont_draw_str(buffer + get_offset(20, 10), WINDOW_WIDTH, "Hello World, from Jamies Renderer!");
       // Log camera position, render mode, and triangle count on screen
     shz_vec3_t cam_pos = get_camera_pos();
@@ -251,7 +251,7 @@ void draw_info(int render_mode, int num_triangles_to_render, int frame_count) {
     const char *mode_names[] = {
         "WIRE", "FILL_TRI", "FILL_TRI_WIRE", "TEXTURED", "TEXTURED_OPTIMIZED"
     };
-    snprintf(mode_buf, sizeof(mode_buf), "Mode: %s", mode_names[render_mode]);
+    snprintf(mode_buf, sizeof(mode_buf), "Mode: %s", mode_names[draw_mode]);
     minifont_draw_str(buffer + get_offset(20, 70), WINDOW_WIDTH, mode_buf);
 
     char tri_buf[32];

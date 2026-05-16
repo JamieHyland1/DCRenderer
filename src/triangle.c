@@ -3,6 +3,14 @@
 #include "shz_mem.h"
 #include <stdint.h>
 
+
+int tile_offset_x = 0;
+int tile_offset_y = 0;
+
+static inline int tile_pixel_index(int local_x, int local_y) {
+    return local_y * 32 + local_x;
+}
+
 inline float edge_func(float x0, float y0, float x1, float y1, float x, float y) {
     shz_vec2_t edge = {{{ x1 - x0, y1 - y0 }}};
     shz_vec2_t toP  = {{{ x - x0,  y - y0 }}};
@@ -194,7 +202,7 @@ void draw_filled_triangle(const triangle_t* tri, uint16_t color) {
                     if (xe > WINDOW_WIDTH - 1) xe = WINDOW_WIDTH - 1;
 
                     if (xs <= xe) {
-                        uint16_t *dst = buffer + y * WINDOW_WIDTH + xs;
+                        uint16_t *dst = tile_buffer + y * WINDOW_WIDTH + xs;
                         int count = xe - xs + 1;
                         int n8 = count & ~7;
 
@@ -276,7 +284,7 @@ void draw_filled_triangle(const triangle_t* tri, uint16_t color) {
             if (xe > WINDOW_WIDTH - 1) xe = WINDOW_WIDTH - 1;
 
             if (xs <= xe) {
-                uint16_t *dst = buffer + y * WINDOW_WIDTH + xs;
+                uint16_t *dst = tile_buffer + y * WINDOW_WIDTH + xs;
                 int count = xe - xs + 1;
                 int n8 = count & ~7;
 
@@ -462,8 +470,8 @@ void draw_filled_triangle_wire(const triangle_t* tri, uint16_t color) {
 //                     float v = v_over_w / invW;
 //                     float z = z_over_w * invW;   // I was originally dividing by invW here
 
-//                     // Z-buffer test
-//                     float old_z = get_z_buffer_at(px, py);
+//                     // Z-tile_buffer test
+//                     float old_z = get_z_tile_buffer_at(px, py);
 //                     if (z > old_z) {  // closer or empty
 //                         u = clamp01(u);
 //                         v = clamp01(v);
@@ -475,7 +483,7 @@ void draw_filled_triangle_wire(const triangle_t* tri, uint16_t color) {
 //                         uint16_t lit_color = light_apply_intensity(color, intensity);
 //                         draw_pixel(px, py, lit_color);
 
-//                         update_zbuffer(px, py, z);
+//                         update_ztile_buffer(px, py, z);
 //                     }
 //                 }
 //             }
@@ -528,6 +536,13 @@ static inline void draw_span(
     float du_dx = (uR - uL) * inv_span * u_scale;
     float dv_dx = (vR - vL) * inv_span * v_scale;
 
+    if (xs < tile_offset_x) xs = tile_offset_x;
+    if (xe > tile_offset_x + 32 - 1) xe = tile_offset_x + 32 - 1;
+    
+
+    if (xs > xe) return;
+
+
     // Merged dx + clip into single offset from xL to first drawn pixel
     float offset = (float)xs - xL;
 
@@ -535,9 +550,11 @@ static inline void draw_span(
     float u = uL * u_scale + offset * du_dx;
     float v = (float)(sample_h - 1) - (vL * v_scale + offset * dv_dx);
 
-    uint16_t *dst = buffer   + y * WINDOW_WIDTH + xs;
-    float    *z_dst = z_buffer + y * WINDOW_WIDTH + xs;
 
+
+    uint16_t *dst = tile_buffer + tile_pixel_index(xs - tile_offset_x, y - tile_offset_y);
+    float *z_dst = tile_z_buffer + tile_pixel_index(xs - tile_offset_x, y - tile_offset_y);
+    
     inner_loop_textured_z_float_uv(
         z_dst, dst, tex_data,
         xe - xs + 1,
@@ -613,8 +630,13 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
 
         int y0 = (int)shz_ceilf(y_top);
         int y1 = (int)shz_floorf(y_mid);
+
         if (y0 < 0) y0 = 0;
         if (y1 > WINDOW_HEIGHT - 1) y1 = WINDOW_HEIGHT - 1;
+
+    
+        if (y0 < tile_offset_y) y0 = tile_offset_y;
+        if (y1 > tile_offset_y + 32 - 1) y1 = tile_offset_y + 32 - 1;
 
         if (y0 <= y1) {
             float dy = (float)y0 - y_top;
@@ -629,7 +651,9 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
             float u_long  = u_top + slope_u_long   * dy;
             float v_long  = v_top + slope_v_long   * dy;
 
+
             for (int y = y0; y <= y1; y++) {
+                
                 if (mid_is_left)
                     draw_span(x_short, x_long,
                               z_short, z_long,
@@ -668,6 +692,8 @@ void draw_textured_triangle_scanline(const triangle_t *tri, const texture_t *tex
     int y1 = (int)shz_floorf(y_bottom);
     if (y0 < 0) y0 = 0;
     if (y1 > WINDOW_HEIGHT - 1) y1 = WINDOW_HEIGHT - 1;
+            if (y0 < tile_offset_y) y0 = tile_offset_y;
+        if (y1 > tile_offset_y + 32 - 1) y1 = tile_offset_y + 32 - 1;
     if (y0 > y1) return;
 
     float dy_short = (float)y0 - y_mid;
@@ -812,7 +838,7 @@ void draw_textured_triangle_scanline_fast(const triangle_t *tri, const texture_t
                     float u = (uL * u_scale) + dx * du_dx;
                     float v = (float)(sample_h - 1) - ((vL * v_scale) + dx * dv_dx);
 
-                    uint16_t *dst = buffer + y * WINDOW_WIDTH + x_start;
+                    uint16_t *dst = tile_buffer + y * WINDOW_WIDTH + x_start;
                     const int count = x_end - x_start + 1;
                     const int n4 = count & ~3;
 
@@ -914,7 +940,7 @@ void draw_textured_triangle_scanline_fast(const triangle_t *tri, const texture_t
                 float u = (uL * u_scale) + dx * du_dx;
                 float v = (float)(sample_h - 1) - ((vL * v_scale) + dx * dv_dx);
 
-                uint16_t *dst = buffer + y * WINDOW_WIDTH + x_start;
+                uint16_t *dst = tile_buffer + y * WINDOW_WIDTH + x_start;
                 const int count = x_end - x_start + 1;
                 const int n4 = count & ~3;
 
